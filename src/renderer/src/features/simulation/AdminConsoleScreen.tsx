@@ -5,7 +5,11 @@ import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
 import { TvProgressRing } from '../../components/ui/TvProgressRing'
 import { Play, Pause, RotateCcw, Volume2, Trophy, ArrowRight, ShieldAlert, Zap, CheckCircle2, XCircle } from 'lucide-react'
-import { useQuizStore } from '../../store/useQuizStore'
+import { useQuizStore, Question } from '../../store/useQuizStore'
+
+function cn(...inputs: any[]) {
+    return inputs.filter(Boolean).join(' ')
+}
 
 export function AdminConsoleScreen() {
     const {
@@ -49,14 +53,17 @@ export function AdminConsoleScreen() {
         }
 
         const nextQ = unUsed[Math.floor(Math.random() * unUsed.length)]
-        const updated = questions.map(q => q.id === nextQ.id ? { ...q, used: true } : q)
+        handleSelectQuestion(nextQ)
+    }
 
+    const handleSelectQuestion = (q: Question) => {
+        const updated = questions.map(item => item.id === q.id ? { ...item, used: true } : item)
         setQuestions(updated)
         // Set local state first to avoid blink
         setSelectedAnswer(null)
 
         useQuizStore.setState({
-            currentQuestion: nextQ,
+            currentQuestion: q,
             timerRemaining: config?.timerSeconds || 30,
             currentState: 'QUESTION_DISPLAY'
         })
@@ -102,17 +109,66 @@ export function AdminConsoleScreen() {
                 {/* Center: Stage Stage Area */}
                 <TvPanel elevation="floating" padding="lg" className="col-span-8 flex flex-col items-center justify-center text-center gap-10 relative">
                     {!currentQuestion ? (
-                        <div className="flex flex-col items-center gap-8 animate-rise">
-                            <div className="p-10 rounded-full bg-tv-accentSoft border border-tv-accent/20 animate-pulse">
-                                <Zap size={64} className="text-tv-accent" />
+                        config?.mode === 'PICK_NUMBER' ? (
+                            <div className="w-full h-full flex flex-col gap-8 animate-fadeIn">
+                                <div className="flex justify-between items-center">
+                                    <div className="text-left">
+                                        <TvText variant="h2" className="text-2xl text-tv-accent">NEURAL STAGE GRID</TvText>
+                                        <TvText variant="muted">Select an active node to initiate engagement</TvText>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest text-tv-textMuted font-bold">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-tv-accent shadow-glow" /> Active
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-tv-bg border border-tv-border" /> Exhausted
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 grid grid-cols-6 lg:grid-cols-10 gap-3 overflow-y-auto pr-2 custom-scrollbar pb-6">
+                                    {questions.map((q, idx) => (
+                                        <button
+                                            key={q.id || idx}
+                                            disabled={q.used}
+                                            onClick={() => handleSelectQuestion(q)}
+                                            className={cn(
+                                                "aspect-square rounded border flex flex-col items-center justify-center transition-all group relative overflow-hidden",
+                                                q.used
+                                                    ? "bg-tv-bg border-tv-border opacity-20 grayscale cursor-not-allowed"
+                                                    : "bg-tv-panel border-tv-border hover:border-tv-accent hover:bg-tv-accentSoft cursor-pointer shadow-sm hover:shadow-glow"
+                                            )}
+                                        >
+                                            <span className={cn(
+                                                "text-lg font-orbitron font-bold transition-colors",
+                                                q.used ? "text-tv-textMuted" : "text-tv-accent group-hover:text-white"
+                                            )}>
+                                                {idx + 1}
+                                            </span>
+                                            {q.used && (
+                                                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-tv-border" />
+                                            )}
+                                            {!q.used && (
+                                                <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-tv-accent opacity-40 group-hover:opacity-100" />
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <TvText variant="h1" className="text-4xl">READY FOR ENGAGEMENT</TvText>
+                        ) : (
+                            <div className="flex flex-col items-center gap-8 animate-rise">
+                                <div className="p-10 rounded-full bg-tv-accentSoft border border-tv-accent/20 animate-pulse">
+                                    <Zap size={64} className="text-tv-accent" />
+                                </div>
+                                <div className="space-y-2">
+                                    <TvText variant="h1" className="text-4xl">READY FOR ENGAGEMENT</TvText>
+                                    <TvText variant="muted">System awaits next question stage trigger (Random Mode).</TvText>
+                                </div>
+                                <TvButton variant="primary" size="xl" glow onClick={handlePickQuestion}>
+                                    INITIATE NEXT STAGE
+                                </TvButton>
                             </div>
-                            <TvButton variant="primary" size="xl" glow onClick={handlePickQuestion}>
-                                INITIATE NEXT STAGE
-                            </TvButton>
-                        </div>
+                        )
                     ) : (
                         <div className="w-full flex flex-col gap-10 animate-fadeIn overflow-hidden">
                             <TvText variant="body" align="center" className="text-2xl lg:text-3xl font-semibold max-w-3xl mx-auto">

@@ -11,6 +11,12 @@ export function MainShell({ children }: MainShellProps) {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore shortcuts if focusing an input/textarea
+            const target = e.target as HTMLElement
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                return
+            }
+
             // Only global shortcuts for Admin view
             if (window.name === 'admin' || !window.name) {
                 if (e.code === 'Space') {

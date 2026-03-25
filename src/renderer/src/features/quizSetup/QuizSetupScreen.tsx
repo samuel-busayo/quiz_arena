@@ -117,18 +117,23 @@ export function QuizSetupScreen() {
                                         }}
                                     />
                                     <div className="flex gap-3">
-                                        {TEAM_COLORS.map(c => (
-                                            <button
-                                                key={c}
-                                                className={`w-6 h-6 rounded-full border-2 transition-all ${team.color === c ? 'border-white scale-110 shadow-glow' : 'border-transparent opacity-40 hover:opacity-100'}`}
-                                                style={{ backgroundColor: c }}
-                                                onClick={() => {
-                                                    const next = [...setupTeams]
-                                                    next[idx].color = c
-                                                    setSetupTeams(next)
-                                                }}
-                                            />
-                                        ))}
+                                        {TEAM_COLORS.map(c => {
+                                            const isPicked = setupTeams.some((t, tIdx) => t.color === c && tIdx !== idx)
+                                            const isCurrSelected = team.color === c
+                                            return (
+                                                <button
+                                                    key={c}
+                                                    disabled={isPicked && !isCurrSelected}
+                                                    className={`w-6 h-6 rounded-full border-2 transition-all ${isCurrSelected ? 'border-white scale-110 shadow-glow' : isPicked ? 'border-transparent opacity-5 cursor-not-allowed scale-75' : 'border-transparent opacity-40 hover:opacity-100 hover:scale-110'}`}
+                                                    style={{ backgroundColor: c }}
+                                                    onClick={() => {
+                                                        const next = [...setupTeams]
+                                                        next[idx].color = c
+                                                        setSetupTeams(next)
+                                                    }}
+                                                />
+                                            )
+                                        })}
                                     </div>
                                 </TvCard>
                             ))}
@@ -214,13 +219,13 @@ export function QuizSetupScreen() {
                             <TvCard
                                 hoverable
                                 selected={setupConfig.mode === 'PICK_NUMBER'}
-                                className="p-10 flex flex-col items-center gap-6 text-center opacity-40"
-                                onClick={() => { }} // Not fully implemented yet
+                                className="p-10 flex flex-col items-center gap-6 text-center"
+                                onClick={() => setSetupConfig({ ...setupConfig, mode: 'PICK_NUMBER' })}
                             >
-                                <Target size={48} className="text-tv-textMuted" />
+                                <Target size={48} className={setupConfig.mode === 'PICK_NUMBER' ? 'text-tv-accent' : 'text-tv-textMuted'} />
                                 <div>
                                     <TvText variant="h3">PICK NUMBER MODE</TvText>
-                                    <TvText variant="muted" className="mt-2 text-tv-danger/60 italic">(COMING SOON)</TvText>
+                                    <TvText variant="muted" className="mt-2">Teams select their preferred question identity from the neural grid.</TvText>
                                 </div>
                             </TvCard>
                         </div>
