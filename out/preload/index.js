@@ -79,11 +79,13 @@ const electronAPI = {
   }
 };
 const api = {
+  getVersion: () => electron.ipcRenderer.invoke("get-version"),
   getCollections: () => electron.ipcRenderer.invoke("get-collections"),
   getCollection: (name) => electron.ipcRenderer.invoke("get-collection", name),
   saveCollection: (name, questions) => electron.ipcRenderer.invoke("save-collection", name, questions),
   createCollection: (name) => electron.ipcRenderer.invoke("create-collection", name),
   deleteCollection: (name) => electron.ipcRenderer.invoke("delete-collection", name),
+  renameCollection: (oldName, newName) => electron.ipcRenderer.invoke("rename-collection", oldName, newName),
   updateQuizState: (state) => electron.ipcRenderer.send("update-quiz-state", state),
   onQuizStateUpdate: (callback) => {
     const listener = (_event, state) => callback(state);

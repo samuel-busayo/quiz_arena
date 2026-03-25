@@ -151,6 +151,7 @@ electron.app.whenReady().then(() => {
   electron.app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
+  electron.ipcMain.handle("get-version", () => electron.app.getVersion());
   electron.ipcMain.handle("get-collections", async () => {
     const collectionsPath = path.join(electron.app.getAppPath(), "data/collections");
     try {
@@ -200,6 +201,17 @@ electron.app.whenReady().then(() => {
       return true;
     } catch (err) {
       console.error(`Failed to delete collection ${name}:`, err);
+      return false;
+    }
+  });
+  electron.ipcMain.handle("rename-collection", async (_, oldName, newName) => {
+    const oldPath = path.join(electron.app.getAppPath(), "data/collections", `${oldName}.json`);
+    const newPath = path.join(electron.app.getAppPath(), "data/collections", `${newName}.json`);
+    try {
+      await promises.rename(oldPath, newPath);
+      return true;
+    } catch (err) {
+      console.error(`Failed to rename collection from ${oldName} to ${newName}:`, err);
       return false;
     }
   });
