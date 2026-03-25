@@ -15,7 +15,10 @@ const api = {
         const listener = (_event: any, state: any) => callback(state)
         ipcRenderer.on('quiz-state-update', listener)
         return () => ipcRenderer.removeListener('quiz-state-update', listener)
-    }
+    },
+    saveQuizResult: (result: any) => ipcRenderer.invoke('save-quiz-result', result),
+    getQuizResults: () => ipcRenderer.invoke('get-quiz-results'),
+    openProjector: () => ipcRenderer.send('open-projector'),
 }
 
 if (process.contextIsolated) {

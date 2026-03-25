@@ -5,25 +5,26 @@ import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 
 export function ProjectorScreen() {
-    const { currentState, currentQuestion, teams, currentTeamIndex, timerRemaining } = useQuizStore()
-    const activeTeam = teams.filter(t => !t.isEliminated)[currentTeamIndex]
+    const { currentState, currentQuestion, teams, currentTeamId, timerRemaining } = useQuizStore()
+    const activeTeam = teams.find(t => t.id === currentTeamId)
 
     useEffect(() => {
-        if (currentState === 'WINNER_FLOW') {
+        if (currentState === 'WINNER') {
             confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#00E5FF', '#FF3D00', '#00FF41']
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.5 },
+                colors: ['#00E5FF', '#FF3D00', '#00FF41', '#FFD700']
             })
         }
     }, [currentState])
 
     return (
-        <div className="h-full w-full bg-primary-bg overflow-hidden flex flex-col items-center justify-center p-20 relative font-inter">
-            {/* Background elements */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#00E5FF_0%,transparent_70%)]" />
+        <div className="h-full w-full bg-[#050A10] overflow-hidden flex flex-col items-center justify-center p-20 relative font-inter text-white">
+            {/* Ambient Background Grid */}
+            <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,229,255,0.1)_0%,transparent_70%)]" />
             </div>
 
             <AnimatePresence mode="wait">
@@ -32,150 +33,181 @@ export function ProjectorScreen() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.1 }}
-                        className="text-center"
+                        className="text-center z-10"
                         key="idle"
                     >
-                        <h1 className="text-9xl font-orbitron text-primary-accent mb-4 tracking-[0.2em] drop-shadow-[0_0_30px_rgba(0,229,255,0.5)]">
+                        <h1 className="text-[12rem] font-orbitron text-[#00E5FF] mb-4 tracking-[0.3em] font-black drop-shadow-[0_0_50px_rgba(0,229,255,0.8)]">
                             TECHVERSE
                         </h1>
-                        <p className="text-3xl font-rajdhani text-primary-secondary tracking-[1em] uppercase">
-                            Quiz Arena // Initialization
+                        <p className="text-4xl font-rajdhani text-white/40 tracking-[1.5em] uppercase font-bold">
+                            // Neural Simulation Arena //
                         </p>
                     </motion.div>
                 )}
 
-                {currentState === 'SIMULATION_PREPARATION' && (
+                {currentState === 'ARMING' && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="text-center space-y-12"
-                        key="prep"
+                        exit={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
+                        className="text-center space-y-16 z-10"
+                        key="arming"
                     >
-                        <h2 className="text-6xl font-orbitron text-primary-text uppercase tracking-widest">Prepare for Battle</h2>
-                        <div className="flex gap-12 justify-center">
-                            {teams.map((team) => (
-                                <TechCard key={team.id} className="p-8 w-64 border-2" style={{ borderColor: team.color }}>
-                                    <div className="text-2xl font-orbitron mb-2" style={{ color: team.color }}>{team.name}</div>
-                                    <div className="h-1 w-full bg-primary-surface mt-4 overflow-hidden">
-                                        <div className="h-full animate-pulse" style={{ backgroundColor: team.color, width: '100%' }} />
-                                    </div>
-                                </TechCard>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {currentState === 'QUESTION_DISPLAY' && currentQuestion && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="w-full max-w-6xl space-y-12"
-                        key="question"
-                    >
-                        {/* Timer and Active Team */}
-                        <div className="flex justify-between items-end border-b border-primary-surface pb-6">
-                            <div className="space-y-2">
-                                <div className="text-sm font-rajdhani text-primary-secondary uppercase tracking-[0.5em]">Active Team</div>
-                                <div className="text-4xl font-orbitron" style={{ color: activeTeam?.color }}>{activeTeam?.name}</div>
-                            </div>
-                            <div className="text-right space-y-2">
-                                <div className="text-sm font-rajdhani text-primary-secondary uppercase tracking-[0.5em]">Time Remaining</div>
-                                <div className={`text-7xl font-orbitron ${timerRemaining < 10 ? 'text-team-red animate-pulse' : 'text-primary-accent'}`}>
-                                    {timerRemaining}s
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Question */}
-                        <TechCard className="p-12" glow>
-                            <h2 className="text-4xl leading-relaxed text-center font-bold">
-                                {currentQuestion.question}
-                            </h2>
-                        </TechCard>
-
-                        {/* Options */}
-                        <div className="grid grid-cols-2 gap-8">
-                            {Object.entries(currentQuestion.options).map(([key, value]) => (
-                                <div
-                                    key={key}
-                                    className="p-6 bg-primary-surface/30 border border-white/10 rounded-xl flex items-center gap-6"
-                                >
-                                    <div className="w-12 h-12 rounded-lg bg-primary-accent/10 border border-primary-accent/30 flex items-center justify-center font-orbitron text-2xl text-primary-accent shrink-0">
-                                        {key}
-                                    </div>
-                                    <div className="text-2xl text-primary-text">{value}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {currentState === 'LEADERBOARD' && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.1 }}
-                        className="w-full max-w-4xl space-y-8"
-                        key="leaderboard"
-                    >
-                        <h2 className="text-6xl font-orbitron text-center text-primary-text mb-12 tracking-widest">CURRENT STANDINGS</h2>
-                        <div className="space-y-4">
-                            {[...teams].sort((a, b) => b.score - a.score).map((team, index) => (
+                        <h2 className="text-7xl font-orbitron text-white uppercase tracking-[0.5em] font-bold">SYSTEM ARMING</h2>
+                        <div className="flex gap-16 justify-center">
+                            {teams.map((team, idx) => (
                                 <motion.div
-                                    initial={{ x: -50, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: index * 0.1 }}
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.2 }}
                                     key={team.id}
-                                    className="p-6 bg-primary-surface/40 border border-white/10 rounded-2xl flex items-center justify-between"
                                 >
-                                    <div className="flex items-center gap-8">
-                                        <div className="text-4xl font-orbitron text-primary-secondary w-12">{index + 1}</div>
-                                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: team.color }} />
-                                        <div className="text-3xl font-orbitron text-primary-text">{team.name}</div>
-                                    </div>
-                                    <div className="text-4xl font-orbitron text-primary-accent">{team.score} PTS</div>
+                                    <TechCard className="p-10 w-72 border-2" style={{ borderColor: team.color }}>
+                                        <div className="text-3xl font-orbitron mb-4 font-bold" style={{ color: team.color }}>{team.name}</div>
+                                        <div className="h-2 w-full bg-white/5 rounded-full mt-6 overflow-hidden">
+                                            <div className="h-full animate-pulse" style={{ backgroundColor: team.color, width: '100%' }} />
+                                        </div>
+                                    </TechCard>
                                 </motion.div>
                             ))}
                         </div>
                     </motion.div>
                 )}
 
-                {currentState === 'WINNER_FLOW' && (
+                {(currentState === 'QUESTION' || currentState === 'ANSWER_REVEAL') && currentQuestion && (
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, filter: 'blur(0px)' }}
+                        className="w-full max-w-7xl space-y-16 z-10"
+                        key="question"
+                    >
+                        {/* Header: Team & Timer */}
+                        <div className="flex justify-between items-end border-b-2 border-white/10 pb-8">
+                            <div className="space-y-4">
+                                <div className="text-2xl font-rajdhani text-white/50 uppercase tracking-[0.8em] font-bold">Current Team</div>
+                                <div className="text-7xl font-orbitron font-black tracking-widest" style={{ color: activeTeam?.color, textShadow: `0 0 30px ${activeTeam?.color}66` }}>
+                                    {activeTeam?.name}
+                                </div>
+                            </div>
+                            <div className="text-right space-y-4">
+                                <div className="text-2xl font-rajdhani text-white/50 uppercase tracking-[0.8em] font-bold">Chronometer</div>
+                                <div className={`text-9xl font-orbitron font-black ${timerRemaining < 10 ? 'text-[#FF3D00] animate-pulse' : 'text-[#00E5FF]'}`}>
+                                    {String(timerRemaining).padStart(2, '0')}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Question Panel */}
+                        <TechCard className="p-20 bg-white/5 backdrop-blur-xl" glow>
+                            <h2 className="text-6xl leading-[1.3] text-center font-bold tracking-tight">
+                                {currentQuestion.question}
+                            </h2>
+                        </TechCard>
+
+                        {/* Options Grid */}
+                        <div className="grid grid-cols-2 gap-10">
+                            {Object.entries(currentQuestion.options).map(([key, value]) => {
+                                const isCorrect = currentState === 'ANSWER_REVEAL' && currentQuestion.answer === key
+                                return (
+                                    <motion.div
+                                        key={key}
+                                        animate={isCorrect ? { scale: [1, 1.05, 1], backgroundColor: 'rgba(0, 255, 65, 0.15)', borderColor: '#00FF41' } : {}}
+                                        transition={isCorrect ? { repeat: Infinity, duration: 1.5 } : {}}
+                                        className={`p-8 bg-white/5 border-2 rounded-2xl flex items-center gap-10 transition-colors ${isCorrect ? 'border-[#00FF41]' : 'border-white/10'}`}
+                                    >
+                                        <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center font-orbitron text-4xl font-bold shrink-0 ${isCorrect ? 'bg-[#00FF41] text-[#050A10] border-[#00FF41]' : 'bg-white/5 border-white/20 text-white/80'}`}>
+                                            {key}
+                                        </div>
+                                        <div className="text-4xl font-medium tracking-wide">{value}</div>
+                                    </motion.div>
+                                )
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+
+                {currentState === 'LEADERBOARD' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 100 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-center space-y-12"
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="w-full max-w-5xl space-y-12 z-10"
+                        key="leaderboard"
+                    >
+                        <h2 className="text-8xl font-orbitron text-center text-white mb-20 tracking-[0.4em] font-black drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">GLOBAL STANDINGS</h2>
+                        <div className="space-y-6">
+                            {[...teams].sort((a, b) => b.score - a.score).map((team, index) => (
+                                <motion.div
+                                    initial={{ x: -100, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: index * 0.15, type: 'spring', stiffness: 100 }}
+                                    key={team.id}
+                                    className="p-8 bg-white/5 backdrop-blur-md border-2 border-white/10 rounded-3xl flex items-center justify-between shadow-2xl"
+                                >
+                                    <div className="flex items-center gap-12">
+                                        <div className="text-6xl font-orbitron text-white/20 w-20 font-black">{index + 1}</div>
+                                        <div className="w-8 h-8 rounded-full shadow-[0_0_20px_currentColor]" style={{ backgroundColor: team.color, color: team.color }} />
+                                        <div className="text-5xl font-orbitron font-bold tracking-widest">{team.name}</div>
+                                    </div>
+                                    <div className="text-6xl font-orbitron text-[#00E5FF] font-black">{team.score} <span className="text-2xl text-white/30 ml-2">PX</span></div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
+                {currentState === 'WINNER' && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5, rotateY: 90 }}
+                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                        transition={{ type: 'spring', damping: 10 }}
+                        className="text-center space-y-20 z-10"
                         key="winner"
                     >
-                        <div className="relative inline-block">
-                            <h2 className="text-8xl font-orbitron text-primary-accent tracking-tighter mb-4 drop-shadow-[0_0_50px_rgba(0,229,255,0.6)]">
-                                CHAMPIONS
-                            </h2>
-                            <div className="absolute -top-12 -right-12 text-6xl animate-bounce">🏆</div>
+                        <div className="relative">
+                            <motion.h2
+                                animate={{ scale: [1, 1.1, 1], textShadow: ['0 0 20px #00E5FF', '0 0 60px #00E5FF', '0 0 20px #00E5FF'] }}
+                                transition={{ repeat: Infinity, duration: 2 }}
+                                className="text-[14rem] font-orbitron text-[#00E5FF] tracking-tighter font-black"
+                            >
+                                ULTIMO
+                            </motion.h2>
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
+                                className="absolute -top-32 -right-32 text-[12rem] opacity-50 filter blur-[2px]"
+                            >
+                                🏆
+                            </motion.div>
                         </div>
 
                         {(() => {
                             const winner = [...teams].sort((a, b) => b.score - a.score)[0]
                             return (
-                                <TechCard className="p-16 border-4" style={{ borderColor: winner.color }} glow>
-                                    <h3 className="text-7xl font-orbitron mb-4" style={{ color: winner.color }}>{winner.name}</h3>
-                                    <p className="text-3xl font-rajdhani text-primary-secondary tracking-widest uppercase">Final Score: {winner.score} Points</p>
-                                </TechCard>
+                                <motion.div
+                                    initial={{ y: 50, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    <TechCard className="p-24 border-8 bg-white/5 backdrop-blur-3xl" style={{ borderColor: winner.color }} glow>
+                                        <h3 className="text-9xl font-orbitron mb-8 font-black tracking-widest" style={{ color: winner.color, textShadow: `0 0 50px ${winner.color}88` }}>{winner.name}</h3>
+                                        <p className="text-5xl font-rajdhani text-white/50 tracking-[1.5em] uppercase font-bold">Champion of TechVerse</p>
+                                    </TechCard>
+                                </motion.div>
                             )
                         })()}
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Bottom Bar: Scoreboard Mini */}
-            {currentState !== 'IDLE' && currentState !== 'WINNER_FLOW' && (
-                <div className="absolute bottom-0 left-0 w-full p-8 flex justify-center gap-12 bg-black/40 backdrop-blur-md border-t border-white/5">
-                    {teams.map(team => (
-                        <div key={team.id} className="flex items-center gap-4">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: team.color }} />
-                            <span className="font-rajdhani text-lg text-primary-text uppercase tracking-widest">{team.name}</span>
-                            <span className="font-orbitron text-xl text-primary-accent">{team.score}</span>
+            {/* Bottom Global Ticker */}
+            {currentState !== 'IDLE' && currentState !== 'WINNER' && (
+                <div className="absolute bottom-0 left-0 w-full p-10 flex justify-center gap-20 bg-black/60 backdrop-blur-3xl border-t border-white/5 z-20">
+                    {teams.filter(t => !t.isEliminated).map(team => (
+                        <div key={team.id} className="flex items-center gap-6 opacity-80">
+                            <div className="w-5 h-5 rounded-full" style={{ backgroundColor: team.color, boxShadow: `0 0 15px ${team.color}` }} />
+                            <span className="font-rajdhani text-2xl text-white font-bold uppercase tracking-[0.3em]">{team.name}</span>
+                            <span className="font-orbitron text-3xl text-[#00E5FF] font-black">{team.score}</span>
                         </div>
                     ))}
                 </div>

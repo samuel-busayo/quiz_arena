@@ -12,6 +12,7 @@ import { AdminConsoleScreen } from './features/simulation/AdminConsoleScreen'
 import { ProjectionScreen } from './features/simulation/ProjectionScreen'
 import { HelpAboutScreen } from './features/app/HelpAboutScreen'
 import { SettingsScreen } from './features/app/SettingsScreen'
+import { ResultsHistoryScreen } from './screens/ResultsHistoryScreen'
 
 function App() {
     const { initialize, uiScreen } = useQuizStore()
@@ -47,6 +48,7 @@ function App() {
             {uiScreen === 'SIMULATION_CONSOLE' && <AdminConsoleScreen />}
             {uiScreen === 'HELP_ABOUT' && <HelpAboutScreen />}
             {uiScreen === 'SETTINGS' && <SettingsScreen />}
+            {uiScreen === 'RESULTS_HISTORY' && <ResultsHistoryScreen />}
         </MainShell>
     )
 }

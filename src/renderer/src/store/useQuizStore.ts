@@ -3,23 +3,39 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type QuizState =
     | 'IDLE'
-    | 'SETUP_LOADED'
-    | 'SIMULATION_PREPARATION'
-    | 'ROUND_START'
-    | 'TEAM_READY'
-    | 'QUESTION_DISPLAY'
-    | 'NORMAL_TIMER_RUNNING'
-    | 'EXTRA_TIMER'
-    | 'ANSWER_SELECTED'
-    | 'RESULT_ANIMATION'
-    | 'SCORE_UPDATE'
-    | 'NEXT_TEAM'
-    | 'ROUND_END'
+    | 'ARMING'
+    | 'PICKER_PHASE'
+    | 'QUESTION'
+    | 'ANSWER_REVEAL'
     | 'LEADERBOARD'
     | 'ELIMINATION'
-    | 'NEXT_ROUND'
-    | 'WINNER_FLOW'
+    | 'WINNER'
     | 'SESSION_END'
+
+export interface GridNumber {
+    value: number
+    used: boolean
+    questionIndex: number
+    teamId?: string
+}
+
+export interface QuizResult {
+    id: string
+    date: string
+    setupSnapshot: QuizConfig
+    teams: Team[]
+    roundsPlayed: number
+    takesPerRound: number
+    finalScores: Record<string, number>
+    eliminationOrder: string[]
+    winner: string | null
+    questionStats: {
+        questionId: string
+        teamId: string
+        correct: boolean
+        timeUsed: number
+    }[]
+}
 
 export interface Team {
     id: string
@@ -53,6 +69,7 @@ export interface QuizConfig {
     deductionPerWrong: number
     showLeaderboardAfterRound: boolean
     mode: 'RANDOM' | 'PICK_NUMBER'
+    collectionName?: string
 }
 
 export interface SystemSettings {
@@ -65,17 +82,28 @@ export interface SystemSettings {
 interface QuizStore {
     // State
     currentState: QuizState
-    uiScreen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS'
+    uiScreen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS' | 'RESULTS_HISTORY'
     teams: Team[]
     config: QuizConfig | null
     questions: Question[]
     currentRound: number
     currentTake: number
-    currentTeamIndex: number
+    currentTeamId: string | null
     currentQuestion: Question | null
     timerRemaining: number
     isPaused: boolean
+    questionQueue: Question[]
     systemSettings: SystemSettings
+
+    // Pick-A-Number State
+    gridColumns: number
+    gridNumbers: GridNumber[]
+    currentPickerTeamId: string | null
+    selectionCursor: number
+
+    // Analytics State
+    results: QuizResult[]
+    currentStats: QuizResult['questionStats']
 
     // Helpers
     initialize: (view: 'admin' | 'projector') => void
@@ -83,7 +111,7 @@ interface QuizStore {
 
     // Actions
     setCurrentState: (state: QuizState) => void
-    setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS') => void
+    setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS' | 'RESULTS_HISTORY') => void
     setTeams: (teams: Team[]) => void
     setConfig: (config: QuizConfig) => void
     setQuestions: (questions: Question[]) => void
@@ -96,6 +124,15 @@ interface QuizStore {
     tickTimer: () => void
     setPaused: (paused: boolean) => void
     updateSystemSettings: (settings: Partial<SystemSettings>) => void
+
+    // Pick-A-Number Actions
+    setGrid: (cols: number, numbers: GridNumber[]) => void
+    setSelectionCursor: (index: number) => void
+    confirmPick: (index: number, teamId: string) => void
+
+    // Analytics Actions
+    addQuestionStat: (stat: QuizResult['questionStats'][0]) => void
+    saveResult: (result: QuizResult) => void
 }
 
 let isProjectorUpdate = false
@@ -110,16 +147,27 @@ export const useQuizStore = create<QuizStore>()(
             questions: [],
             currentRound: 1,
             currentTake: 1,
-            currentTeamIndex: 0,
+            currentTeamId: null,
             currentQuestion: null,
             timerRemaining: 0,
             isPaused: false,
+            questionQueue: [],
             systemSettings: {
                 theme: 'dark',
                 volume: 50,
                 sfxEnabled: true,
                 particleDensity: 'balanced'
             },
+
+            // Pick-A-Number Initial State
+            gridColumns: 0,
+            gridNumbers: [],
+            currentPickerTeamId: null,
+            selectionCursor: 0,
+
+            // Analytics Initial State
+            results: [],
+            currentStats: [],
 
             initialize: (view) => {
                 if (view === 'projector') {
@@ -146,11 +194,16 @@ export const useQuizStore = create<QuizStore>()(
                     questions: state.questions,
                     currentRound: state.currentRound,
                     currentTake: state.currentTake,
-                    currentTeamIndex: state.currentTeamIndex,
+                    currentTeamId: state.currentTeamId,
                     currentQuestion: state.currentQuestion,
                     timerRemaining: state.timerRemaining,
                     isPaused: state.isPaused,
-                    systemSettings: state.systemSettings
+                    questionQueue: state.questionQueue,
+                    systemSettings: state.systemSettings,
+                    gridColumns: state.gridColumns,
+                    gridNumbers: state.gridNumbers,
+                    currentPickerTeamId: state.currentPickerTeamId,
+                    selectionCursor: state.selectionCursor,
                 })
             },
 
@@ -166,7 +219,7 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
-            setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS') => {
+            setUiScreen: (screen) => {
                 set({ uiScreen: screen })
             },
 
@@ -198,9 +251,11 @@ export const useQuizStore = create<QuizStore>()(
             nextTeam: () => {
                 set((state) => {
                     const activeTeams = state.teams.filter(t => !t.isEliminated)
-                    if (activeTeams.length === 0) return { currentTeamIndex: 0 }
-                    const nextIdx = (state.currentTeamIndex + 1) % activeTeams.length
-                    return { currentTeamIndex: nextIdx }
+                    if (activeTeams.length === 0) return { currentTeamId: null }
+
+                    const currentIdx = activeTeams.findIndex(t => t.id === state.currentTeamId)
+                    const nextIdx = (currentIdx + 1) % activeTeams.length
+                    return { currentTeamId: activeTeams[nextIdx].id }
                 })
                 get().syncState()
             },
@@ -227,10 +282,15 @@ export const useQuizStore = create<QuizStore>()(
                     questions: [],
                     currentRound: 1,
                     currentTake: 1,
-                    currentTeamIndex: 0,
+                    currentTeamId: null,
                     currentQuestion: null,
                     timerRemaining: 0,
-                    isPaused: false
+                    isPaused: false,
+                    questionQueue: [],
+                    gridNumbers: [],
+                    currentPickerTeamId: null,
+                    selectionCursor: 0,
+                    currentStats: [],
                 })
                 get().syncState()
             },
@@ -243,6 +303,40 @@ export const useQuizStore = create<QuizStore>()(
             setPaused: (paused) => {
                 set({ isPaused: paused })
                 get().syncState()
+            },
+
+            // Pick-A-Number Actions
+            setGrid: (cols, numbers) => {
+                set({ gridColumns: cols, gridNumbers: numbers })
+                get().syncState()
+            },
+
+            setSelectionCursor: (index) => {
+                set({ selectionCursor: index })
+                get().syncState()
+            },
+
+            confirmPick: (index, teamId) => {
+                set((state) => ({
+                    gridNumbers: state.gridNumbers.map((n, i) =>
+                        i === index ? { ...n, used: true, teamId } : n
+                    )
+                }))
+                get().syncState()
+            },
+
+            // Analytics Actions
+            addQuestionStat: (stat) => {
+                set((state) => ({
+                    currentStats: [...state.currentStats, stat]
+                }))
+            },
+
+            saveResult: (result) => {
+                set((state) => ({
+                    results: [result, ...state.results]
+                }))
+                window.api.saveQuizResult(result)
             }
         }),
         {
@@ -256,8 +350,9 @@ export const useQuizStore = create<QuizStore>()(
                 questions: state.questions,
                 currentRound: state.currentRound,
                 currentTake: state.currentTake,
-                currentTeamIndex: state.currentTeamIndex,
+                currentTeamId: state.currentTeamId,
                 currentQuestion: state.currentQuestion,
+                questionQueue: state.questionQueue,
                 systemSettings: state.systemSettings
             })
         }

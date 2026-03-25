@@ -6,12 +6,48 @@ import { readdir, readFile, writeFile, rename } from 'fs/promises'
 let adminWindow: BrowserWindow | null = null
 let projectorWindow: BrowserWindow | null = null
 
-function createWindows(): void {
+function createProjectorWindow(): void {
+    if (projectorWindow) {
+        projectorWindow.focus()
+        return
+    }
+
     const displays = screen.getAllDisplays()
     const externalDisplay = displays.find((display) => {
         return display.bounds.x !== 0 || display.bounds.y !== 0
     })
 
+    projectorWindow = new BrowserWindow({
+        ...(externalDisplay
+            ? {
+                x: externalDisplay.bounds.x,
+                y: externalDisplay.bounds.y,
+                fullscreen: true
+            }
+            : {
+                width: 1024,
+                height: 768,
+                title: 'TechVerse Projector (Simulation Mode)'
+            }),
+        autoHideMenuBar: true,
+        webPreferences: {
+            preload: join(__dirname, '../preload/index.js'),
+            sandbox: false
+        }
+    })
+
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+        projectorWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#projector`)
+    } else {
+        projectorWindow.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'projector' })
+    }
+
+    projectorWindow.on('closed', () => {
+        projectorWindow = null
+    })
+}
+
+function createWindows(): void {
     // Create Admin Window
     adminWindow = new BrowserWindow({
         width: 1200,
@@ -41,27 +77,11 @@ function createWindows(): void {
         adminWindow.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'admin' })
     }
 
-    if (externalDisplay) {
-        projectorWindow = new BrowserWindow({
-            x: externalDisplay.bounds.x,
-            y: externalDisplay.bounds.y,
-            fullscreen: true,
-            autoHideMenuBar: true,
-            webPreferences: {
-                preload: join(__dirname, '../preload/index.js'),
-                sandbox: false
-            }
-        })
-
-        if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-            projectorWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#projector`)
-        } else {
-            projectorWindow.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'projector' })
-        }
-
-        projectorWindow.on('closed', () => {
-            projectorWindow = null
-        })
+    // Auto-open projector if external display found or in dev
+    const displays = screen.getAllDisplays()
+    const hasExternal = displays.some(d => d.bounds.x !== 0 || d.bounds.y !== 0)
+    if (hasExternal || is.dev) {
+        createProjectorWindow()
     }
 }
 
@@ -149,7 +169,40 @@ app.whenReady().then(() => {
         }
     })
 
+    // Results Persistence
+    const resultsPath = join(app.getAppPath(), 'data/results')
+    const { mkdir } = require('fs/promises')
+    mkdir(resultsPath, { recursive: true }).catch(console.error)
+
+    ipcMain.handle('save-quiz-result', async (_, result: any) => {
+        const filePath = join(resultsPath, `result_${result.id || Date.now()}.json`)
+        try {
+            await writeFile(filePath, JSON.stringify(result, null, 2))
+            return true
+        } catch (err) {
+            console.error('Failed to save result:', err)
+            return false
+        }
+    })
+
+    ipcMain.handle('get-quiz-results', async () => {
+        try {
+            const files = await readdir(resultsPath)
+            const results = await Promise.all(
+                files.filter(f => f.endsWith('.json')).map(async (file) => {
+                    const content = await readFile(join(resultsPath, file), 'utf-8')
+                    return JSON.parse(content)
+                })
+            )
+            return results.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        } catch (err) {
+            console.error('Failed to get results:', err)
+            return []
+        }
+    })
+
     ipcMain.on('ping', () => console.log('pong'))
+    ipcMain.on('open-projector', () => createProjectorWindow())
 
     createWindows()
 

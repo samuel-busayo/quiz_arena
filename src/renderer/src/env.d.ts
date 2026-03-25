@@ -11,6 +11,9 @@ interface Api {
     renameCollection: (oldName: string, newName: string) => Promise<boolean>
     updateQuizState: (state: any) => void
     onQuizStateUpdate: (callback: (state: any) => void) => () => void
+    saveQuizResult: (result: any) => Promise<boolean>
+    getQuizResults: () => Promise<any[]>
+    openProjector: () => void
 }
 
 interface Window {

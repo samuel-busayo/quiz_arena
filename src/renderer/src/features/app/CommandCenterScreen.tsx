@@ -79,7 +79,11 @@ export function CommandCenterScreen() {
                     </div>
                 </TvCard>
 
-                <TvCard hoverable className="p-8 flex items-center gap-6 group opacity-60 grayscale hover:grayscale-0 transition-all">
+                <TvCard
+                    hoverable
+                    className="p-8 flex items-center gap-6 group transition-all"
+                    onClick={() => setUiScreen('RESULTS_HISTORY')}
+                >
                     <div className="p-4 rounded-lg bg-tv-panel text-tv-textMuted group-hover:text-tv-accent">
                         <History size={32} />
                     </div>

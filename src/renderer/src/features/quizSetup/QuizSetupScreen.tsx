@@ -45,10 +45,10 @@ export function QuizSetupScreen() {
             return
         }
 
-        setConfig(setupConfig)
+        setConfig({ ...setupConfig, collectionName: selectedCollection })
         setTeams(setupTeams as Team[])
         setQuestions(questions)
-        setCurrentState('SIMULATION_PREPARATION')
+        setCurrentState('ARMING')
         setUiScreen('SIMULATION_CONSOLE')
     }
 

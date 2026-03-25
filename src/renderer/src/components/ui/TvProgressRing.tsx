@@ -6,6 +6,7 @@ type TvProgressRingProps = {
     dangerZone?: number
     size?: number
     strokeWidth?: number
+    colorOverride?: string
 }
 
 export function TvProgressRing({
@@ -13,7 +14,8 @@ export function TvProgressRing({
     remaining,
     dangerZone = 5,
     size = 120,
-    strokeWidth = 8
+    strokeWidth = 8,
+    colorOverride
 }: TvProgressRingProps) {
     const radius = (size - strokeWidth) / 2
     const circumference = radius * 2 * Math.PI
@@ -44,16 +46,19 @@ export function TvProgressRing({
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke="currentColor"
+                    stroke={colorOverride || "currentColor"}
                     strokeWidth={strokeWidth}
                     fill="transparent"
                     strokeDasharray={circumference}
                     style={{ strokeDashoffset: offset }}
                     strokeLinecap="round"
-                    className={`transition-all duration-1000 ease-linear ${isDanger ? 'text-tv-danger animate-pulse' : 'text-tv-accent'}`}
+                    className={`transition-all duration-1000 ease-linear ${!colorOverride && (isDanger ? 'text-tv-danger animate-pulse' : 'text-tv-accent')}`}
                 />
             </svg>
-            <div className={`absolute font-timer text-glow transition-colors duration-500 ${isDanger ? 'text-tv-danger' : 'text-tv-accent'}`} style={{ fontSize: size * 0.35 }}>
+            <div
+                className={`absolute font-timer text-glow transition-colors duration-500 ${!colorOverride && (isDanger ? 'text-tv-danger' : 'text-tv-accent')}`}
+                style={{ fontSize: size * 0.35, color: colorOverride }}
+            >
                 {Math.ceil(remaining)}
             </div>
         </div>
