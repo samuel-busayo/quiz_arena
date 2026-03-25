@@ -18,7 +18,7 @@ export function CommandCenterScreen() {
                 </div>
 
                 <div className="text-center">
-                    <TvText variant="h1" className="text-4xl lg:text-5xl tracking-[0.2em]">TechVerse Quiz Arena</TvText>
+                    <TvText variant="h1" className="text-3xl lg:text-4xl tracking-[0.2em]">TechVerse Quiz Arena</TvText>
                 </div>
 
                 <div className="absolute right-0 flex gap-4">

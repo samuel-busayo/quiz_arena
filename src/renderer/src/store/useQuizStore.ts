@@ -56,7 +56,7 @@ export interface QuizConfig {
 }
 
 export interface SystemSettings {
-    theme: 'dark' | 'light'
+    theme: 'dark' | 'light' | 'glossy'
     volume: number
     sfxEnabled: boolean
     particleDensity: 'low' | 'balanced' | 'high'

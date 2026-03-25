@@ -108,7 +108,6 @@ export function AdminConsoleScreen() {
                             </div>
                             <div className="space-y-2">
                                 <TvText variant="h1" className="text-4xl">READY FOR ENGAGEMENT</TvText>
-                                <TvText variant="muted">System awaits next question stage trigger.</TvText>
                             </div>
                             <TvButton variant="primary" size="xl" glow onClick={handlePickQuestion}>
                                 INITIATE NEXT STAGE

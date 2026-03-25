@@ -7,8 +7,7 @@ type MainShellProps = {
 
 export function MainShell({ children }: MainShellProps) {
     const { setPaused, resetQuiz, isPaused, systemSettings } = useQuizStore()
-
-    const themeClass = systemSettings.theme === 'light' ? 'theme-light' : ''
+    const themeClass = systemSettings.theme === 'light' ? 'theme-light' : systemSettings.theme === 'glossy' ? 'theme-glossy' : ''
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

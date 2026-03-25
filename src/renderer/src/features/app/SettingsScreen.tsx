@@ -3,7 +3,7 @@ import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
-import { ArrowLeft, Settings, Volume2, Moon, Sun, Trash2, Save, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Settings, Volume2, Moon, Sun, Trash2, Save, RotateCcw, CheckCircle2, Zap } from 'lucide-react'
 import { useQuizStore, SystemSettings } from '../../store/useQuizStore'
 
 export function SettingsScreen() {
@@ -142,6 +142,16 @@ export function SettingsScreen() {
                                 >
                                     <Sun size={14} />
                                     Light
+                                </button>
+                                <button
+                                    onClick={() => setLocalSettings({ ...localSettings, theme: 'glossy' })}
+                                    className={cn(
+                                        "px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-2",
+                                        localSettings.theme === 'glossy' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
+                                    )}
+                                >
+                                    <Zap size={14} />
+                                    Glossy
                                 </button>
                             </div>
                         </div>

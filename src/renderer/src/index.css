@@ -20,6 +20,17 @@
     --tv-blur: 12px;
 }
 
+.theme-glossy {
+    --tv-bg: #030712;
+    --tv-panel: rgba(31, 41, 55, 0.4);
+    --tv-elevated: rgba(55, 65, 81, 0.6);
+    --tv-textPrimary: #F9FAFB;
+    --tv-textMuted: #9CA3AF;
+    --tv-glass-opacity: 0.3;
+    --tv-blur: 24px;
+    --tv-accent: #00D1FF;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
