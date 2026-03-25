@@ -19,6 +19,7 @@ const api = {
     saveQuizResult: (result: any) => ipcRenderer.invoke('save-quiz-result', result),
     getQuizResults: () => ipcRenderer.invoke('get-quiz-results'),
     openProjector: () => ipcRenderer.send('open-projector'),
+    getDisplayInfo: () => ipcRenderer.invoke('get-display-info'),
 }
 
 if (process.contextIsolated) {

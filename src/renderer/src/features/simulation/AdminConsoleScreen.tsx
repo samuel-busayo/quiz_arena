@@ -32,6 +32,17 @@ export function AdminConsoleScreen() {
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
     const [selectedAnswer, setSelectedAnswer] = useState<'A' | 'B' | 'C' | 'D' | null>(null)
+    const [displayInfo, setDisplayInfo] = useState({ count: 1, primaryRes: '...', secondaryRes: '...', isProjectorAlive: false })
+
+    useEffect(() => {
+        const updateInfo = async () => {
+            const info = await window.api.getDisplayInfo()
+            setDisplayInfo(info)
+        }
+        updateInfo()
+        const timer = setInterval(updateInfo, 2000)
+        return () => clearInterval(timer)
+    }, [])
 
     const handleResult = (correct: boolean) => {
         simulationEngine.revealAnswer(correct)
@@ -228,7 +239,6 @@ export function AdminConsoleScreen() {
                             strokeWidth={10}
                             colorOverride={timerRemaining < 5 ? '#FF3D00' : undefined}
                         />
-                        {/* Note: Redundant center text removed as it's handled by TvProgressRing */}
                     </div>
 
                     <div className="mt-auto w-full space-y-4 pb-8">
@@ -237,6 +247,18 @@ export function AdminConsoleScreen() {
                             <TvText variant="h3" className="text-sm">
                                 {currentState === 'PICKER_PHASE' ? activeTeam?.name : 'IDLE'}
                             </TvText>
+                        </div>
+
+                        {/* Projection Debug Panel */}
+                        <div className="p-4 bg-black/40 border border-tv-accent/20 rounded shadow-glow-soft">
+                            <TvText variant="label" className="text-[8px] text-tv-accent tracking-[0.2em] mb-3 block">DISPLAY DIAGNOSTICS</TvText>
+                            <div className="space-y-2">
+                                <DebugInfo label="Displays" value={displayInfo.count} />
+                                <DebugInfo label="Primary" value={displayInfo.primaryRes} />
+                                <DebugInfo label="External" value={displayInfo.secondaryRes} color={displayInfo.count > 1 ? 'text-tv-success' : 'text-tv-danger'} />
+                                <DebugInfo label="Projector" value={displayInfo.isProjectorAlive ? 'ONLINE' : 'OFFLINE'} color={displayInfo.isProjectorAlive ? 'text-tv-success' : 'text-tv-danger'} />
+                                <DebugInfo label="Phase" value={currentState} />
+                            </div>
                         </div>
                     </div>
                 </aside>
@@ -292,6 +314,15 @@ export function AdminConsoleScreen() {
                     </TvButton>
                 </div>
             </footer>
+        </div>
+    )
+}
+
+function DebugInfo({ label, value, color }: { label: string, value: string | number, color?: string }) {
+    return (
+        <div className="flex justify-between items-center text-[9px] tracking-tight">
+            <span className="opacity-40 uppercase">{label}</span>
+            <span className={cn("font-bold uppercase", color || "text-white")}>{value}</span>
         </div>
     )
 }

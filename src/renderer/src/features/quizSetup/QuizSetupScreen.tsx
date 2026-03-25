@@ -173,31 +173,47 @@ export function QuizSetupScreen() {
                     )}
 
                     {step === 3 && (
-                        <div className="grid grid-cols-2 gap-10 max-w-2xl">
-                            <ConfigField
-                                label="Number of Rounds"
-                                value={setupConfig.rounds}
-                                onChange={(val) => setSetupConfig({ ...setupConfig, rounds: val })}
-                                icon={<Zap size={16} />}
-                            />
-                            <ConfigField
-                                label="Takes Per Round"
-                                value={setupConfig.takesPerRound}
-                                onChange={(val) => setSetupConfig({ ...setupConfig, takesPerRound: val })}
-                                icon={<Zap size={16} />}
-                            />
-                            <ConfigField
-                                label="Timer Seconds"
-                                value={setupConfig.timerSeconds}
-                                onChange={(val) => setSetupConfig({ ...setupConfig, timerSeconds: val })}
-                                icon={<Zap size={16} />}
-                            />
-                            <ConfigField
-                                label="Points Per Correct"
-                                value={setupConfig.scorePerCorrect}
-                                onChange={(val) => setSetupConfig({ ...setupConfig, scorePerCorrect: val })}
-                                icon={<Zap size={16} />}
-                            />
+                        <div className="space-y-10 max-w-2xl">
+                            <div className="p-6 bg-tv-panel border border-tv-border rounded-lg space-y-4">
+                                <div className="flex items-center gap-2 text-tv-accent">
+                                    <Info size={16} />
+                                    <TvText variant="label">Event Branding</TvText>
+                                </div>
+                                <input
+                                    placeholder="ENTER EVENT NAME (E.G. INTER-HOUSE QUIZ)"
+                                    className="w-full bg-transparent border-b border-tv-border py-3 font-display text-2xl text-white outline-none focus:border-tv-accent transition-colors placeholder:opacity-20 uppercase"
+                                    value={setupConfig.eventName || ''}
+                                    onChange={(e) => setSetupConfig({ ...setupConfig, eventName: e.target.value.toUpperCase() })}
+                                />
+                                <TvText variant="muted" className="text-[10px]">Title will be displayed prominently on the Projection Standby screen.</TvText>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-10">
+                                <ConfigField
+                                    label="Number of Rounds"
+                                    value={setupConfig.rounds}
+                                    onChange={(val) => setSetupConfig({ ...setupConfig, rounds: val })}
+                                    icon={<Zap size={16} />}
+                                />
+                                <ConfigField
+                                    label="Takes Per Round"
+                                    value={setupConfig.takesPerRound}
+                                    onChange={(val) => setSetupConfig({ ...setupConfig, takesPerRound: val })}
+                                    icon={<Zap size={16} />}
+                                />
+                                <ConfigField
+                                    label="Timer Seconds"
+                                    value={setupConfig.timerSeconds}
+                                    onChange={(val) => setSetupConfig({ ...setupConfig, timerSeconds: val })}
+                                    icon={<Zap size={16} />}
+                                />
+                                <ConfigField
+                                    label="Points Per Correct"
+                                    value={setupConfig.scorePerCorrect}
+                                    onChange={(val) => setSetupConfig({ ...setupConfig, scorePerCorrect: val })}
+                                    icon={<Zap size={16} />}
+                                />
+                            </div>
                         </div>
                     )}
 

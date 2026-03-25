@@ -42,13 +42,29 @@ class QuizSimulationEngine {
                 currentPickerTeamId: initialTeams[0].id,
                 selectionCursor: 0
             })
-
-            this.transitionTo('PICKER_PHASE')
         } else {
             const queue = [...questions].sort(() => Math.random() - 0.5)
             useQuizStore.setState({ questionQueue: queue })
-            this.transitionTo('QUESTION')
         }
+
+        // 4. Trigger Intro Sequence
+        audioEngine.stopBgm()
+        useQuizStore.getState().setCurrentState('ARMING')
+
+        // Automatically proceed to first question/picker after 3s intro
+        setTimeout(() => {
+            const state = useQuizStore.getState()
+            if (state.config?.mode === 'PICK_NUMBER') {
+                this.transitionTo('PICKER_PHASE')
+            } else {
+                // For Random Mode, set first question and go
+                const { questionQueue } = state
+                if (questionQueue.length > 0) {
+                    useQuizStore.setState({ currentQuestion: questionQueue[0] })
+                }
+                this.transitionTo('QUESTION')
+            }
+        }, 3200)
     }
 
     transitionTo(phase: QuizState) {
@@ -58,7 +74,7 @@ class QuizSimulationEngine {
         // Audio Triggers
         switch (phase) {
             case 'PICKER_PHASE':
-                audioEngine.playBgm('leaderboard') // Reuse leaderboard or add picker bgm
+                audioEngine.playBgm('leaderboard')
                 break
             case 'QUESTION':
                 audioEngine.playBgm('countdown', false)
@@ -80,6 +96,9 @@ class QuizSimulationEngine {
             case 'IDLE':
                 audioEngine.stopBgm()
                 break
+            case 'STANDBY':
+                audioEngine.playBgm('standbyAmbient')
+                break
         }
     }
 
@@ -91,11 +110,11 @@ class QuizSimulationEngine {
 
         confirmPick(index, currentTeamId)
 
-        // Find the actual question (mapped by original index or value)
-        const question = questions[numObj.value - 1]
+        // Find the actual question
+        const question = questions[numObj.questionIndex]
         useQuizStore.setState({ currentQuestion: question })
 
-        audioEngine.playSfx('correct') // Lock sound
+        audioEngine.playSfx('correct')
 
         // Short delay for animation before question starts
         setTimeout(() => {
@@ -133,7 +152,7 @@ class QuizSimulationEngine {
                     }
                 }
             } else {
-                this.lastTick = now // Reset tick anchor if paused
+                this.lastTick = now
             }
 
             this.timerId = requestAnimationFrame(tick)
@@ -184,7 +203,7 @@ class QuizSimulationEngine {
     }
 
     advanceSimulation() {
-        const { currentTake, currentRound, config, teams, nextTake, nextTeam, currentState } = useQuizStore.getState()
+        const { currentTake, currentRound, config, teams, nextTake, nextTeam } = useQuizStore.getState()
         if (!config) return
 
         const activeTeams = teams.filter(t => !t.isEliminated)
@@ -205,7 +224,7 @@ class QuizSimulationEngine {
             } else {
                 // Auto pop from queue for Random Mode
                 const { questionQueue } = useQuizStore.getState()
-                const nextQ = questionQueue[currentTake] // Simply index for now or pop
+                const nextQ = questionQueue[currentTake]
                 useQuizStore.setState({ currentQuestion: nextQ })
                 this.transitionTo('QUESTION')
             }
@@ -229,13 +248,15 @@ class QuizSimulationEngine {
             if (config.mode === 'PICK_NUMBER') {
                 this.transitionTo('PICKER_PHASE')
             } else {
+                const { questionQueue } = useQuizStore.getState()
+                useQuizStore.setState({ currentQuestion: questionQueue[0] })
                 this.transitionTo('QUESTION')
             }
         }
     }
 
     private handleQuizEnd() {
-        const { config, teams, currentRound, currentTake, currentStats, saveResult } = useQuizStore.getState()
+        const { config, teams, currentRound, currentStats, saveResult } = useQuizStore.getState()
         if (!config) return
 
         const finalScores: Record<string, number> = {}
@@ -251,12 +272,18 @@ class QuizSimulationEngine {
             roundsPlayed: currentRound,
             takesPerRound: config.takesPerRound,
             finalScores,
-            eliminationOrder: [], // Track this later if needed
+            eliminationOrder: [],
             winner: winner?.id || null,
             questionStats: currentStats
         }
 
         saveResult(result)
+    }
+
+    initializeSimulation() {
+        useQuizStore.getState().setCurrentState('STANDBY')
+        window.api.openProjector()
+        audioEngine.playBgm('standbyAmbient', true)
     }
 }
 

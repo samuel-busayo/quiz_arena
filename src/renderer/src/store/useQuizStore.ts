@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type QuizState =
     | 'IDLE'
+    | 'STANDBY'
     | 'ARMING'
     | 'PICKER_PHASE'
     | 'QUESTION'
@@ -61,6 +62,7 @@ export interface Question {
 }
 
 export interface QuizConfig {
+    eventName?: string
     rounds: number
     takesPerRound: number
     timerSeconds: number

@@ -6,6 +6,8 @@ import { TvProgressRing } from '../../components/ui/TvProgressRing'
 import { PickNumberGrid } from './PickNumberGrid'
 import { Trophy } from 'lucide-react'
 import { cn } from '../../utils/cn'
+import { ProjectionStandbyScreen } from './ProjectionStandbyScreen'
+import { audioEngine } from './AudioEngine'
 
 export function ProjectionScreen() {
     const {
@@ -21,8 +23,53 @@ export function ProjectionScreen() {
     const activeTeam = teams.find(t => t.id === currentTeamId)
     const winner = currentState === 'WINNER' ? [...teams].sort((a, b) => b.score - a.score)[0] : null
 
+    const [showIntro, setShowIntro] = React.useState(false)
+    const [showCursor, setShowCursor] = React.useState(true)
+    const [dpiScale, setDpiScale] = React.useState(1)
+
+    React.useEffect(() => {
+        // Detect DPI Scaling
+        const scale = window.devicePixelRatio
+        if (scale > 1.25) {
+            setDpiScale(1 / (scale / 1.25)) // Subtle reduction to normalize massive UI
+        }
+
+        // Cursor Hiding Logic
+        let timer: NodeJS.Timeout
+        const handleMouseMove = () => {
+            setShowCursor(true)
+            clearTimeout(timer)
+            timer = setTimeout(() => setShowCursor(false), 3000)
+        }
+
+        window.addEventListener('mousemove', handleMouseMove)
+        timer = setTimeout(() => setShowCursor(false), 3000)
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove)
+            clearTimeout(timer)
+        }
+    }, [])
+
+    React.useEffect(() => {
+        if (currentState === 'ARMING') {
+            setShowIntro(true)
+            audioEngine.playSfx('bassHit')
+            const timer = setTimeout(() => setShowIntro(false), 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [currentState])
+
     return (
-        <div className="h-screen w-screen bg-[#050505] overflow-hidden flex flex-col font-rajdhani text-white relative">
+        <div
+            className={cn(
+                "h-screen w-screen bg-[#050505] overflow-hidden flex flex-col font-rajdhani text-white relative projection-root",
+                !showCursor && "cursor-none"
+            )}
+            style={{
+                fontSize: dpiScale !== 1 ? `${dpiScale * 100}%` : undefined
+            }}
+        >
             {/* Cinematic Background */}
             <div className="absolute inset-0 opacity-20 pointer-events-none">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.15)_0%,transparent_70%)]" />
@@ -30,17 +77,55 @@ export function ProjectionScreen() {
             </div>
 
             <AnimatePresence mode="wait">
-                {/* IDLE / START SCREEN */}
-                {currentState === 'IDLE' && (
+                {/* INTRO SEQUENCE */}
+                {showIntro && (
                     <motion.div
-                        key="idle"
+                        key="intro-seq"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex-1 flex flex-col items-center justify-center"
+                        className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
                     >
-                        <TvText variant="h1" className="text-8xl tracking-[0.5em] font-black italic opacity-20">TECHVERSE</TvText>
-                        <TvText variant="h2" className="text-4xl tracking-[1em] uppercase opacity-10">Quiz Arena</TvText>
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.5, ease: "circOut" }}
+                            className="text-center"
+                        >
+                            <TvText variant="h2" className="text-2xl tracking-[1em] uppercase opacity-40 mb-4">ROUND {currentRound}</TvText>
+                            <div className="h-[1px] w-64 bg-tv-accent/30 mx-auto mb-10" />
+                            <TvText variant="h2" className="text-4xl tracking-[0.5em] uppercase opacity-60 mb-8">FIRST MISSION</TvText>
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
+                            >
+                                <TvText variant="h1" className="text-[120px] font-black uppercase text-tv-accent drop-shadow-glow">
+                                    {teams[0]?.name}
+                                </TvText>
+                            </motion.div>
+                        </motion.div>
+
+                        {/* Flash Sweep */}
+                        <motion.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '200%' }}
+                            transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+                            className="absolute top-1/2 left-0 w-[50%] h-[2px] bg-tv-accent shadow-[0_0_20px_#00E5FF] rotate-[-45deg] pointer-events-none"
+                        />
+                    </motion.div>
+                )}
+
+                {/* STANDBY SCREEN */}
+                {(currentState === 'STANDBY' || (currentState === 'IDLE' && !showIntro)) && (
+                    <motion.div
+                        key="standby"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex-1 w-full"
+                    >
+                        <ProjectionStandbyScreen />
                     </motion.div>
                 )}
 

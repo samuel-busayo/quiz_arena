@@ -6,6 +6,8 @@ class AudioEngine {
 
     constructor() {
         // Preload sounds
+        this.load('standbyAmbient', 'src/renderer/src/assets/audio/standbyAmbient.mp3')
+        this.load('bassHit', 'src/renderer/src/assets/audio/bassHit.mp3')
         this.load('countdown', 'src/renderer/src/assets/audio/countdown.mp3')
         this.load('correct', 'src/renderer/src/assets/audio/correct.mp3')
         this.load('wrong', 'src/renderer/src/assets/audio/wrong.mp3')
@@ -32,7 +34,7 @@ class AudioEngine {
         if (this.currentBgm) {
             ; (this.currentBgm as any).fade(this.currentBgm.volume(), 0, 500)
             const oldBgm = this.currentBgm
-            setTimeout(() => oldBgm.stop(), 550)
+            setTimeout(() => (oldBgm as any).stop(), 550)
         }
 
         if (this.sounds[name]) {
@@ -48,7 +50,7 @@ class AudioEngine {
         if (this.currentBgm) {
             ; (this.currentBgm as any).fade(this.currentBgm.volume(), 0, 1000)
             const oldBgm = this.currentBgm
-            setTimeout(() => oldBgm.stop(), 1100)
+            setTimeout(() => (oldBgm as any).stop(), 1100)
             this.currentBgm = null
         }
     }

@@ -14,6 +14,12 @@ interface Api {
     saveQuizResult: (result: any) => Promise<boolean>
     getQuizResults: () => Promise<any[]>
     openProjector: () => void
+    getDisplayInfo: () => Promise<{
+        count: number
+        primaryRes: string
+        secondaryRes: string
+        isProjectorAlive: boolean
+    }>
 }
 
 interface Window {
