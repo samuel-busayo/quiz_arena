@@ -171,13 +171,35 @@ electron.app.whenReady().then(() => {
       return null;
     }
   });
-  electron.ipcMain.handle("save-collection", async (_, { name, questions }) => {
+  electron.ipcMain.handle("save-collection", async (_, name, questions) => {
     const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
     try {
       await promises.writeFile(filePath, JSON.stringify(questions, null, 2));
       return true;
     } catch (err) {
       console.error(`Failed to save collection ${name}:`, err);
+      return false;
+    }
+  });
+  electron.ipcMain.handle("create-collection", async (_, name) => {
+    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
+    try {
+      if (path.join(electron.app.getAppPath(), "data/collections", `${name}.json`).includes("..")) return false;
+      await promises.writeFile(filePath, JSON.stringify([], null, 2));
+      return true;
+    } catch (err) {
+      console.error(`Failed to create collection ${name}:`, err);
+      return false;
+    }
+  });
+  electron.ipcMain.handle("delete-collection", async (_, name) => {
+    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
+    try {
+      const { unlink } = require("fs/promises");
+      await unlink(filePath);
+      return true;
+    } catch (err) {
+      console.error(`Failed to delete collection ${name}:`, err);
       return false;
     }
   });

@@ -6,7 +6,9 @@ type MainShellProps = {
 }
 
 export function MainShell({ children }: MainShellProps) {
-    const { setPaused, resetQuiz, isPaused } = useQuizStore()
+    const { setPaused, resetQuiz, isPaused, systemSettings } = useQuizStore()
+
+    const themeClass = systemSettings.theme === 'light' ? 'theme-light' : ''
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -29,7 +31,7 @@ export function MainShell({ children }: MainShellProps) {
     }, [isPaused, setPaused, resetQuiz])
 
     return (
-        <div className="h-screen w-screen tech-surface select-none">
+        <div className={`h-screen w-screen tech-surface select-none ${themeClass}`}>
             {/* The .tech-surface class in index.css includes the grid overlay */}
             <main className="relative z-10 h-full w-full overflow-hidden">
                 {children}

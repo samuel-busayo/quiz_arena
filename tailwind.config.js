@@ -7,17 +7,17 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'tv-bg': "#0E1116",
-                'tv-panel': "#151A21",
-                'tv-elevated': "#1B222C",
+                'tv-bg': "var(--tv-bg)",
+                'tv-panel': "var(--tv-panel)",
+                'tv-elevated': "var(--tv-elevated)",
                 'tv-border': "rgba(0,209,255,0.15)",
                 'tv-accent': "#00D1FF",
                 'tv-accentSoft': "rgba(0,209,255,0.08)",
                 'tv-success': "#22C55E",
                 'tv-danger': "#EF4444",
                 'tv-warning': "#F59E0B",
-                'tv-textPrimary': "#E6EDF3",
-                'tv-textMuted': "#8B98A5",
+                'tv-textPrimary': "var(--tv-textPrimary)",
+                'tv-textMuted': "var(--tv-textMuted)",
             },
             spacing: {
                 1: "4px",

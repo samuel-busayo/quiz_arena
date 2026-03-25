@@ -1,14 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
+:root {
+    --tv-bg: #0E1116;
+    --tv-panel: #151A21;
+    --tv-elevated: #1B222C;
+    --tv-textPrimary: #E6EDF3;
+    --tv-textMuted: #8B98A5;
+    --tv-glass-opacity: 1;
+    --tv-blur: 0px;
+}
+
+.theme-light {
+    --tv-bg: #F8FAFC;
+    --tv-panel: rgba(255, 255, 255, 0.7);
+    --tv-elevated: rgba(255, 255, 255, 0.9);
+    --tv-textPrimary: #0F172A;
+    --tv-textMuted: #64748B;
+    --tv-glass-opacity: 0.6;
+    --tv-blur: 12px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
     body {
-        background-color: theme('colors.tv-bg');
-        color: theme('colors.tv-textPrimary');
-        @apply font-body overflow-hidden selection:bg-tv-accent selection:text-tv-bg;
+        background-color: var(--tv-bg);
+        color: var(--tv-textPrimary, theme('colors.tv-textPrimary'));
+        @apply font-body overflow-hidden selection:bg-tv-accent selection:text-tv-bg transition-colors duration-500;
     }
 
     ::-webkit-scrollbar {
@@ -48,13 +68,14 @@
 }
 
 .glass-panel {
-    background-color: theme('colors.tv-panel');
-    @apply backdrop-blur-md border border-tv-border;
+    background-color: var(--tv-panel);
+    backdrop-filter: blur(var(--tv-blur));
+    @apply border border-tv-border;
 }
 
 .tech-surface {
-    background-color: theme('colors.tv-bg');
-    @apply relative overflow-hidden;
+    background-color: var(--tv-bg);
+    @apply relative overflow-hidden transition-colors duration-700;
 }
 
 .tech-surface::before {

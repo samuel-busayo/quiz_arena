@@ -1,7 +1,7 @@
 {
     "name": "techverse-quiz-arena",
     "productName": "TechVerse Quiz Arena",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Professional Dual-Screen Quiz Competition Software",
     "main": "out/main/index.js",
     "author": "Antigravity <support@techverse.com>",
@@ -10,7 +10,8 @@
         "build": "electron-vite build",
         "preview": "electron-vite preview",
         "pack": "electron-builder --dir",
-        "dist": "electron-builder"
+        "dist": "electron-builder",
+        "prepare": "husky"
     },
     "build": {
         "appId": "com.techverse.quizarena",
@@ -59,6 +60,7 @@
         "electron-builder": "^24.13.3",
         "electron-vite": "^2.1.0",
         "framer-motion": "^12.38.0",
+        "husky": "^9.1.7",
         "postcss": "^8.4.35",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

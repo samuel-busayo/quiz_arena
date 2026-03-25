@@ -55,10 +55,17 @@ export interface QuizConfig {
     mode: 'RANDOM' | 'PICK_NUMBER'
 }
 
+export interface SystemSettings {
+    theme: 'dark' | 'light'
+    volume: number
+    sfxEnabled: boolean
+    particleDensity: 'low' | 'balanced' | 'high'
+}
+
 interface QuizStore {
     // State
     currentState: QuizState
-    uiScreen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT'
+    uiScreen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS'
     teams: Team[]
     config: QuizConfig | null
     questions: Question[]
@@ -68,6 +75,7 @@ interface QuizStore {
     currentQuestion: Question | null
     timerRemaining: number
     isPaused: boolean
+    systemSettings: SystemSettings
 
     // Helpers
     initialize: (view: 'admin' | 'projector') => void
@@ -75,7 +83,7 @@ interface QuizStore {
 
     // Actions
     setCurrentState: (state: QuizState) => void
-    setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT') => void
+    setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS') => void
     setTeams: (teams: Team[]) => void
     setConfig: (config: QuizConfig) => void
     setQuestions: (questions: Question[]) => void
@@ -87,6 +95,7 @@ interface QuizStore {
     resetQuiz: () => void
     tickTimer: () => void
     setPaused: (paused: boolean) => void
+    updateSystemSettings: (settings: Partial<SystemSettings>) => void
 }
 
 let isProjectorUpdate = false
@@ -105,6 +114,12 @@ export const useQuizStore = create<QuizStore>()(
             currentQuestion: null,
             timerRemaining: 0,
             isPaused: false,
+            systemSettings: {
+                theme: 'dark',
+                volume: 50,
+                sfxEnabled: true,
+                particleDensity: 'balanced'
+            },
 
             initialize: (view) => {
                 if (view === 'projector') {
@@ -134,7 +149,8 @@ export const useQuizStore = create<QuizStore>()(
                     currentTeamIndex: state.currentTeamIndex,
                     currentQuestion: state.currentQuestion,
                     timerRemaining: state.timerRemaining,
-                    isPaused: state.isPaused
+                    isPaused: state.isPaused,
+                    systemSettings: state.systemSettings
                 })
             },
 
@@ -143,7 +159,14 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
-            setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT') => {
+            updateSystemSettings: (newSettings) => {
+                set((state) => ({
+                    systemSettings: { ...state.systemSettings, ...newSettings }
+                }))
+                get().syncState()
+            },
+
+            setUiScreen: (screen: 'COMMAND_CENTER' | 'QUESTION_BANK' | 'QUIZ_SETUP' | 'SIMULATION_CONSOLE' | 'HELP_ABOUT' | 'SETTINGS') => {
                 set({ uiScreen: screen })
             },
 
@@ -234,7 +257,8 @@ export const useQuizStore = create<QuizStore>()(
                 currentRound: state.currentRound,
                 currentTake: state.currentTake,
                 currentTeamIndex: state.currentTeamIndex,
-                currentQuestion: state.currentQuestion
+                currentQuestion: state.currentQuestion,
+                systemSettings: state.systemSettings
             })
         }
     )

@@ -81,7 +81,9 @@ const electronAPI = {
 const api = {
   getCollections: () => electron.ipcRenderer.invoke("get-collections"),
   getCollection: (name) => electron.ipcRenderer.invoke("get-collection", name),
-  saveCollection: (name, questions) => electron.ipcRenderer.invoke("save-collection", { name, questions }),
+  saveCollection: (name, questions) => electron.ipcRenderer.invoke("save-collection", name, questions),
+  createCollection: (name) => electron.ipcRenderer.invoke("create-collection", name),
+  deleteCollection: (name) => electron.ipcRenderer.invoke("delete-collection", name),
   updateQuizState: (state) => electron.ipcRenderer.send("update-quiz-state", state),
   onQuizStateUpdate: (callback) => {
     const listener = (_event, state) => callback(state);
