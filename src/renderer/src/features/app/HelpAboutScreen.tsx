@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
@@ -8,6 +8,11 @@ import { useQuizStore } from '../../store/useQuizStore'
 
 export function HelpAboutScreen() {
     const { setUiScreen } = useQuizStore()
+    const [version, setVersion] = useState('v1.0.0')
+
+    useEffect(() => {
+        window.api.getVersion().then(v => setVersion(`v${v}`))
+    }, [])
 
     return (
         <div className="h-full w-full flex flex-col p-8 gap-8 max-w-6xl mx-auto overflow-hidden">
@@ -17,7 +22,7 @@ export function HelpAboutScreen() {
                     <TvButton variant="ghost" size="sm" iconLeft={<ArrowLeft size={18} />} onClick={() => setUiScreen('COMMAND_CENTER')} />
                     <div>
                         <TvText variant="h1" className="text-2xl">SYSTEM MANUAL</TvText>
-                        <TvText variant="muted">v1.2.4 // Mission Control OS</TvText>
+                        <TvText variant="muted">{version} // Mission Control OS</TvText>
                     </div>
                 </div>
                 <div className="flex gap-4">

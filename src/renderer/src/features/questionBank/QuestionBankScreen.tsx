@@ -4,8 +4,9 @@ import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
-import { Database, Plus, Upload, Edit3, Trash2, Search, Filter, Loader2, ArrowLeft, X, Save } from 'lucide-react'
+import { Database, Plus, Upload, Edit3, Trash2, Search, Filter, Loader2, ArrowLeft, X, Save, Download, Image as ImageIcon, Sigma, Type, Pencil } from 'lucide-react'
 import { Question, useQuizStore } from '../../store/useQuizStore'
+import { TvQuestionRenderer } from '../../components/ui/TvQuestionRenderer'
 
 export function QuestionBankScreen() {
     const { setUiScreen } = useQuizStore()
@@ -19,6 +20,8 @@ export function QuestionBankScreen() {
     const [showNewCollectionModal, setShowNewCollectionModal] = useState(false)
     const [newCollectionName, setNewCollectionName] = useState('')
     const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
+    const [renameTarget, setRenameTarget] = useState<string | null>(null)
+    const [renameValue, setRenameValue] = useState('')
 
     useEffect(() => {
         loadCollections()
@@ -51,6 +54,19 @@ export function QuestionBankScreen() {
         }
     }
 
+    const handleRenameCollection = async () => {
+        if (!renameTarget || !renameValue.trim()) return
+        const success = await window.api.renameCollection(renameTarget, renameValue.trim())
+        if (success) {
+            await loadCollections()
+            if (selectedCollection === renameTarget) {
+                setSelectedCollection(renameValue.trim())
+            }
+            setRenameTarget(null)
+            setRenameValue('')
+        }
+    }
+
     const handleDeleteCollection = async (name: string) => {
         if (window.confirm(`Are you sure you want to delete the collection "${name}"?`)) {
             const success = await window.api.deleteCollection(name)
@@ -66,7 +82,7 @@ export function QuestionBankScreen() {
 
     const handleSaveQuestion = async (q: Question) => {
         if (!selectedCollection) return
-        const updatedQuestions = editingQuestion?.id
+        const updatedQuestions = editingQuestion?.id && editingQuestion.id !== ''
             ? currentQuestions.map(item => item.id === editingQuestion.id ? q : item)
             : [...currentQuestions, { ...q, id: `q${Date.now()}` }]
 
@@ -135,9 +151,62 @@ export function QuestionBankScreen() {
         reader.readAsText(file)
     }
 
+    const handleDownloadSample = () => {
+        const sampleText = `Q: Which planet is known as the Red Planet?
+A: Venus
+B: Mars
+C: Jupiter
+D: Saturn
+ANS: B
+---
+Q: What is the largest mammal on Earth?
+A: Elephant
+B: Blue Whale
+C: Great White Shark
+D: Giraffe
+ANS: B
+---
+Q: Which element has the highest electrical conductivity?
+A: Copper
+B: Gold
+C: Silver
+D: Aluminum
+ANS: C`
+
+        const blob = new Blob([sampleText], { type: 'text/plain' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'mcq_format_sample.txt'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    }
+
     const filteredQuestions = currentQuestions.filter(q =>
         q.question.toLowerCase().includes(searchTerm.toLowerCase())
     )
+
+    // Expanded Symbols and Formulas
+    const symbolCategories = [
+        { name: 'Math', symbols: ['√', '±', '∞', '∑', '∏', '∫', '∆', '∇', '≈', '≠', '≤', '≥', '×', '÷', 'ˆ'] },
+        { name: 'Greek', symbols: ['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω'] },
+        { name: 'Logic', symbols: ['∀', '∃', '∈', '∉', '⊂', '⊃', '∪', '∩', '∧', '∨', '¬', '⇒', '⇔'] }
+    ]
+
+    const formulaTemplates = [
+        { name: 'Basic', code: '\\frac{a}{b}', label: 'Fraction' },
+        { name: 'Basic', code: '\\sqrt{x}', label: 'Square Root' },
+        { name: 'Basic', code: '\\sqrt[n]{x}', label: 'Nth Root' },
+        { name: 'Power', code: 'x^{n}', label: 'Exponent' },
+        { name: 'Power', code: 'x_{i}', label: 'Subscript' },
+        { name: 'Power', code: 'x_{i}^{n}', label: 'Both' },
+        { name: 'Advanced', code: '\\sum_{i=1}^{n}', label: 'Sum' },
+        { name: 'Advanced', code: '\\int_{a}^{b}', label: 'Integral' },
+        { name: 'Advanced', code: '\\lim_{x \\to \\infty}', label: 'Limit' },
+        { name: 'Matrix', code: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', label: 'Matrix' }
+    ]
 
     return (
         <CommandCenterLayout
@@ -158,7 +227,7 @@ export function QuestionBankScreen() {
                         New Collection
                     </TvButton>
 
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                         {collections.map(name => (
                             <TvCard
                                 key={name}
@@ -168,13 +237,21 @@ export function QuestionBankScreen() {
                                 onClick={() => handleSelectCollection(name)}
                             >
                                 <div className="flex justify-between items-center gap-2">
-                                    <TvText variant="muted" className="truncate font-semibold text-xs">{name}</TvText>
-                                    <button
-                                        className="opacity-0 group-hover:opacity-100 p-1 hover:text-tv-danger transition-all"
-                                        onClick={(e) => { e.stopPropagation(); handleDeleteCollection(name); }}
-                                    >
-                                        <Trash2 size={12} />
-                                    </button>
+                                    <TvText variant="muted" className="truncate font-semibold text-xs flex-1">{name}</TvText>
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                        <button
+                                            className="p-1 hover:text-tv-accent transition-all"
+                                            onClick={(e) => { e.stopPropagation(); setRenameTarget(name); setRenameValue(name); }}
+                                        >
+                                            <Pencil size={12} />
+                                        </button>
+                                        <button
+                                            className="p-1 hover:text-tv-danger transition-all"
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteCollection(name); }}
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
                                 </div>
                             </TvCard>
                         ))}
@@ -207,6 +284,16 @@ export function QuestionBankScreen() {
                             UPLOAD FILE (.txt)
                         </TvButton>
                         <input type="file" id="file-upload" className="hidden" accept=".txt" onChange={handleUpload} />
+
+                        <TvButton
+                            variant="ghost"
+                            size="sm"
+                            className="w-full text-[10px] border border-tv-border hover:border-tv-accent/30"
+                            iconLeft={<Download size={14} />}
+                            onClick={handleDownloadSample}
+                        >
+                            DOWNLOAD SAMPLE (.txt)
+                        </TvButton>
                     </div>
 
                     <div className="mt-10 space-y-4">
@@ -255,7 +342,7 @@ export function QuestionBankScreen() {
                                         <TvButton variant="ghost" size="sm" className="h-8 w-8 p-0 hover:text-tv-danger" onClick={() => handleDeleteQuestion(q.id)}><Trash2 size={14} /></TvButton>
                                     </div>
                                 </div>
-                                <TvText variant="body" className="text-lg leading-relaxed">{q.question}</TvText>
+                                <TvQuestionRenderer text={q.question} className="text-lg leading-relaxed" />
                                 <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
                                     {(['A', 'B', 'C', 'D'] as const).map(key => (
                                         <div key={key} className={`flex items-baseline gap-3 text-xs ${q.answer === key ? 'text-tv-success' : 'text-tv-textMuted'}`}>
@@ -281,7 +368,7 @@ export function QuestionBankScreen() {
                 </div>
             </TvPanel>
 
-            {/* Editing Question Modal is handled in features/app/Modals... but keeping it local for speed for now */}
+            {/* Editing Question Modal */}
             {editingQuestion && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-8">
                     <TvCard className="w-full max-w-2xl p-8 space-y-6 max-h-full overflow-y-auto" animated>
@@ -289,13 +376,85 @@ export function QuestionBankScreen() {
                             <TvText variant="h3">{editingQuestion.id ? 'EDIT QUESTION' : 'NEW QUESTION'}</TvText>
                             <button onClick={() => setEditingQuestion(null)}><X className="text-tv-textMuted hover:text-white" /></button>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-6 text-left">
                             <div className="space-y-2">
-                                <TvText variant="label">Question Text</TvText>
+                                <div className="flex justify-between items-center">
+                                    <TvText variant="label">Question Text</TvText>
+                                    <div className="flex gap-3">
+                                        {/* Formula Menu */}
+                                        <div className="group relative">
+                                            <button title="Insert Formula" className="p-2 hover:bg-tv-accentSoft hover:text-tv-accent rounded transition-colors duration-200">
+                                                <Sigma size={18} />
+                                            </button>
+                                            <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-64 bg-tv-panel border border-tv-border p-3 rounded-lg shadow-2xl z-[70] animate-fadeIn">
+                                                <div className="text-[10px] font-bold text-tv-accent uppercase mb-2 tracking-wider">Formula Templates</div>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {formulaTemplates.map(f => (
+                                                        <button
+                                                            key={f.label}
+                                                            onClick={() => setEditingQuestion({ ...editingQuestion, question: editingQuestion.question + ` $$${f.code}$$ ` })}
+                                                            className="text-[10px] text-left p-2 hover:bg-tv-bg rounded border border-transparent hover:border-tv-border transition-all"
+                                                        >
+                                                            <div className="text-tv-textMuted mb-1">{f.label}</div>
+                                                            <code className="text-tv-accent opacity-80 whitespace-nowrap overflow-hidden text-ellipsis block">{f.code}</code>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Symbol Menu */}
+                                        <div className="group relative">
+                                            <button title="Insert Symbol" className="p-2 hover:bg-tv-accentSoft hover:text-tv-accent rounded transition-colors duration-200">
+                                                <Type size={18} />
+                                            </button>
+                                            <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-48 bg-tv-panel border border-tv-border p-3 rounded-lg shadow-2xl z-[70] animate-fadeIn">
+                                                {symbolCategories.map(cat => (
+                                                    <div key={cat.name} className="mb-3 last:mb-0">
+                                                        <div className="text-[9px] font-bold text-tv-textMuted uppercase mb-1 tracking-widest">{cat.name}</div>
+                                                        <div className="grid grid-cols-5 gap-1">
+                                                            {cat.symbols.map(s => (
+                                                                <button
+                                                                    key={s}
+                                                                    onClick={() => setEditingQuestion({ ...editingQuestion, question: editingQuestion.question + s })}
+                                                                    className="w-7 h-7 flex items-center justify-center hover:bg-tv-accent hover:text-tv-bg rounded text-xs transition-all"
+                                                                >
+                                                                    {s}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Image Button */}
+                                        <button
+                                            title="Insert Image"
+                                            onClick={() => {
+                                                const input = document.createElement('input')
+                                                input.type = 'file'
+                                                input.accept = 'image/*'
+                                                input.onchange = (e: any) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) {
+                                                        const path = file.path || URL.createObjectURL(file)
+                                                        setEditingQuestion({ ...editingQuestion, question: editingQuestion.question + `\n![Image](${path})\n` })
+                                                    }
+                                                }
+                                                input.click()
+                                            }}
+                                            className="p-2 hover:bg-tv-accentSoft hover:text-tv-accent rounded transition-colors duration-200"
+                                        >
+                                            <ImageIcon size={18} />
+                                        </button>
+                                    </div>
+                                </div>
                                 <textarea
-                                    className="w-full bg-tv-bg border border-tv-border rounded-lg px-4 py-3 font-body text-tv-textPrimary outline-none focus:border-tv-accent min-h-[100px]"
+                                    className="w-full bg-tv-bg border border-tv-border rounded-lg px-4 py-3 font-body text-tv-textPrimary outline-none focus:border-tv-accent min-h-[120px] custom-scrollbar"
                                     value={editingQuestion.question}
                                     onChange={(e) => setEditingQuestion({ ...editingQuestion, question: e.target.value })}
+                                    placeholder="Enter question text here... Use $x$ for inline math or $$x$$ for blocks."
                                 />
                             </div>
 
@@ -348,7 +507,7 @@ export function QuestionBankScreen() {
                             <div className="space-y-2">
                                 <TvText variant="label">Collection Identifier</TvText>
                                 <input
-                                    className="w-full bg-tv-bg border border-tv-border rounded-lg px-4 py-3 font-display text-tv-accent outline-none focus:border-tv-accent"
+                                    className="w-full bg-tv-bg border border-tv-border rounded-lg px-4 py-3 font-display text-primary outline-none focus:border-tv-accent"
                                     placeholder="e.g. Science Round 1"
                                     value={newCollectionName}
                                     onChange={(e) => setNewCollectionName(e.target.value)}
@@ -358,6 +517,33 @@ export function QuestionBankScreen() {
                             <div className="flex gap-4">
                                 <TvButton variant="ghost" className="flex-1" onClick={() => setShowNewCollectionModal(false)}>CANCEL</TvButton>
                                 <TvButton variant="primary" className="flex-1" onClick={handleCreateCollection}>CREATE DOCK</TvButton>
+                            </div>
+                        </div>
+                    </TvCard>
+                </div>
+            )}
+
+            {/* Collection Rename Modal */}
+            {renameTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-8">
+                    <TvCard className="w-full max-w-md p-8 space-y-6" animated>
+                        <div className="flex justify-between items-center border-b border-tv-border pb-4">
+                            <TvText variant="h3">RENAME COLLECTION</TvText>
+                            <button onClick={() => setRenameTarget(null)}><X className="text-tv-textMuted hover:text-white" /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <TvText variant="label">New Identifier</TvText>
+                                <input
+                                    className="w-full bg-tv-bg border border-tv-border rounded-lg px-4 py-3 font-display text-tv-accent outline-none focus:border-tv-accent"
+                                    value={renameValue}
+                                    onChange={(e) => setRenameValue(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <TvButton variant="ghost" className="flex-1" onClick={() => setRenameTarget(null)}>CANCEL</TvButton>
+                                <TvButton variant="primary" className="flex-1" onClick={handleRenameCollection}>UPDATE DOCK</TvButton>
                             </div>
                         </div>
                     </TvCard>

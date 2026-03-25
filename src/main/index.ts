@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { readdir, readFile, writeFile } from 'fs/promises'
+import { readdir, readFile, writeFile, rename } from 'fs/promises'
 
 let adminWindow: BrowserWindow | null = null
 let projectorWindow: BrowserWindow | null = null
@@ -73,6 +73,7 @@ app.whenReady().then(() => {
     })
 
     // IPC Handlers
+    ipcMain.handle('get-version', () => app.getVersion())
     ipcMain.handle('get-collections', async () => {
         const collectionsPath = join(app.getAppPath(), 'data/collections')
         try {
@@ -126,6 +127,18 @@ app.whenReady().then(() => {
             return true
         } catch (err) {
             console.error(`Failed to delete collection ${name}:`, err)
+            return false
+        }
+    })
+
+    ipcMain.handle('rename-collection', async (_, oldName: string, newName: string) => {
+        const oldPath = join(app.getAppPath(), 'data/collections', `${oldName}.json`)
+        const newPath = join(app.getAppPath(), 'data/collections', `${newName}.json`)
+        try {
+            await rename(oldPath, newPath)
+            return true
+        } catch (err) {
+            console.error(`Failed to rename collection from ${oldName} to ${newName}:`, err)
             return false
         }
     })
