@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        background-color: theme('colors.tv-bg');
+        color: theme('colors.tv-textPrimary');
+        @apply font-body overflow-hidden selection:bg-tv-accent selection:text-tv-bg;
+    }
+
+    ::-webkit-scrollbar {
+        @apply w-1.5;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-white/10 rounded-full hover:bg-tv-accent/30 transition-colors;
+    }
+}
+
+@layer components {
+    .bg-grid {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, .02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, .02) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .projector-mode {
+        font-size: 1.15rem;
+        letter-spacing: .03em;
+    }
+}
+
+/* Custom Utilities */
+.text-glow {
+    text-shadow: 0 0 10px rgba(0, 209, 255, 0.4);
+}
+
+.border-glow {
+    box-shadow: 0 0 15px rgba(0, 209, 255, 0.1);
+}
+
+.glass-panel {
+    background-color: theme('colors.tv-panel');
+    @apply backdrop-blur-md border border-tv-border;
+}
+
+.tech-surface {
+    background-color: theme('colors.tv-bg');
+    @apply relative overflow-hidden;
+}
+
+.tech-surface::before {
+    content: '';
+    @apply absolute inset-0 bg-grid pointer-events-none opacity-[0.03];
+}
+
+/* Transitions */
+.page-transition-enter {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 400ms, transform 400ms;
+}
+
+.page-transition-exit {
+    opacity: 1;
+}
+
+.page-transition-exit-active {
+    opacity: 0;
+    transition: opacity 300ms;
+}
