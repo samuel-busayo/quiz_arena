@@ -324,7 +324,16 @@ export function AdminConsoleScreen() {
                             >
                                 <div className="p-1 bg-white/5 border border-white/10 rounded-2xl shadow-2xl">
                                     <div className="bg-tv-panel p-[2vw] rounded-xl border border-white/10">
-                                        <TvText variant="h2" align="center" className="text-[clamp(1.5rem,4.5vh,3.5rem)] leading-[1.1] font-bold text-tv-accent">
+                                        <TvText
+                                            variant="h2"
+                                            align="center"
+                                            className={cn(
+                                                "leading-[1.1] font-bold text-tv-accent transition-all duration-300",
+                                                currentQuestion.question.length > 200 ? "text-xl" :
+                                                    currentQuestion.question.length > 120 ? "text-2xl" :
+                                                        "text-[clamp(1.5rem,4.5vh,3.5rem)]"
+                                            )}
+                                        >
                                             {currentQuestion.question}
                                         </TvText>
                                     </div>
@@ -385,8 +394,50 @@ export function AdminConsoleScreen() {
                                         </div>
                                     ))}
                                 </div>
+
+                                <TvButton
+                                    variant="primary"
+                                    size="lg"
+                                    glow
+                                    className="mt-8 px-12 py-6 text-xl"
+                                    iconRight={<Zap size={24} />}
+                                    onClick={() => simulationEngine.proceedFromIntro()}
+                                >
+                                    PROCEED TO QUESTION
+                                </TvButton>
+
                                 <TvText variant="muted" className="max-w-md text-center text-xs opacity-40 mt-6 italic">
                                     The system has initiated an automated Tie-Breaker protocol. Each team will receive one take per loop until a definitive winner or elimination candidate is identified.
+                                </TvText>
+                            </motion.div>
+                        )}
+
+                        {currentState === 'FAILSAFE_INTRO' && (
+                            <motion.div
+                                key="failsafe-intro"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center justify-center h-full gap-8"
+                            >
+                                <div className="p-6 rounded-full bg-[#BF00FF]/10 border border-[#BF00FF]/30 animate-pulse">
+                                    <Database size={48} className="text-[#BF00FF]" />
+                                </div>
+                                <TvText variant="h1" className="text-6xl font-black italic text-white uppercase tracking-tighter drop-shadow-[0_0_50px_#BF00FF]">FAILSAFE UNIVERSE</TvText>
+
+                                <TvButton
+                                    variant="primary"
+                                    size="lg"
+                                    glow
+                                    className="mt-8 px-12 py-6 text-xl bg-[#BF00FF] border-[#BF00FF] hover:bg-[#D000FF]"
+                                    iconRight={<Zap size={24} />}
+                                    onClick={() => simulationEngine.proceedFromIntro()}
+                                >
+                                    ENGAGE DRIVECORE 02
+                                </TvButton>
+
+                                <TvText variant="muted" className="max-w-md text-center text-xs opacity-40 mt-6 italic">
+                                    Primary question core exhausted. Entering emergency failsafe universe. Brace for high-velocity data transition.
                                 </TvText>
                             </motion.div>
                         )}
@@ -575,8 +626,18 @@ function OptionControl({ label, text, isCorrect, isRevealed, onClick, isSelected
             )}>
                 {label}
             </TvText>
-            <div className="flex-1">
-                <TvText variant="body" className="text-[clamp(0.9rem,2.2vh,1.6rem)] font-bold uppercase tracking-tight">{text}</TvText>
+            <div className="flex-1 overflow-hidden">
+                <TvText
+                    variant="body"
+                    className={cn(
+                        "font-bold uppercase tracking-tight transition-all duration-300",
+                        text.length > 100 ? "text-[10px]" :
+                            text.length > 60 ? "text-xs" :
+                                "text-[clamp(0.9rem,2.2vh,1.6rem)]"
+                    )}
+                >
+                    {text}
+                </TvText>
                 {isRevealed && isCorrect && (
                     <TvText variant="label" className="text-[10px] text-tv-success tracking-widest mt-1 block">SYSTEM VERIFIED</TvText>
                 )}

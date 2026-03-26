@@ -176,30 +176,11 @@ class QuizSimulationEngine {
                     currentTake: 1
                 })
 
-                // Cinematic Intro for Tie Breaker (5s)
-                setTimeout(() => {
-                    const nextQ = this.pickNextRandomQuestion()
-                    if (nextQ) {
-                        useQuizStore.setState({ currentQuestion: nextQ })
-                        this.transitionTo('QUESTION')
-                    } else if (useQuizStore.getState().currentState !== 'FAILSAFE_INTRO') {
-                        // If no question and not already transitioning to failsafe, end it
-                        this.transitionTo('WINNER')
-                    }
-                }, 5000)
+                // Hand control back to Admin to build suspense
                 break
             case 'FAILSAFE_INTRO':
                 useQuizStore.getState().setUiOverlay(null)
-                audioEngine.playBgm('leaderboard', false) // Using high-energy for transition
-                setTimeout(() => {
-                    const nextQ = this.pickNextRandomQuestion()
-                    if (nextQ) {
-                        useQuizStore.setState({ currentQuestion: nextQ })
-                        this.transitionTo('QUESTION')
-                    } else {
-                        this.transitionTo('WINNER')
-                    }
-                }, 7000)
+                // Hand control back to Admin to build suspense
                 break
         }
     }
@@ -365,37 +346,48 @@ class QuizSimulationEngine {
             isLocked: false
         })
 
+        // STAGE 2: STAGED REVEAL (5 seconds total - ALWAYS performed to build suspense)
+        const options: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D']
+        const wrongOptions = options.filter(opt => opt !== currentQuestion.answer)
+
+        // 1. Reveal two wrong options NOT selected by the team (if possible)
+        const unselectedWrong = wrongOptions.filter(opt => opt !== selection)
+
+        // Sequence:
+        // Delay 1: First wrong (1s)
+        useQuizStore.setState({ eliminatedOptions: [unselectedWrong[0]] })
+        audioEngine.playSfx('wrong')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // Delay 2: Second wrong (1s)
+        useQuizStore.setState({ eliminatedOptions: [unselectedWrong[0], unselectedWrong[1]] })
+        audioEngine.playSfx('wrong')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // Delay 3: Final wrong (which might be the selected one) (1s)
+        const finalWrong = selection !== currentQuestion.answer ? selection! : wrongOptions.find(o => !unselectedWrong.includes(o))!
+        useQuizStore.setState({ eliminatedOptions: [unselectedWrong[0], unselectedWrong[1], finalWrong] })
+        if (selection === currentQuestion.answer) {
+            audioEngine.playSfx('wrong')
+        } else {
+            audioEngine.playSfx('bassHit')
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // Delay 4: Green Highlight for Correct (2s)
+        // This is where we finally confirm if stage 3 was an elimination of the selected option or a highlight of the correct one
         if (isCorrect) {
             audioEngine.playSfx('correct')
-            await new Promise(resolve => setTimeout(resolve, 1200))
-
-            // STAGE 3: Scoreboard Celebration (1.0s)
-            updateScore(currentTeamId, config.scorePerCorrect)
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            useQuizStore.setState({ revealStatus: 'correct' })
         } else {
-            // STAGE 2: STAGED REVEAL (5 seconds total)
-            const options: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D']
-            const wrongUnselected = options.filter(opt => opt !== currentQuestion.answer && opt !== selection)
+            useQuizStore.setState({ revealStatus: 'wrong' })
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000))
 
-            // 2.1 Reveal first wrong unselected (1s)
-            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0]] })
-            audioEngine.playSfx('wrong')
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // 2.2 Reveal second wrong unselected (1s)
-            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0], wrongUnselected[1]] })
-            audioEngine.playSfx('wrong')
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // 2.3 Reveal selected wrong (1s)
-            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0], wrongUnselected[1], selection!] })
-            audioEngine.playSfx('bassHit')
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // 2.4 Highlighting Correct (2s)
-            // Projection UI handles the "Correct Highlight/Enlarge" via revealStatus='wrong'
-            await new Promise(resolve => setTimeout(resolve, 2000))
-
+        if (isCorrect) {
+            updateScore(currentTeamId, config.scorePerCorrect)
+            await new Promise(resolve => setTimeout(resolve, 800))
+        } else {
             // Score Deduction - if config allows
             if (config.deductionPerWrong > 0) {
                 updateScore(currentTeamId, -config.deductionPerWrong)
@@ -413,6 +405,25 @@ class QuizSimulationEngine {
 
         // Auto advance simulation
         this.advanceSimulation()
+    }
+
+    // Manual progression from Intro states (Tie Breaker / Failsafe)
+    proceedFromIntro() {
+        const { currentState } = useQuizStore.getState()
+        if (currentState !== 'TIE_BREAKER' && currentState !== 'FAILSAFE_INTRO') return
+
+        const nextQ = this.pickNextRandomQuestion()
+        if (nextQ) {
+            useQuizStore.setState({ currentQuestion: nextQ })
+            this.transitionTo('QUESTION')
+        } else if (currentState === 'TIE_BREAKER') {
+            // Already handled in pickNextRandomQuestion (will trigger FAILSAFE_INTRO if needed)
+            // But if it returns null and stays in TIE_BREAKER, it means truly exhausted
+            const { isFailsafeActive } = useQuizStore.getState()
+            if (isFailsafeActive) this.transitionTo('WINNER')
+        } else {
+            this.transitionTo('WINNER')
+        }
     }
 
     advanceSimulation() {
@@ -497,7 +508,19 @@ class QuizSimulationEngine {
                 currentTeamId: nextTeamId,
                 currentTake: currentTake + 1
             })
-            this.transitionTo('TURN_INTRO')
+            // Auto-Reveal Leaderboard if round/take balanced (every team has had their turn)
+            const { teams, currentTake: oldTake, tieBreakerPurpose } = useQuizStore.getState()
+            const activeTeamsCount = teams.filter(t => !t.isEliminated).length
+
+            // Increment happened before this check, but the oldTake was the one that just finished
+            if (activeTeamsCount > 0 && oldTake % activeTeamsCount === 0) {
+                // Only auto-show if not in middle of a rapid tie-breaker
+                if (tieBreakerPurpose === null) {
+                    useQuizStore.getState().setUiOverlay('leaderboard')
+                }
+            }
+
+            setTimeout(() => this.transitionTo('TURN_INTRO'), 5000)
         }
     }
 

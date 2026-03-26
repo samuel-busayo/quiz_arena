@@ -97,7 +97,7 @@ export function ProjectionScreen() {
 
                         <div className="mb-12">
                             <TvText variant="h2" align="center" className="text-4xl text-tv-warning/70 uppercase tracking-[1em] mb-2">SUDDEN DEATH</TvText>
-                            <TvText variant="h1" align="center" className="text-6xl font-black text-white">ROUND {currentRound} • TAKE {currentTake}</TvText>
+                            <TvText variant="h1" align="center" className="text-6xl font-black text-white">ROUND {currentRound}</TvText>
                         </div>
 
                         <div className="flex gap-16 justify-center items-center">
@@ -574,9 +574,18 @@ export function ProjectionScreen() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 }}
-                                className="relative py-2 px-4"
+                                className="relative py-2 px-4 w-full"
                             >
-                                <TvText variant="h2" className="text-[clamp(2.5rem,7vh,5.5rem)] leading-[1.1] font-semibold text-white/90">
+                                <TvText
+                                    variant="h2"
+                                    align="center"
+                                    className={cn(
+                                        "leading-[1.1] font-bold text-white/90 drop-shadow-glow transition-all duration-300",
+                                        currentQuestion.question.length > 200 ? "text-[clamp(1.5rem,3.5vh,2.5rem)]" :
+                                            currentQuestion.question.length > 120 ? "text-[clamp(2.5rem,5.5vh,4rem)]" :
+                                                "text-[clamp(2.5rem,7vh,5.5rem)]"
+                                    )}
+                                >
                                     {currentQuestion.question}
                                 </TvText>
                             </motion.div>
@@ -1004,9 +1013,9 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
             } : {
                 opacity: (isRevealed && !isCorrect && !isSelected) ? 0.2 : 1,
                 x: isThisWrong ? [0, -10, 10, -10, 10, 0] : 0,
-                scale: isThisCorrect ? 1.15 : (isSelected && !isRevealed) ? 1.05 : 1,
-                borderColor: isThisCorrect ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.05)',
-                backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.25)' : isThisWrong ? 'rgba(255, 61, 0, 0.15)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255,255,255,0.02)'
+                scale: isThisCorrect && revealStatus === 'correct' ? 1.15 : (isSelected && !isRevealed) ? 1.05 : 1,
+                borderColor: isThisCorrect && revealStatus === 'correct' ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.05)',
+                backgroundColor: isThisCorrect && revealStatus === 'correct' ? 'rgba(0, 230, 118, 0.25)' : isThisWrong ? 'rgba(255, 61, 0, 0.15)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255,255,255,0.02)'
             }}
             transition={isEliminated ? {
                 duration: 0.8,
@@ -1040,7 +1049,15 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
                 {label}
             </div>
 
-            <TvText variant="h2" className="text-[clamp(1.2rem,3.8vh,2.8rem)] font-bold text-white/90 uppercase tracking-tight flex-1 z-10 group-hover:text-white transition-colors">
+            <TvText
+                variant="h2"
+                className={cn(
+                    "font-bold text-white/90 uppercase tracking-tight flex-1 z-10 group-hover:text-white transition-all duration-300",
+                    text.length > 100 ? "text-[clamp(1rem,2.5vh,1.5rem)]" :
+                        text.length > 60 ? "text-[clamp(1.2rem,3vh,2rem)]" :
+                            "text-[clamp(1.2rem,3.8vh,2.8rem)]"
+                )}
+            >
                 {text}
             </TvText>
 
