@@ -30,7 +30,8 @@ class QuizSimulationEngine {
             uiOverlay: null,
             eliminatedOptions: [],
             isLocked: false,
-            isConfirming: false
+            isConfirming: false,
+            currentStats: []
         })
 
         // 3. Grid / Queue Generation
@@ -63,23 +64,25 @@ class QuizSimulationEngine {
         audioEngine.stopBgm()
         this.transitionTo('ARMING')
 
-        // Automatically proceed to Round Intro after 3s Arming
+        // Automatically proceed to Round Intro after 5s Arming (Synchronized)
         setTimeout(() => {
             this.transitionTo('ROUND_INTRO')
-            // Play ROUND_INTRO for 1.8s then start question logic
+            // Play ROUND_INTRO for 5s then start question logic
             setTimeout(() => {
                 const state = useQuizStore.getState()
                 if (state.config?.mode === 'PICK_NUMBER') {
                     this.transitionTo('PICKER_PHASE')
                 } else {
-                    const { questionQueue } = state
-                    if (questionQueue.length > 0) {
-                        useQuizStore.setState({ currentQuestion: questionQueue[0] })
+                    const nextQ = this.pickNextRandomQuestion()
+                    if (nextQ) {
+                        useQuizStore.setState({ currentQuestion: nextQ })
+                        this.transitionTo('QUESTION')
+                    } else {
+                        this.transitionTo('WINNER')
                     }
-                    this.transitionTo('QUESTION')
                 }
-            }, 1800)
-        }, 3000)
+            }, 5000)
+        }, 5000)
     }
 
     transitionTo(phase: QuizState) {
@@ -108,22 +111,81 @@ class QuizSimulationEngine {
                 this.stopTimer()
                 break
             case 'LEADERBOARD':
+                useQuizStore.getState().setUiOverlay('leaderboard')
                 audioEngine.playBgm('leaderboard')
                 break
             case 'ELIMINATION':
+                useQuizStore.getState().setUiOverlay(null)
                 // elimination SFX handled in advanceSimulation
                 break
             case 'WINNER':
+                useQuizStore.getState().setUiOverlay(null)
                 audioEngine.playBgm('winner')
                 this.handleQuizEnd()
                 // Winner Mega Celebration Sequence is handled in ProjectionScreen
                 // We just hold here. Manual action needed to close.
                 break
             case 'IDLE':
+                useQuizStore.getState().setUiOverlay(null)
                 audioEngine.stopBgm()
                 break
             case 'STANDBY':
+                useQuizStore.getState().setUiOverlay(null)
                 audioEngine.playBgm('standbyAmbient')
+                break
+            case 'TURN_INTRO':
+                useQuizStore.getState().setUiOverlay(null)
+                audioEngine.playSfx('bassHit')
+                // 1. CLEAR ARTIFACTS IMMEDIATELY
+                useQuizStore.setState({
+                    eliminatedOptions: [],
+                    selectedOption: null,
+                    revealStatus: null,
+                    isLocked: false,
+                    isConfirming: false
+                })
+
+                // 2. Automated Proceed after cinematic delay (Requested: at least 5s)
+                setTimeout(() => {
+                    const state = useQuizStore.getState()
+                    const config = state.config
+                    if (config?.mode === 'PICK_NUMBER') {
+                        this.transitionTo('PICKER_PHASE')
+                    } else {
+                        const nextQ = this.pickNextRandomQuestion()
+                        if (nextQ) {
+                            useQuizStore.setState({ currentQuestion: nextQ })
+                            this.transitionTo('QUESTION')
+                        } else {
+                            // Pool exhausted during round
+                            this.transitionTo('WINNER')
+                        }
+                    }
+                }, 5000)
+                break
+            case 'TIE_BREAKER':
+                useQuizStore.getState().setUiOverlay(null)
+                audioEngine.playSfx('bassHit')
+                useQuizStore.setState({
+                    eliminatedOptions: [],
+                    selectedOption: null,
+                    revealStatus: null,
+                    isLocked: false,
+                    isConfirming: false,
+                    currentTake: 1
+                })
+
+                // Cinematic Intro for Tie Breaker
+                setTimeout(() => {
+                    const nextQ = this.pickNextRandomQuestion()
+                    if (nextQ) {
+                        useQuizStore.setState({ currentQuestion: nextQ })
+                        this.transitionTo('QUESTION')
+                    } else {
+                        // Total exhaustion during tie breaker? (Emergency exit)
+                        this.transitionTo('WINNER')
+                    }
+                }, 5000)
                 break
         }
     }
@@ -324,26 +386,59 @@ class QuizSimulationEngine {
     }
 
     advanceSimulation() {
-        const { currentTake, config, teams, nextTake, nextTeam } = useQuizStore.getState()
+        const { currentTake, config, teams, nextTake, nextTeam, currentState } = useQuizStore.getState()
         if (!config) return
 
         const activeTeams = teams.filter(t => !t.isEliminated)
 
         // Check if round is complete
+        if (currentState === 'TIE_BREAKER') {
+            this.handleTieBreakerProgress()
+            return
+        }
+
         if (currentTake >= config.takesPerRound * activeTeams.length) {
             this.eliminateLowestTeam()
         } else {
             nextTake()
             nextTeam()
 
-            if (config.mode === 'PICK_NUMBER') {
-                this.transitionTo('PICKER_PHASE')
+            // Trigger the cinematic transition phase
+            this.transitionTo('TURN_INTRO')
+        }
+    }
+
+    private handleTieBreakerProgress() {
+        const { currentTake, tieBreakerTeams, nextTake, setTieBreakerTeams, teams } = useQuizStore.getState()
+
+        // Tie breaker is 1 take per team
+        if (currentTake >= tieBreakerTeams.length) {
+            // Re-evaluate the tie
+            const tiedTeamsData = teams.filter(t => tieBreakerTeams.includes(t.id))
+            const sortedByScore = [...tiedTeamsData].sort((a, b) => b.score - a.score)
+
+            const highestScore = sortedByScore[0].score
+            const winners = tiedTeamsData.filter(t => t.score === highestScore)
+
+            if (winners.length === 1) {
+                // Resolved!
+                console.log(`Tie Breaker Resolved: ${winners[0].name} wins.`)
+                this.transitionTo('WINNER')
             } else {
-                const { questionQueue, currentStats } = useQuizStore.getState()
-                const nextQ = questionQueue[currentStats.length] || questionQueue[0]
-                useQuizStore.setState({ currentQuestion: nextQ })
-                this.transitionTo('QUESTION')
+                // Still tied, repeat loop with new winners
+                setTieBreakerTeams(winners.map(w => w.id))
+                useQuizStore.setState({
+                    currentTake: 1,
+                    currentTeamId: winners[0].id
+                })
+                this.transitionTo('TIE_BREAKER')
             }
+        } else {
+            // Next take in current tie breaker loop
+            nextTake()
+            const nextTeamId = tieBreakerTeams[currentTake] // currentTake is now target index (1-based soon to be incremented)
+            useQuizStore.setState({ currentTeamId: nextTeamId })
+            this.transitionTo('TIE_BREAKER')
         }
     }
 
@@ -358,7 +453,18 @@ class QuizSimulationEngine {
         }
 
         // Find lowest
-        const lowest = [...activeTeams].sort((a, b) => a.score - b.score)[0]
+        const lowestScore = [...activeTeams].sort((a, b) => a.score - b.score)[0].score
+        const candidates = activeTeams.filter(t => t.score === lowestScore)
+
+        if (candidates.length > 1) {
+            // TIE FOR ELIMINATION
+            useQuizStore.getState().setTieBreakerTeams(candidates.map(c => c.id))
+            useQuizStore.setState({ currentTeamId: candidates[0].id })
+            this.transitionTo('TIE_BREAKER')
+            return
+        }
+
+        const lowest = candidates[0]
 
         // Mark eliminated
         useQuizStore.getState().eliminateTeam(lowest.id)
@@ -368,14 +474,14 @@ class QuizSimulationEngine {
         audioEngine.playSfx('bassHit') // low bass drop
         this.transitionTo('ELIMINATION')
 
-        // Elimination sequence is 3s. After that, either go to leaderboard or next round
+        // Elimination sequence is 5s. After that, either go to leaderboard or next round
         setTimeout(() => {
             if (config?.showLeaderboardAfterRound) {
                 this.transitionTo('LEADERBOARD')
             } else {
                 this.startNextRound()
             }
-        }, 3000)
+        }, 5000)
     }
 
     startNextRound() {
@@ -385,7 +491,17 @@ class QuizSimulationEngine {
         const activeTeams = teams.filter(t => !t.isEliminated)
 
         if (currentRound >= config.rounds || activeTeams.length <= 1) {
-            this.transitionTo('WINNER')
+            // Check for Final Winner Tie
+            const maxScore = [...activeTeams].sort((a, b) => b.score - a.score)[0].score
+            const winners = activeTeams.filter(t => t.score === maxScore)
+
+            if (winners.length > 1) {
+                useQuizStore.getState().setTieBreakerTeams(winners.map(w => w.id))
+                useQuizStore.setState({ currentTeamId: winners[0].id })
+                this.transitionTo('TIE_BREAKER')
+            } else {
+                this.transitionTo('WINNER')
+            }
         } else {
             useQuizStore.setState({
                 currentRound: currentRound + 1,
@@ -398,11 +514,16 @@ class QuizSimulationEngine {
                 if (config.mode === 'PICK_NUMBER') {
                     this.transitionTo('PICKER_PHASE')
                 } else {
-                    const { questionQueue } = useQuizStore.getState()
-                    useQuizStore.setState({ currentQuestion: questionQueue[0] }) // Need proper shifting in queue, but simplified
-                    this.transitionTo('QUESTION')
+                    const nextQ = this.pickNextRandomQuestion()
+                    if (nextQ) {
+                        useQuizStore.setState({ currentQuestion: nextQ })
+                        this.transitionTo('QUESTION')
+                    } else {
+                        // Pool exhausted at round start
+                        this.transitionTo('WINNER')
+                    }
                 }
-            }, 1800)
+            }, 5000)
         }
     }
 
@@ -486,6 +607,18 @@ class QuizSimulationEngine {
         useQuizStore.getState().setCurrentState('STANDBY')
         window.api.openProjector()
         audioEngine.playBgm('standbyAmbient', true)
+    }
+
+    private pickNextRandomQuestion() {
+        const { questionQueue, currentStats } = useQuizStore.getState()
+        const nextIndex = currentStats.length
+
+        if (nextIndex < questionQueue.length) {
+            return questionQueue[nextIndex]
+        }
+
+        console.warn('QuizSimulationEngine: Question pool exhausted.')
+        return null
     }
 }
 

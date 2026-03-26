@@ -1,7 +1,7 @@
 {
     "name": "techverse-quiz-arena",
     "productName": "TechVerse Quiz Arena",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "description": "Professional Dual-Screen Quiz Competition Software",
     "main": "out/main/index.js",
     "author": "Antigravity <support@techverse.com>",

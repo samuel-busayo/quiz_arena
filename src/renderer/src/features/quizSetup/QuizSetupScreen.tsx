@@ -17,13 +17,36 @@ export function QuizSetupScreen() {
     const { setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore()
     const { step, teams: setupTeams, collectionName: selectedCollection, config: setupConfig } = setupDraft
     const [collections, setCollections] = useState<string[]>([])
+    const [collectionCounts, setCollectionCounts] = useState<Record<string, number>>({})
 
     useEffect(() => {
-        window.api.getCollections().then(setCollections)
+        loadCollections()
     }, [])
+
+    const loadCollections = async () => {
+        const list = await window.api.getCollections()
+        setCollections(list)
+
+        // Fetch counts
+        const counts: Record<string, number> = {}
+        for (const name of list) {
+            const data = await window.api.getCollection(name)
+            counts[name] = data?.length || 0
+        }
+        setCollectionCounts(counts)
+    }
 
     const startSimulation = async () => {
         if (!selectedCollection) return
+
+        const required = (setupConfig.rounds! * setupConfig.takesPerRound! * setupTeams.length) + 10
+        const available = collectionCounts[selectedCollection] || 0
+
+        if (available < required) {
+            alert(`INSUFFICIENT DATA: Selected source contains ${available} questions. Required minimum: ${required} (including tie-breaker buffer). Please append more questions to the collection.`)
+            return
+        }
+
         const questions = await window.api.getCollection(selectedCollection)
         if (!questions || questions.length === 0) {
             alert('Selection contains no valid question stages.')
@@ -35,6 +58,46 @@ export function QuizSetupScreen() {
         setQuestions(questions)
         setCurrentState('ARMING')
         setUiScreen('SIMULATION_CONSOLE')
+    }
+
+    const handleAppend = async (target: string) => {
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = '.txt'
+        input.onchange = async (e: any) => {
+            const file = e.target.files?.[0]
+            if (!file) return
+
+            const reader = new FileReader()
+            reader.onload = async (event) => {
+                const text = event.target?.result as string
+                const questions: any[] = []
+                const blocks = text.split('---').map(b => b.trim()).filter(b => b.length > 0)
+
+                blocks.forEach((block, index) => {
+                    const lines = block.split('\n').map(l => l.trim())
+                    const q: any = { id: `q${Date.now()}_${index}`, options: { A: '', B: '', C: '', D: '' }, used: false }
+                    lines.forEach(line => {
+                        if (line.startsWith('Q:')) q.question = line.replace('Q:', '').trim()
+                        if (line.startsWith('A:')) q.options.A = line.replace('A:', '').trim()
+                        if (line.startsWith('B:')) q.options.B = line.replace('B:', '').trim()
+                        if (line.startsWith('C:')) q.options.C = line.replace('C:', '').trim()
+                        if (line.startsWith('D:')) q.options.D = line.replace('D:', '').trim()
+                        if (line.startsWith('ANS:')) q.answer = line.replace('ANS:', '').trim()
+                    })
+                    if (q.question && q.answer) questions.push(q)
+                })
+
+                if (questions.length > 0) {
+                    const existing = await window.api.getCollection(target)
+                    const updated = [...(existing || []), ...questions]
+                    await window.api.saveCollection(target, updated)
+                    await loadCollections()
+                }
+            }
+            reader.readAsText(file)
+        }
+        input.click()
     }
 
     return (
@@ -142,11 +205,23 @@ export function QuizSetupScreen() {
                                     key={name}
                                     hoverable
                                     selected={selectedCollection === name}
-                                    className="px-8 py-6 min-w-[200px] flex flex-col items-center gap-3 animate-rise"
+                                    className="px-8 py-6 min-w-[240px] flex flex-col items-center gap-3 animate-rise group"
                                     onClick={() => updateSetupDraft({ collectionName: name })}
                                 >
                                     <Database size={24} className={selectedCollection === name ? 'text-tv-accent' : 'text-tv-textMuted'} />
-                                    <TvText variant="h3" className="text-sm">{name}</TvText>
+                                    <div className="text-center">
+                                        <TvText variant="h3" className="text-sm">{name}</TvText>
+                                        <TvText variant="muted" className="text-[10px] tracking-widest">{collectionCounts[name] || 0} ITEMS</TvText>
+                                    </div>
+
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleAppend(name); }}
+                                        className="mt-2 opacity-0 group-hover:opacity-100 transition-all flex items-center gap-2 px-3 py-1 rounded bg-tv-accentSoft text-tv-accent text-[9px] font-bold border border-tv-accent/20 hover:bg-tv-accent hover:text-white"
+                                    >
+                                        <Plus size={10} />
+                                        APPEND DATA
+                                    </button>
+
                                     {selectedCollection === name && (
                                         <div className="absolute top-2 right-2 text-tv-accent">
                                             <Check size={14} />
@@ -213,6 +288,48 @@ export function QuizSetupScreen() {
                                     icon={<Zap size={16} />}
                                 />
                             </div>
+
+                            {/* CAPACITY METER */}
+                            {selectedCollection && (
+                                <div className="p-6 rounded-xl bg-tv-panel border border-tv-border relative overflow-hidden">
+                                    {(() => {
+                                        const req = (setupConfig.rounds! * setupConfig.takesPerRound! * setupTeams.length) + 10
+                                        const avail = collectionCounts[selectedCollection] || 0
+                                        const percent = Math.min(100, (avail / req) * 100)
+                                        const isLow = avail < req
+
+                                        return (
+                                            <>
+                                                <div className="flex justify-between items-end mb-4">
+                                                    <div>
+                                                        <TvText variant="label" className="text-[10px] text-tv-textMuted block mb-1">STATION DATA CAPACITY</TvText>
+                                                        <TvText variant="h3" className={isLow ? "text-tv-warning" : "text-tv-accent"}>
+                                                            {isLow ? "INSUFFICIENT QUESTIONS" : "LINK STABLE"}
+                                                        </TvText>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <TvText variant="label" className="text-[10px] text-tv-textMuted block mb-1">AVN / REQ (+10)</TvText>
+                                                        <TvText variant="h3" className="text-lg font-mono">{avail} / {req}</TvText>
+                                                    </div>
+                                                </div>
+                                                <div className="h-2 w-full bg-black/40 rounded-full border border-tv-border overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${percent}%` }}
+                                                        className={cn("h-full", isLow ? "bg-tv-warning shadow-glow-soft" : "bg-tv-accent shadow-glow")}
+                                                    />
+                                                </div>
+                                                {isLow && (
+                                                    <TvText variant="muted" className="text-[10px] mt-4 flex items-center gap-2 text-tv-warning animate-pulse">
+                                                        <Shield size={12} />
+                                                        CRITICAL: Append questions to reach the simulation threshold.
+                                                    </TvText>
+                                                )}
+                                            </>
+                                        )
+                                    })()}
+                                </div>
+                            )}
 
                             {/* LIFELINE SETTINGS */}
                             <div className="p-8 bg-tv-panel/40 border border-white/5 rounded-xl space-y-6">
@@ -319,6 +436,12 @@ export function QuizSetupScreen() {
                     <div className="flex gap-6 items-center">
                         <StatusChip active={setupTeams.length >= 2} label={`${setupTeams.length} TEAMS`} />
                         <StatusChip active={!!selectedCollection} label={selectedCollection || 'NO SOURCE'} />
+                        {selectedCollection && (
+                            <StatusChip
+                                active={collectionCounts[selectedCollection] >= (setupConfig.rounds! * setupConfig.takesPerRound! * setupTeams.length) + 10}
+                                label={`CAPACITY: ${collectionCounts[selectedCollection]} / ${(setupConfig.rounds! * setupConfig.takesPerRound! * setupTeams.length) + 10}`}
+                            />
+                        )}
                         <StatusChip active={true} label={`R${setupConfig.rounds} // T${setupConfig.takesPerRound}`} />
                     </div>
                 </div>

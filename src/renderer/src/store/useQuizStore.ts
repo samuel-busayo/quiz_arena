@@ -11,6 +11,8 @@ export type QuizState =
     | 'ANSWER_REVEAL'
     | 'LEADERBOARD'
     | 'ELIMINATION'
+    | 'TURN_INTRO'
+    | 'TIE_BREAKER'
     | 'WINNER'
     | 'SESSION_END'
 
@@ -107,6 +109,7 @@ interface QuizStore {
     currentSessionId: string | null
     hasSavedSession: boolean
     isInitialized: boolean
+    tieBreakerTeams: string[]
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
@@ -155,6 +158,7 @@ interface QuizStore {
     updateSetupDraft: (draft: Partial<QuizStore['setupDraft']>) => void
     setUiOverlay: (overlay: 'leaderboard' | null) => void
     useLifeline: (teamId: string) => void
+    setTieBreakerTeams: (teamIds: string[]) => void
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -169,6 +173,7 @@ interface QuizStore {
     saveSession: () => Promise<void>
     loadSession: () => Promise<void>
     checkSavedSession: () => Promise<void>
+    deleteSession: () => Promise<void>
 }
 
 let isProjectorUpdate = false
@@ -239,6 +244,7 @@ export const useQuizStore = create<QuizStore>()(
             // Analytics Initial State
             results: [],
             currentStats: [],
+            tieBreakerTeams: [],
 
             initialize: (view) => {
                 if (view === 'projector') {
@@ -273,9 +279,6 @@ export const useQuizStore = create<QuizStore>()(
                         unsubscribeSync()
                         unsubscribeAutoSave()
                     }
-                } else {
-                    // Projector Initialization
-                    setTimeout(() => set({ isInitialized: true }), 1500) // Brief flash for branding
                 }
             },
 
@@ -306,7 +309,8 @@ export const useQuizStore = create<QuizStore>()(
                     currentPickerTeamId: state.currentPickerTeamId,
                     selectionCursor: state.selectionCursor,
                     uiOverlay: state.uiOverlay,
-                    eliminatedOptions: state.eliminatedOptions
+                    eliminatedOptions: state.eliminatedOptions,
+                    tieBreakerTeams: state.tieBreakerTeams
                 })
             },
 
@@ -385,6 +389,11 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            setTieBreakerTeams: (teamIds) => {
+                set({ tieBreakerTeams: teamIds })
+                get().syncState()
+            },
+
             eliminateTeam: (teamId) => {
                 set((state) => ({
                     teams: state.teams.map(t => t.id === teamId ? { ...t, isEliminated: true } : t)
@@ -417,6 +426,7 @@ export const useQuizStore = create<QuizStore>()(
                     isLocked: false,
                     uiOverlay: null,
                     eliminatedOptions: [],
+                    tieBreakerTeams: [],
                     hasSavedSession: currentHasSave // Persist the fact that a save exists on disk
                 })
                 get().syncState()
@@ -496,6 +506,7 @@ export const useQuizStore = create<QuizStore>()(
                     gridNumbers: state.gridNumbers,
                     currentStats: state.currentStats,
                     eliminatedOptions: state.eliminatedOptions,
+                    tieBreakerTeams: state.tieBreakerTeams,
                     config: state.config
                 }
 
@@ -521,6 +532,7 @@ export const useQuizStore = create<QuizStore>()(
                         gridNumbers: session.gridNumbers,
                         currentStats: session.currentStats,
                         eliminatedOptions: session.eliminatedOptions,
+                        tieBreakerTeams: session.tieBreakerTeams || [],
                         config: session.config,
                         uiScreen: 'SIMULATION_CONSOLE',
                         hasSavedSession: true
@@ -559,7 +571,8 @@ export const useQuizStore = create<QuizStore>()(
                 isConfirming: state.isConfirming,
                 isLocked: state.isLocked,
                 uiOverlay: state.uiOverlay,
-                eliminatedOptions: state.eliminatedOptions
+                eliminatedOptions: state.eliminatedOptions,
+                tieBreakerTeams: state.tieBreakerTeams
             })
         }
     )

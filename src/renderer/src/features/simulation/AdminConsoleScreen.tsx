@@ -36,7 +36,8 @@ export function AdminConsoleScreen() {
         eliminatedOptions,
         resetQuiz,
         saveSession,
-        deleteSession
+        deleteSession,
+        tieBreakerTeams
     } = useQuizStore()
 
     const [isSaving, setIsSaving] = React.useState(false)
@@ -224,6 +225,59 @@ export function AdminConsoleScreen() {
                 {/* CENTRAL ENGAGEMENT STAGE */}
                 <div className="flex flex-col items-center justify-center min-h-0">
                     <AnimatePresence mode="wait">
+                        {currentState === 'TURN_INTRO' && (
+                            <motion.div
+                                key="turn-intro"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center gap-[4vh]"
+                            >
+                                <div className="p-8 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-md">
+                                    <TvText variant="label" className="text-tv-accent tracking-[0.2em] mb-4 block animate-pulse">CINEMATIC TRANSITION ACTIVE</TvText>
+                                    <TvText variant="h2" className="text-3xl font-bold uppercase mb-2">PREPARING NEXT TAKE</TvText>
+                                    <TvText variant="body" className="opacity-40 text-sm italic">Synchronizing neural link for {activeTeam?.name}...</TvText>
+
+                                    <div className="mt-8 overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: '100%' }}
+                                            transition={{ duration: 5.0, ease: 'linear' }}
+                                            className="h-full bg-tv-accent shadow-glow"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {currentState === 'ROUND_INTRO' && (
+                            <motion.div
+                                key="round-intro"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center gap-[4vh]"
+                            >
+                                <div className="p-8 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-md">
+                                    <TvText variant="label" className="text-tv-accent tracking-[0.2em] mb-4 block animate-pulse">STAGE PROGRESSION ACTIVE</TvText>
+                                    <div className="flex flex-col items-center mb-6">
+                                        <TvText variant="h1" className="text-5xl font-black italic text-white leading-none">ROUND {currentRound}</TvText>
+                                        <div className="h-1 w-20 bg-tv-accent mt-2 shadow-glow" />
+                                    </div>
+                                    <TvText variant="body" className="opacity-40 text-sm">Synchronizing Mission Environment...</TvText>
+
+                                    <div className="mt-8 overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: '100%' }}
+                                            transition={{ duration: 5.0, ease: 'linear' }}
+                                            className="h-full bg-tv-accent shadow-glow"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
                         {currentState === 'ARMING' && (
                             <motion.div
                                 key="arming"
@@ -310,6 +364,30 @@ export function AdminConsoleScreen() {
                                         />
                                     ))}
                                 </div>
+                            </motion.div>
+                        )}
+
+                        {currentState === 'TIE_BREAKER' && (
+                            <motion.div
+                                key="tie-breaker"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center justify-center h-full gap-8"
+                            >
+                                <TvText variant="label" className="text-tv-warning text-xl tracking-[1em] uppercase animate-pulse">STALEMATE DETECTED</TvText>
+                                <TvText variant="h1" className="text-6xl font-black italic text-white uppercase tracking-tighter drop-shadow-glow">TIE BREAKER</TvText>
+                                <div className="flex gap-6 mt-4">
+                                    {(teams.filter(t => tieBreakerTeams.includes(t.id))).map(team => (
+                                        <div key={team.id} className="px-6 py-3 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center">
+                                            <TvText variant="h3" style={{ color: team.color }}>{team.name}</TvText>
+                                            <TvText variant="muted" className="text-[10px] uppercase tracking-widest mt-1">LOCKED IN COMBAT</TvText>
+                                        </div>
+                                    ))}
+                                </div>
+                                <TvText variant="muted" className="max-w-md text-center text-xs opacity-40 mt-6 italic">
+                                    The system has initiated an automated Tie-Breaker protocol. Each team will receive one take per loop until a definitive winner or elimination candidate is identified.
+                                </TvText>
                             </motion.div>
                         )}
 

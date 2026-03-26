@@ -1,0 +1,50 @@
+{
+  "id": "1774538965517",
+  "date": "2026-03-26T15:29:25.517Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 10,
+    "timerSeconds": 20,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 30,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "HONEYLAND COLLEGE",
+    "eventTheme": "CLASH OF THE TITANS",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "General_Knowledge"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 240,
+      "isEliminated": false,
+      "lifelineRemaining": 0
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 210,
+      "isEliminated": true,
+      "lifelineRemaining": 1
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 10,
+  "finalScores": {
+    "1": 240,
+    "2": 210
+  },
+  "eliminationOrder": [
+    "2"
+  ],
+  "winner": "1",
+  "questionStats": []
+}

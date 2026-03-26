@@ -34,7 +34,7 @@ function App() {
         return (
             <MainShell>
                 <AnimatePresence>
-                    {!useQuizStore.getState().isInitialized && <ProjectionSplash key="pj-splash" />}
+                    {!isInitialized && <ProjectionSplash key="pj-splash" />}
                 </AnimatePresence>
                 <ProjectionScreen />
             </MainShell>

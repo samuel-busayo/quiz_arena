@@ -1,0 +1,87 @@
+{
+  "id": "1774540451025",
+  "date": "2026-03-26T15:54:11.025Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 5,
+    "timerSeconds": 20,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 50,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "HONEYLAND COLLEGE, IPAJA",
+    "eventTheme": "JUNIOR QUIZ",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "General_Knowledge"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 200,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 200,
+      "isEliminated": false,
+      "lifelineRemaining": 1
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 5,
+  "finalScores": {
+    "1": 200,
+    "2": 200
+  },
+  "eliminationOrder": [
+    "1"
+  ],
+  "winner": "1",
+  "questionStats": [
+    {
+      "questionId": "q1774447330950_24",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_11",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_19",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 13
+    },
+    {
+      "questionId": "q1774447330950_7",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 16
+    },
+    {
+      "questionId": "q1774447330950_24",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_15",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 5
+    }
+  ]
+}

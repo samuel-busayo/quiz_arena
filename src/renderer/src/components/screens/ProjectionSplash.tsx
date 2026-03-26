@@ -3,7 +3,30 @@ import { motion } from 'framer-motion'
 import { TvText } from '../../components/ui/TvText'
 import logo from '../../assets/tvi-logo.png'
 
+import { useQuizStore } from '../../store/useQuizStore'
+
 export function ProjectionSplash() {
+    const { isInitialized } = useQuizStore()
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            useQuizStore.setState({ isInitialized: true })
+        }, 5000)
+
+        // Force skip on spacebar for operator unblocking
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space') {
+                useQuizStore.setState({ isInitialized: true })
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            clearTimeout(timer)
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
