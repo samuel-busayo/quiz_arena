@@ -90,20 +90,30 @@ export function HelpAboutScreen() {
                         </div>
                     </TvPanel>
 
-                    <TvPanel elevation="floating" className="p-6 flex flex-col items-center text-center gap-4">
-                        <div className="p-4 rounded-full bg-tv-accentSoft/30 border border-tv-accent/20">
-                            <Zap size={32} className="text-tv-accent" />
+                    <TvPanel elevation="floating" className="p-6 flex flex-col gap-4">
+                        <div className="flex items-center gap-3">
+                            <Info size={24} className="text-tv-accent" />
+                            <TvText variant="h3">Developer Core</TvText>
                         </div>
-                        <div>
-                            <TvText variant="h3">TechVerse</TvText>
-                            <TvText variant="muted" className="text-xs">Advanced Agentic Coding</TvText>
+
+                        <div className="space-y-6">
+                            <DevItem
+                                name="Olatunbosun Samuel Busayo"
+                                role="Fullstack Web Developer & Software Engineer"
+                                link="https://www.linkedin.com/in/samuel-busayo-1b5b68237/"
+                            />
+                            <DevItem
+                                name="Biose Peter John"
+                                role="Fullstack Web-Developer & Software Engineer"
+                                link="#"
+                            />
                         </div>
-                        <TvText variant="muted" className="text-[10px] mt-2 opacity-60">
-                            Proprietary technology designed for high-intensity competition environments.
-                        </TvText>
-                        <TvButton variant="ghost" size="sm" className="w-full mt-4" iconRight={<ExternalLink size={14} />}>
-                            Vist Website
-                        </TvButton>
+
+                        <div className="pt-4 border-t border-tv-border/20">
+                            <TvText variant="muted" className="text-[10px] opacity-60 text-center block">
+                                TechVerse Quiz Arena // Futuristic Quiz App
+                            </TvText>
+                        </div>
                     </TvPanel>
                 </div>
             </div>
@@ -141,6 +151,23 @@ function TechItem({ label, val }: { label: string, val: string }) {
         <div className="flex justify-between border-b border-tv-border/10 pb-2">
             <TvText variant="label" className="opacity-60">{label}</TvText>
             <TvText variant="muted" className="text-xs font-mono">{val}</TvText>
+        </div>
+    )
+}
+
+function DevItem({ name, role, link }: { name: string, role: string, link: string }) {
+    return (
+        <div className="space-y-1">
+            <TvText variant="body" className="font-bold text-sm text-tv-textPrimary">{name}</TvText>
+            <TvText variant="muted" className="text-[10px] block opacity-70 leading-tight">{role}</TvText>
+            <a
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[10px] text-tv-accent hover:underline mt-1"
+            >
+                Connect on LinkedIn <ExternalLink size={10} />
+            </a>
         </div>
     )
 }

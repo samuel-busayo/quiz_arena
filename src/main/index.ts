@@ -7,6 +7,11 @@ import { projectionWindowManager } from './services/ProjectionWindowManager'
 
 let adminWindow: BrowserWindow | null = null
 
+// Optimize for high-visual projection (fix tile memory warnings)
+app.commandLine.appendSwitch('force-gpu-mem-available-mb', '2048')
+app.commandLine.appendSwitch('num-raster-threads', '4')
+app.commandLine.appendSwitch('ignore-gpu-blacklist')
+
 function createAdminWindow(): void {
     adminWindow = new BrowserWindow({
         width: 1200,
@@ -15,7 +20,8 @@ function createAdminWindow(): void {
         autoHideMenuBar: true,
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
-            sandbox: false
+            sandbox: false,
+            spellcheck: false
         }
     })
 
@@ -157,6 +163,57 @@ app.whenReady().then(() => {
     // Simulation Sync
     ipcMain.on('update-quiz-state', (_, state) => {
         projectionWindowManager.sendState(state)
+    })
+
+    // Offline Session Persistence
+    const sessionsPath = join(app.getPath('documents'), 'TechVerseQuizArena', 'sessions')
+    require('fs/promises').mkdir(sessionsPath, { recursive: true }).catch(console.error)
+
+    ipcMain.handle('save-session', async (_, session) => {
+        try {
+            const fileName = `active_session.json`
+            const tempPath = join(sessionsPath, `${fileName}.tmp`)
+            const finalPath = join(sessionsPath, fileName)
+
+            await writeFile(tempPath, JSON.stringify(session, null, 2))
+            await rename(tempPath, finalPath)
+            return true
+        } catch (err) {
+            console.error('Save Session Error:', err)
+            return false
+        }
+    })
+
+    ipcMain.handle('get-sessions', async () => {
+        try {
+            const fileName = `active_session.json`
+            const exists = await require('fs/promises').access(join(sessionsPath, fileName)).then(() => true).catch(() => false)
+            if (!exists) return []
+
+            const content = await readFile(join(sessionsPath, fileName), 'utf-8')
+            return [JSON.parse(content)]
+        } catch (err) {
+            return []
+        }
+    })
+
+    ipcMain.handle('load-session', async () => {
+        try {
+            const content = await readFile(join(sessionsPath, `active_session.json`), 'utf-8')
+            return JSON.parse(content)
+        } catch (err) {
+            return null
+        }
+    })
+
+    ipcMain.handle('delete-session', async () => {
+        try {
+            const { unlink } = require('fs/promises')
+            await unlink(join(sessionsPath, `active_session.json`))
+            return true
+        } catch (err) {
+            return false
+        }
     })
 
     ipcMain.on('open-projector', () => {

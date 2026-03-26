@@ -95,7 +95,12 @@ const api = {
   saveQuizResult: (result) => electron.ipcRenderer.invoke("save-quiz-result", result),
   getQuizResults: () => electron.ipcRenderer.invoke("get-quiz-results"),
   openProjector: () => electron.ipcRenderer.send("open-projector"),
-  getDisplayInfo: () => electron.ipcRenderer.invoke("get-display-info")
+  getDisplayInfo: () => electron.ipcRenderer.invoke("get-display-info"),
+  // Session Persistence
+  saveSession: (session) => electron.ipcRenderer.invoke("save-session", session),
+  getSessions: () => electron.ipcRenderer.invoke("get-sessions"),
+  loadSession: () => electron.ipcRenderer.invoke("load-session"),
+  deleteSession: () => electron.ipcRenderer.invoke("delete-session")
 };
 if (process.contextIsolated) {
   try {

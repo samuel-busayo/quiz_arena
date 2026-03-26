@@ -20,6 +20,11 @@ const api = {
     getQuizResults: () => ipcRenderer.invoke('get-quiz-results'),
     openProjector: () => ipcRenderer.send('open-projector'),
     getDisplayInfo: () => ipcRenderer.invoke('get-display-info'),
+    // Session Persistence
+    saveSession: (session: any) => ipcRenderer.invoke('save-session', session),
+    getSessions: () => ipcRenderer.invoke('get-sessions'),
+    loadSession: () => ipcRenderer.invoke('load-session'),
+    deleteSession: () => ipcRenderer.invoke('delete-session'),
 }
 
 if (process.contextIsolated) {

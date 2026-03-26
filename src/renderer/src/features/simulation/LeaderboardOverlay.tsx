@@ -145,10 +145,14 @@ function LeaderboardCard({ team, rank, delay }: { team: Team, rank: number, dela
                 <div className="flex flex-col">
                     <div className="flex items-center gap-3">
                         <RankIcon />
-                        <TvText variant="h2" className={cn(
-                            "font-black uppercase tracking-widest text-3xl",
-                            isFirst ? "text-white drop-shadow-glow" : "text-white/90"
-                        )}>
+                        <TvText
+                            variant="h2"
+                            className={cn(
+                                "font-black uppercase tracking-widest leading-none",
+                                team.name.length > 20 ? "text-xl" : team.name.length > 15 ? "text-2xl" : "text-3xl",
+                                isFirst ? "text-white drop-shadow-glow" : "text-white/90"
+                            )}
+                        >
                             {team.name}
                         </TvText>
                     </div>

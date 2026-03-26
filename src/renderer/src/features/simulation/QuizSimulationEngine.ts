@@ -25,7 +25,12 @@ class QuizSimulationEngine {
             currentTake: 1,
             currentTeamId: initialTeams[0].id,
             revealStatus: null,
-            selectedOption: null
+            selectedOption: null,
+            isPaused: false,
+            uiOverlay: null,
+            eliminatedOptions: [],
+            isLocked: false,
+            isConfirming: false
         })
 
         // 3. Grid / Queue Generation
@@ -111,6 +116,8 @@ class QuizSimulationEngine {
             case 'WINNER':
                 audioEngine.playBgm('winner')
                 this.handleQuizEnd()
+                // Winner Mega Celebration Sequence is handled in ProjectionScreen
+                // We just hold here. Manual action needed to close.
                 break
             case 'IDLE':
                 audioEngine.stopBgm()
@@ -256,14 +263,15 @@ class QuizSimulationEngine {
 
         useQuizStore.setState({ isLocked: true })
 
-        // 1s SUSPENSE BEAT
+        // STAGE 1: Suspense Freeze (0.6s)
         audioEngine.playSfx('bassHit')
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Projection UI will show "FINAL ANSWER LOCKED"
+        await new Promise(resolve => setTimeout(resolve, 600))
 
         this.revealAnswer(selectedOption)
     }
 
-    private revealAnswer(selection: 'A' | 'B' | 'C' | 'D' | null) {
+    private async revealAnswer(selection: 'A' | 'B' | 'C' | 'D' | null) {
         const { currentTeamId, config, updateScore, timerRemaining, currentQuestion, addQuestionStat } = useQuizStore.getState()
         if (!currentQuestion || !currentTeamId || !config) return
 
@@ -272,23 +280,35 @@ class QuizSimulationEngine {
         const isCorrect = selection === currentQuestion.answer
         const revealStatus = selection === null ? 'timeout' : isCorrect ? 'correct' : 'wrong'
 
+        // STAGE 2: Reveal Burst (1.2s for correct, 0.4s + 0.9s for wrong)
         useQuizStore.setState({
             currentState: 'ANSWER_REVEAL',
             revealStatus,
             selectedOption: selection,
-            isConfirming: false, // Reset confirmation state
-            isLocked: false     // Reset lock state
+            isConfirming: false,
+            isLocked: false
         })
 
-        if (revealStatus === 'timeout') {
-            audioEngine.playSfx('wrong')
-            updateScore(currentTeamId, 0)
-        } else if (isCorrect) {
+        if (isCorrect) {
             audioEngine.playSfx('correct')
+            await new Promise(resolve => setTimeout(resolve, 1200))
+
+            // STAGE 3: Scoreboard Celebration (1.0s)
             updateScore(currentTeamId, config.scorePerCorrect)
+            await new Promise(resolve => setTimeout(resolve, 1000))
         } else {
+            // Impact Shock (0.4s)
             audioEngine.playSfx('wrong')
-            updateScore(currentTeamId, 0)
+            await new Promise(resolve => setTimeout(resolve, 400))
+
+            // Failure Fade (0.9s)
+            await new Promise(resolve => setTimeout(resolve, 900))
+
+            // Score Deduction (0.8s) - if config allows
+            if (config.deductionPerWrong > 0) {
+                updateScore(currentTeamId, -config.deductionPerWrong)
+                await new Promise(resolve => setTimeout(resolve, 800))
+            }
         }
 
         // Add Stat
@@ -299,11 +319,8 @@ class QuizSimulationEngine {
             timeUsed: config.timerSeconds - timerRemaining
         })
 
-        // Auto advance based on animation duration
-        const delay = isCorrect ? 2500 : 2200
-        setTimeout(() => {
-            this.advanceSimulation()
-        }, delay)
+        // Auto advance simulation
+        this.advanceSimulation()
     }
 
     advanceSimulation() {

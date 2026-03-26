@@ -7,7 +7,7 @@ import { Database, Play, Settings, History, HelpCircle, Volume2 } from 'lucide-r
 import { useQuizStore } from '../../store/useQuizStore'
 
 export function CommandCenterScreen() {
-    const { setUiScreen } = useQuizStore()
+    const { setUiScreen, loadSession, hasSavedSession } = useQuizStore()
 
     return (
         <div className="h-full w-full flex flex-col items-center justify-between py-12 px-8">
@@ -67,15 +67,16 @@ export function CommandCenterScreen() {
 
                 <TvCard
                     hoverable
+                    disabled={!hasSavedSession}
                     className="p-8 flex items-center gap-6 group"
-                    onClick={() => setUiScreen('SIMULATION_CONSOLE')}
+                    onClick={() => loadSession()}
                 >
                     <div className="p-4 rounded-lg bg-tv-accentSoft text-tv-accent group-hover:scale-110 transition-transform">
                         <Play size={32} />
                     </div>
                     <div>
-                        <TvText variant="h3">Load Quiz Setup</TvText>
-                        <TvText variant="muted">Continue previous sessions</TvText>
+                        <TvText variant="h3">LOAD SAVED QUIZ STIMULATION</TvText>
+                        <TvText variant="muted">Restore active simulation state</TvText>
                     </div>
                 </TvCard>
 

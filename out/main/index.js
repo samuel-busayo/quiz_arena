@@ -169,12 +169,12 @@ class ProjectionWindowManager {
       webPreferences: {
         preload: path.join(__dirname, "../preload/index.js"),
         sandbox: false,
-        contextIsolation: true
+        contextIsolation: true,
+        spellcheck: false
       }
     });
     if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
       this.window.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}#projector`);
-      this.window.webContents.openDevTools({ mode: "detach" });
     } else {
       this.window.loadFile(path.join(__dirname, "../renderer/index.html"), { hash: "projector" });
     }
@@ -217,6 +217,9 @@ class ProjectionWindowManager {
 }
 const projectionWindowManager = new ProjectionWindowManager();
 let adminWindow = null;
+electron.app.commandLine.appendSwitch("force-gpu-mem-available-mb", "2048");
+electron.app.commandLine.appendSwitch("num-raster-threads", "4");
+electron.app.commandLine.appendSwitch("ignore-gpu-blacklist");
 function createAdminWindow() {
   adminWindow = new electron.BrowserWindow({
     width: 1200,
@@ -225,7 +228,8 @@ function createAdminWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
-      sandbox: false
+      sandbox: false,
+      spellcheck: false
     }
   });
   adminWindow.on("ready-to-show", () => {
@@ -344,6 +348,49 @@ electron.app.whenReady().then(() => {
   });
   electron.ipcMain.on("update-quiz-state", (_, state) => {
     projectionWindowManager.sendState(state);
+  });
+  const sessionsPath = path.join(electron.app.getPath("documents"), "TechVerseQuizArena", "sessions");
+  require("fs/promises").mkdir(sessionsPath, { recursive: true }).catch(console.error);
+  electron.ipcMain.handle("save-session", async (_, session) => {
+    try {
+      const fileName = `active_session.json`;
+      const tempPath = path.join(sessionsPath, `${fileName}.tmp`);
+      const finalPath = path.join(sessionsPath, fileName);
+      await promises.writeFile(tempPath, JSON.stringify(session, null, 2));
+      await promises.rename(tempPath, finalPath);
+      return true;
+    } catch (err) {
+      console.error("Save Session Error:", err);
+      return false;
+    }
+  });
+  electron.ipcMain.handle("get-sessions", async () => {
+    try {
+      const fileName = `active_session.json`;
+      const exists = await require("fs/promises").access(path.join(sessionsPath, fileName)).then(() => true).catch(() => false);
+      if (!exists) return [];
+      const content = await promises.readFile(path.join(sessionsPath, fileName), "utf-8");
+      return [JSON.parse(content)];
+    } catch (err) {
+      return [];
+    }
+  });
+  electron.ipcMain.handle("load-session", async () => {
+    try {
+      const content = await promises.readFile(path.join(sessionsPath, `active_session.json`), "utf-8");
+      return JSON.parse(content);
+    } catch (err) {
+      return null;
+    }
+  });
+  electron.ipcMain.handle("delete-session", async () => {
+    try {
+      const { unlink } = require("fs/promises");
+      await unlink(path.join(sessionsPath, `active_session.json`));
+      return true;
+    } catch (err) {
+      return false;
+    }
   });
   electron.ipcMain.on("open-projector", () => {
     projectionWindowManager.createWindow();

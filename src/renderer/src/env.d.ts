@@ -20,6 +20,10 @@ interface Api {
         secondaryRes: string
         isProjectorAlive: boolean
     }>
+    saveSession: (session: any) => Promise<boolean>
+    getSessions: () => Promise<any[]>
+    loadSession: () => Promise<any>
+    deleteSession: () => Promise<boolean>
 }
 
 interface Window {

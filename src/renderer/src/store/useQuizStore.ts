@@ -104,6 +104,8 @@ interface QuizStore {
     questionQueue: Question[]
     systemSettings: SystemSettings
     uiOverlay: 'leaderboard' | null
+    currentSessionId: string | null
+    hasSavedSession: boolean
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
@@ -161,6 +163,11 @@ interface QuizStore {
     // Analytics Actions
     addQuestionStat: (stat: QuizResult['questionStats'][0]) => void
     saveResult: (result: QuizResult) => void
+
+    // Session Actions
+    saveSession: () => Promise<void>
+    loadSession: () => Promise<void>
+    checkSavedSession: () => Promise<void>
 }
 
 let isProjectorUpdate = false
@@ -191,6 +198,8 @@ export const useQuizStore = create<QuizStore>()(
             isConfirming: false,
             isLocked: false,
             uiOverlay: null,
+            currentSessionId: null,
+            hasSavedSession: false,
             eliminatedOptions: [],
 
             // Draft setup
@@ -240,11 +249,27 @@ export const useQuizStore = create<QuizStore>()(
 
                 // Initial broadcast if admin
                 if (view === 'admin') {
+                    get().checkSavedSession()
                     get().syncState()
                     // Automate synchronization for all store changes
-                    useQuizStore.subscribe(() => {
+                    const unsubscribeSync = useQuizStore.subscribe(() => {
                         get().syncState()
                     })
+
+                    // Auto-Save Engine
+                    let saveTimeout: NodeJS.Timeout
+                    const unsubscribeAutoSave = useQuizStore.subscribe((state) => {
+                        if (state.currentState === 'IDLE') return
+                        clearTimeout(saveTimeout)
+                        saveTimeout = setTimeout(() => {
+                            get().saveSession()
+                        }, 400)
+                    })
+
+                    return () => {
+                        unsubscribeSync()
+                        unsubscribeAutoSave()
+                    }
                 }
             },
 
@@ -362,6 +387,7 @@ export const useQuizStore = create<QuizStore>()(
             },
 
             resetQuiz: () => {
+                const currentHasSave = get().hasSavedSession
                 set({
                     currentState: 'IDLE',
                     uiScreen: 'COMMAND_CENTER',
@@ -383,24 +409,9 @@ export const useQuizStore = create<QuizStore>()(
                     currentStats: [],
                     isConfirming: false,
                     isLocked: false,
-                    setupDraft: {
-                        step: 1,
-                        teams: [
-                            { id: '1', name: 'TEAM ALPHA', color: '#00D1FF', score: 0, isEliminated: false },
-                            { id: '2', name: 'TEAM BETA', color: '#FF3D00', score: 0, isEliminated: false }
-                        ],
-                        collectionName: null,
-                        config: {
-                            rounds: 3,
-                            takesPerRound: 2,
-                            timerSeconds: 30,
-                            extraTimerSeconds: 15,
-                            scorePerCorrect: 10,
-                            deductionPerWrong: 5,
-                            showLeaderboardAfterRound: true,
-                            mode: 'RANDOM'
-                        }
-                    }
+                    uiOverlay: null,
+                    eliminatedOptions: [],
+                    hasSavedSession: currentHasSave // Persist the fact that a save exists on disk
                 })
                 get().syncState()
             },
@@ -452,6 +463,74 @@ export const useQuizStore = create<QuizStore>()(
                     results: [result, ...state.results]
                 }))
                 window.api.saveQuizResult(result)
+            },
+
+            saveSession: async () => {
+                const state = get()
+                if (state.currentState === 'IDLE' || state.teams.length === 0) return
+
+                const sessionId = 'active'
+                if (state.currentSessionId !== sessionId) set({ currentSessionId: sessionId })
+
+                const snapshot = {
+                    sessionId,
+                    timestamp: Date.now(),
+                    appVersion: '1.0.0',
+                    schemaVersion: 1,
+                    phase: state.currentState,
+                    uiOverlay: state.uiOverlay,
+                    currentRound: state.currentRound,
+                    currentTake: state.currentTake,
+                    currentTeamId: state.currentTeamId,
+                    timerRemaining: state.timerRemaining,
+                    timerRunning: !state.isPaused,
+                    teams: state.teams,
+                    questions: state.questions,
+                    questionQueue: state.questionQueue,
+                    gridNumbers: state.gridNumbers,
+                    currentStats: state.currentStats,
+                    eliminatedOptions: state.eliminatedOptions,
+                    config: state.config
+                }
+
+                const success = await window.api.saveSession(snapshot)
+                if (success) set({ hasSavedSession: true })
+            },
+
+            loadSession: async () => {
+                const session = await window.api.loadSession()
+                if (session) {
+                    set({
+                        currentSessionId: session.sessionId,
+                        currentState: session.phase,
+                        uiOverlay: session.uiOverlay,
+                        currentRound: session.currentRound,
+                        currentTake: session.currentTake,
+                        currentTeamId: session.currentTeamId,
+                        timerRemaining: session.timerRemaining,
+                        isPaused: true,
+                        teams: session.teams,
+                        questions: session.questions,
+                        questionQueue: session.questionQueue,
+                        gridNumbers: session.gridNumbers,
+                        currentStats: session.currentStats,
+                        eliminatedOptions: session.eliminatedOptions,
+                        config: session.config,
+                        uiScreen: 'SIMULATION_CONSOLE',
+                        hasSavedSession: true
+                    })
+                    get().syncState()
+                }
+            },
+
+            checkSavedSession: async () => {
+                const sessions = await window.api.getSessions()
+                set({ hasSavedSession: sessions.length > 0 })
+            },
+
+            deleteSession: async () => {
+                const success = await window.api.deleteSession()
+                if (success) set({ hasSavedSession: false })
             }
         }),
         {

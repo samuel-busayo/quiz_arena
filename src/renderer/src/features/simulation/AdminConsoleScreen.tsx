@@ -7,7 +7,7 @@ import { TvProgressRing } from '../../components/ui/TvProgressRing'
 import {
     Play, Pause, RotateCcw, Volume2, Trophy,
     ArrowRight, ShieldAlert, Zap, CheckCircle2,
-    XCircle, Music, Power, ArrowLeft, ShieldCheck
+    XCircle, Music, Power, ArrowLeft, ShieldCheck, Database
 } from 'lucide-react'
 import { useQuizStore, Question } from '../../store/useQuizStore'
 import { simulationEngine } from './QuizSimulationEngine'
@@ -33,8 +33,19 @@ export function AdminConsoleScreen() {
         isLocked,
         setCurrentState,
         uiOverlay,
-        eliminatedOptions
+        eliminatedOptions,
+        resetQuiz,
+        saveSession,
+        deleteSession
     } = useQuizStore()
+
+    const [isSaving, setIsSaving] = React.useState(false)
+
+    const handleSave = async () => {
+        setIsSaving(true)
+        await saveSession()
+        setTimeout(() => setIsSaving(false), 1000)
+    }
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
     const [displayInfo, setDisplayInfo] = useState({ count: 1, primaryRes: '...', secondaryRes: '...', isProjectorAlive: false })
@@ -89,7 +100,14 @@ export function AdminConsoleScreen() {
                             className="px-4 py-1 border-l-2 bg-white/5 flex items-center gap-3"
                         >
                             <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: activeTeam?.color }} />
-                            <TvText variant="h3" className="uppercase tracking-tighter" style={{ color: activeTeam?.color }}>
+                            <TvText
+                                variant="h3"
+                                className={cn(
+                                    "uppercase tracking-tighter truncate max-w-[200px]",
+                                    (activeTeam?.name?.length || 0) > 15 ? "text-sm" : (activeTeam?.name?.length || 0) > 12 ? "text-base" : "text-lg"
+                                )}
+                                style={{ color: activeTeam?.color }}
+                            >
                                 {activeTeam?.name || 'AWAITING NEURAL LINK'}
                             </TvText>
                         </motion.div>
@@ -128,14 +146,23 @@ export function AdminConsoleScreen() {
                         <TvButton
                             variant="secondary"
                             size="sm"
-                            className="text-tv-danger hover:bg-tv-danger/10 border-white/10"
-                            onClick={() => {
-                                if (confirm('ABORT MISSION AND RETURN TO COMMAND CENTER?')) {
-                                    useQuizStore.getState().resetQuiz()
+                            iconLeft={<Database size={16} />}
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'SYNCING...' : 'SAVE MISSION'}
+                        </TvButton>
+                        <TvButton
+                            variant="danger"
+                            size="sm"
+                            onClick={async () => {
+                                if (window.confirm("CRITICAL: This will terminate the current mission and CLEAR all progress (including saved session). Proceed?")) {
+                                    await deleteSession()
+                                    resetQuiz()
                                 }
                             }}
                         >
-                            <Power size={16} />
+                            ABORT MISSION
                         </TvButton>
                     </div>
                 </div>
@@ -168,8 +195,16 @@ export function AdminConsoleScreen() {
                                     )}
                                     style={{ borderLeftColor: team.color }}
                                 >
-                                    <div className="flex flex-col">
-                                        <TvText variant="body" className="text-xs font-black uppercase tracking-wider">{team.name}</TvText>
+                                    <div className="flex flex-col min-w-0">
+                                        <TvText
+                                            variant="body"
+                                            className={cn(
+                                                "font-black uppercase tracking-wider truncate",
+                                                team.name.length > 15 ? "text-[10px]" : team.name.length > 12 ? "text-[11px]" : "text-xs"
+                                            )}
+                                        >
+                                            {team.name}
+                                        </TvText>
                                         <div className="w-12 h-1 bg-white/5 mt-1 rounded-full overflow-hidden">
                                             <motion.div
                                                 initial={{ width: 0 }}

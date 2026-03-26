@@ -144,7 +144,13 @@ export function ProjectionScreen() {
                             className="relative"
                         >
                             <TvText variant="label" className="text-tv-accent opacity-50 tracking-[0.5em] mb-4 block">ACTIVE OPERATIVE</TvText>
-                            <TvText variant="h1" className="text-[clamp(4rem,12vw,10rem)] font-black uppercase text-white drop-shadow-[0_0_30px_rgba(0,229,255,0.4)] italic">
+                            <TvText
+                                variant="h1"
+                                className={cn(
+                                    "font-black uppercase text-white drop-shadow-[0_0_30px_rgba(0,229,255,0.4)] italic leading-none",
+                                    (activeTeam?.name?.length || 0) > 20 ? "text-[6vw]" : (activeTeam?.name?.length || 0) > 15 ? "text-[8vw]" : "text-[clamp(4rem,12vw,10rem)]"
+                                )}
+                            >
                                 {activeTeam?.name || teams[0]?.name || 'REDACTED'}
                             </TvText>
                         </motion.div>
@@ -259,90 +265,7 @@ export function ProjectionScreen() {
             }
 
             if (currentState === 'WINNER' && winner) {
-                return (
-                    <motion.div
-                        key="winner"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden"
-                    >
-                        {/* Spotlight Ray */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.25)_0%,transparent_50%)]" />
-                        <motion.div
-                            className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[200vw] h-[200vw] bg-[conic-gradient(from_0deg,transparent_0deg,rgba(0,229,255,0.1)_180deg,transparent_360deg)] pointer-events-none"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                        />
-
-                        <motion.div
-                            initial={{ scale: 0.5, y: 100, opacity: 0 }}
-                            animate={{ scale: 1, y: 0, opacity: 1 }}
-                            transition={{ duration: 1.2, ease: "circOut" }}
-                            className="text-center relative z-10"
-                        >
-                            <motion.div
-                                animate={{ rotateY: [0, 360], scale: [1, 1.1, 1] }}
-                                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                                className="mb-12"
-                            >
-                                <Trophy size={200} className="text-tv-accent mx-auto drop-shadow-[0_0_50px_rgba(0,229,255,1)]" />
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <TvText variant="h1" className="text-9xl font-black italic tracking-tighter text-white mb-6 drop-shadow-glow">
-                                    CHAMPION
-                                </TvText>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: '120%' }}
-                                transition={{ duration: 1.5, delay: 0.8 }}
-                                className="h-3 bg-tv-accent mx-auto mb-10 overflow-hidden relative -translate-x-[10%]"
-                            >
-                                <div className="absolute inset-0 shadow-[0_0_30px_#00E5FF]" />
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 1, type: 'spring' }}
-                            >
-                                <TvText variant="h2" className="text-[140px] font-black uppercase text-tv-accent drop-shadow-[0_0_40px_rgba(0,229,255,0.6)] leading-none">
-                                    {winner.name}
-                                </TvText>
-                            </motion.div>
-                        </motion.div>
-
-                        {/* Confetti Particles */}
-                        <div className="absolute inset-0 pointer-events-none">
-                            {[...Array(50)].map((_, i) => (
-                                <motion.div
-                                    key={`confetti-${i}`}
-                                    initial={{ y: "110%", x: `${Math.random() * 100}%`, rotate: 0 }}
-                                    animate={{
-                                        y: "-20%",
-                                        x: `${Math.random() * 100}%`,
-                                        rotate: Math.random() * 720
-                                    }}
-                                    transition={{
-                                        duration: 4 + Math.random() * 6,
-                                        repeat: Infinity,
-                                        delay: Math.random() * 10,
-                                        ease: 'linear'
-                                    }}
-                                    className="absolute w-2 h-4 bg-tv-accent/60 rounded-sm"
-                                    style={{ backgroundColor: i % 3 === 0 ? '#00E5FF' : i % 3 === 1 ? '#FFFFFF' : '#004D40' }}
-                                />
-                            ))}
-                        </div>
-                    </motion.div>
-                )
+                return <WinnerCelebration winner={winner} />
             }
 
             if (currentState === 'PICKER_PHASE') {
@@ -425,42 +348,45 @@ export function ProjectionScreen() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center"
+                                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-20"
                                     >
                                         <motion.div
                                             initial={{ scale: 0.8, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
                                             exit={{ scale: 1.2, opacity: 0 }}
-                                            className="text-center"
+                                            className="text-center relative"
                                         >
-                                            <TvText variant="label" className="text-tv-accent text-2xl tracking-[0.8em] uppercase mb-4 block animate-pulse">
-                                                {isLocked ? 'ANSWER LOCKED' : 'FINAL ANSWER?'}
+                                            <TvText variant="label" className="text-tv-accent text-3xl tracking-[1.5em] uppercase mb-12 block animate-pulse">
+                                                {isLocked ? 'FINAL ANSWER LOCKED' : 'CONFIRM SELECTION?'}
                                             </TvText>
 
                                             <div className="flex flex-col items-center">
-                                                <TvText variant="h1" className="text-[120px] font-black italic text-white leading-none mb-2 drop-shadow-glow">
+                                                <motion.div
+                                                    animate={isLocked ? { scale: [1, 1.1, 1], filter: ['brightness(1)', 'brightness(2)', 'brightness(1)'] } : {}}
+                                                    transition={{ duration: 0.6, repeat: Infinity }}
+                                                >
+                                                    <TvText variant="h1" className="text-[14vw] font-black italic text-white leading-none mb-8 drop-shadow-glow">
+                                                        {selectedOption}
+                                                    </TvText>
+                                                </motion.div>
+
+                                                <div className="h-[2px] w-64 bg-tv-accent/30 mx-auto" />
+                                                <TvText variant="h2" className="text-5xl text-white/50 uppercase tracking-[0.8em] mt-6">
                                                     {activeTeam?.name}
                                                 </TvText>
-                                                <div className="flex items-center gap-8 mt-4">
-                                                    <div className="h-[2px] w-24 bg-white/20" />
-                                                    <TvText variant="h2" className="text-6xl text-tv-accent font-black">
-                                                        OPTION {selectedOption}
-                                                    </TvText>
-                                                    <div className="h-[2px] w-24 bg-white/20" />
-                                                </div>
                                             </div>
 
                                             {isLocked && (
                                                 <motion.div
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    className="mt-12 overflow-hidden h-2 w-96 bg-white/10 mx-auto rounded-full"
+                                                    className="mt-16 overflow-hidden h-3 w-[40vw] bg-white/5 mx-auto rounded-full border border-white/10"
                                                 >
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: '100%' }}
-                                                        transition={{ duration: 1, ease: 'linear' }}
-                                                        className="h-full bg-tv-accent shadow-glow"
+                                                        transition={{ duration: 0.6, ease: 'linear' }}
+                                                        className="h-full bg-tv-accent shadow-[0_0_30px_#00E5FF]"
                                                     />
                                                 </motion.div>
                                             )}
@@ -468,6 +394,9 @@ export function ProjectionScreen() {
                                     </motion.div>
                                 )}
                             </AnimatePresence>
+
+                            {/* SESSION RESTORATION OVERLAY */}
+                            <SessionRestorationOverlay />
                         </main>
 
                         {/* TOP-RIGHT TIMER RING */}
@@ -535,6 +464,146 @@ export function ProjectionScreen() {
     )
 }
 
+function SessionRestorationOverlay() {
+    const { currentSessionId, currentState } = useQuizStore()
+    const [visible, setVisible] = React.useState(false)
+
+    React.useEffect(() => {
+        if (currentSessionId && currentState !== 'IDLE') {
+            setVisible(true)
+            const timer = setTimeout(() => setVisible(false), 2000)
+            return () => clearTimeout(timer)
+        }
+        return undefined
+    }, [currentSessionId])
+
+    return (
+        <AnimatePresence>
+            {visible && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] bg-tv-accent/10 backdrop-blur-3xl flex flex-col items-center justify-center"
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-center"
+                    >
+                        <div className="w-32 h-32 border-4 border-tv-accent border-t-transparent rounded-full animate-spin mb-8 mx-auto" />
+                        <TvText variant="h1" className="text-6xl font-black italic tracking-tighter text-white mb-4 drop-shadow-glow">
+                            NEURAL LINK RESTORED
+                        </TvText>
+                        <TvText variant="label" className="text-tv-accent text-2xl tracking-[1em] uppercase block">
+                            Synchronizing Session State...
+                        </TvText>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    )
+}
+
+function WinnerCelebration({ winner }: { winner: any }) {
+    const [stage, setStage] = React.useState(1)
+
+    React.useEffect(() => {
+        const timers = [
+            setTimeout(() => setStage(2), 500),   // Winner Name Entry
+            setTimeout(() => setStage(3), 1700),  // Trophy Reveal
+            setTimeout(() => setStage(4), 3200),  // Confetti + Wave
+            setTimeout(() => setStage(5), 4700),  // Score Lock
+        ]
+        return () => timers.forEach(clearTimeout)
+    }, [])
+
+    return (
+        <motion.div
+            key="winner-mega"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden"
+        >
+            {/* Stage 1: Scene Reset (Dark + Spotlight) */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.15)_0%,transparent_70%)] opacity-50" />
+
+            <AnimatePresence>
+                {stage >= 2 && (
+                    <motion.div
+                        initial={{ scale: 3, opacity: 0, filter: 'blur(40px)' }}
+                        animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                        transition={{ duration: 1.2, ease: "circOut" }}
+                        className="text-center z-10"
+                    >
+                        <TvText variant="h2" className="text-4xl tracking-[1.5em] text-tv-accent mb-4 opacity-60">CHAMPIONS</TvText>
+                        <TvText variant="h1" className="text-[12vw] font-black italic text-white leading-none drop-shadow-[0_0_80px_rgba(0,229,255,0.5)]">
+                            {winner.name}
+                        </TvText>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {stage >= 3 && (
+                <motion.div
+                    initial={{ y: 200, opacity: 0, rotateY: 90 }}
+                    animate={{ y: 0, opacity: 1, rotateY: 0 }}
+                    transition={{ duration: 1, type: "spring" }}
+                    className="mt-12 z-20"
+                >
+                    <motion.div
+                        animate={{ rotateY: 360 }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    >
+                        <Trophy size={180} className="text-[#FFD700] drop-shadow-[0_0_40px_rgba(255,215,0,0.6)]" />
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {stage >= 4 && (
+                <>
+                    {/* Confetti Wave */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        {[...Array(40)].map((_, i) => (
+                            <motion.div
+                                key={`confetti-${i}`}
+                                initial={{ y: "110%", x: `${Math.random() * 100}%`, rotate: 0 }}
+                                animate={{ y: "-20%", x: `${Math.random() * 100}%`, rotate: 360 }}
+                                transition={{ duration: 3 + Math.random() * 2, repeat: Infinity, ease: 'linear' }}
+                                className="absolute w-2 h-4 rounded-sm"
+                                style={{ backgroundColor: i % 2 === 0 ? winner.color : '#FFFFFF' }}
+                            />
+                        ))}
+                    </div>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.2 }}
+                        className="absolute inset-0"
+                        style={{ background: `radial-gradient(circle at center, ${winner.color} 0%, transparent 70%)` }}
+                    />
+                </>
+            )}
+
+            {stage >= 5 && (
+                <motion.div
+                    initial={{ y: 50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="absolute bottom-20 z-30"
+                >
+                    <div className="flex flex-col items-center">
+                        <div className="h-[1px] w-64 bg-white/20 mb-4" />
+                        <TvText variant="h2" className="text-5xl font-light tracking-[0.5em] text-white/70">
+                            FINAL SCORE: <span className="font-bold text-white">{winner.score} POINTS</span>
+                        </TvText>
+                        <TvText variant="label" className="mt-8 text-tv-accent tracking-[1em] uppercase animate-pulse">Session Concluded</TvText>
+                    </div>
+                </motion.div>
+            )}
+        </motion.div>
+    )
+}
+
 function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor, isSelected, revealStatus, isEliminated }: {
     label: string,
     text: string,
@@ -557,53 +626,54 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
                 scale: [1, 1.1, 0.8, 0],
                 filter: ["grayscale(0%)", "grayscale(100%)", "blur(4px)"],
             } : {
-                opacity: (isRevealed && !isCorrect && !isSelected) ? 0.2 : 1,
-                x: (isRevealed && isSelected && !isCorrect) ? [0, -10, 10, -10, 10, 0] : 0,
-                scale: isThisCorrect ? 1.05 : (isSelected && !isRevealed) ? 1.02 : 1,
-                borderColor: isThisCorrect ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.1)',
-                backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.4)' : isThisWrong ? 'rgba(255, 61, 0, 0.2)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.1)' : 'rgba(255,255,255,0.03)'
+                opacity: (isRevealed && !isCorrect && !isSelected) ? 0.3 : 1,
+                x: isThisWrong ? [0, -15, 15, -15, 15, 0] : 0,
+                scale: isThisCorrect ? [1, 1.1, 1] : (isSelected && !isRevealed) ? 1.05 : 1,
+                borderColor: isThisCorrect ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.05)',
+                backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.2)' : isThisWrong ? 'rgba(255, 61, 0, 0.15)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.05)' : 'rgba(255,255,255,0.02)'
             }}
             transition={isEliminated ? {
                 duration: 1.5,
                 times: [0, 0.2, 0.5, 0.8, 1],
                 ease: "easeInOut"
             } : {
-                x: { duration: 0.4, repeat: isThisWrong ? 1 : 0 },
-                default: { delay: isRevealed ? 0 : 0.5 + (index * 0.1), duration: 0.5 }
+                x: { duration: 0.4 },
+                scale: { duration: 0.6 },
+                default: { delay: isRevealed ? 0 : 0.4 + (index * 0.1), duration: 0.5 }
             }}
             className={cn(
-                "p-[1.5vw] rounded-2xl border-4 text-left flex items-center gap-[1vw] transition-all duration-500 backdrop-blur-sm relative overflow-hidden",
-                isRevealed && !isCorrect && !isSelected ? "grayscale" : ""
+                "p-[1.8vw] rounded-3xl border-4 text-left flex items-center gap-[1.5vw] backdrop-blur-md relative overflow-hidden group",
+                isRevealed && !isCorrect && !isSelected ? "grayscale brightness-50" : ""
             )}
         >
             {isThisCorrect && (
                 <motion.div
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 4, opacity: [0, 0.5, 0] }}
-                    transition={{ duration: 0.8, ease: 'circOut' }}
+                    animate={{ scale: 6, opacity: [0, 0.4, 0] }}
+                    transition={{ duration: 1, ease: 'circOut' }}
                     className="absolute inset-0 bg-tv-success rounded-full pointer-events-none z-0"
-                    style={{ left: '10%', top: '50%' }}
+                    style={{ left: '50%', top: '50%' }}
                 />
             )}
 
             <div className={cn(
-                "w-14 h-14 rounded-xl border flex items-center justify-center shrink-0 transition-all duration-500 z-10",
-                isThisCorrect ? "bg-tv-success text-black border-tv-success shadow-glow" :
-                    isThisWrong ? "bg-tv-danger text-white border-tv-danger shadow-[0_0_20px_rgba(255,61,0,0.5)]" :
-                        "bg-black/40 border-white/20 text-white/40"
+                "w-16 h-16 rounded-2xl border-2 flex items-center justify-center shrink-0 transition-all duration-500 z-10 font-black text-3xl",
+                isThisCorrect ? "bg-tv-success border-tv-success text-black shadow-[0_0_30px_rgba(0,230,118,0.5)]" :
+                    isThisWrong ? "bg-tv-danger border-tv-danger text-white shadow-[0_0_30px_rgba(255,61,0,0.5)]" :
+                        isSelected ? "bg-tv-accent border-tv-accent text-black" : "bg-white/5 border-white/10 text-white/40"
             )}>
-                <TvText variant="h1" className="text-3xl font-black">{label}</TvText>
+                {label}
             </div>
 
-            <TvText variant="h2" className="text-[clamp(1rem,3.5vh,2.5rem)] font-bold text-white uppercase tracking-tight flex-1 z-10">
+            <TvText variant="h2" className="text-[clamp(1.2rem,3.8vh,2.8rem)] font-bold text-white/90 uppercase tracking-tight flex-1 z-10 group-hover:text-white transition-colors">
                 {text}
             </TvText>
 
             {isThisCorrect && (
                 <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
                     animate={{ x: ['-100%', '200%'] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 />
             )}
         </motion.div>
