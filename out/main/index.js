@@ -351,18 +351,23 @@ electron.app.whenReady().then(() => {
   });
   const sessionsPath = path.join(electron.app.getPath("documents"), "TechVerseQuizArena", "sessions");
   require("fs/promises").mkdir(sessionsPath, { recursive: true }).catch(console.error);
+  let saveQueue = Promise.resolve(true);
   electron.ipcMain.handle("save-session", async (_, session) => {
-    try {
-      const fileName = `active_session.json`;
-      const tempPath = path.join(sessionsPath, `${fileName}.tmp`);
-      const finalPath = path.join(sessionsPath, fileName);
-      await promises.writeFile(tempPath, JSON.stringify(session, null, 2));
-      await promises.rename(tempPath, finalPath);
-      return true;
-    } catch (err) {
-      console.error("Save Session Error:", err);
-      return false;
-    }
+    saveQueue = saveQueue.then(async () => {
+      try {
+        const fileName = `active_session.json`;
+        const tempPath = path.join(sessionsPath, `${fileName}.tmp`);
+        const finalPath = path.join(sessionsPath, fileName);
+        await require("fs/promises").mkdir(sessionsPath, { recursive: true });
+        await promises.writeFile(tempPath, JSON.stringify(session, null, 2));
+        await promises.rename(tempPath, finalPath);
+        return true;
+      } catch (err) {
+        console.error("Save Session Error:", err);
+        return false;
+      }
+    });
+    return saveQueue;
   });
   electron.ipcMain.handle("get-sessions", async () => {
     try {

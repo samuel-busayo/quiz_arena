@@ -4,6 +4,41 @@ import { useQuizStore } from '../../store/useQuizStore'
 import { TvText } from '../../components/ui/TvText'
 import { audioEngine } from './AudioEngine'
 
+// Component to render a team name with the "Team" label above it
+// MOVED OUTSIDE to prevent re-mounting on state updates (fixes "jumping" animation)
+const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
+    const hasTeamPrefix = team.name.toUpperCase().startsWith('TEAM ')
+    const displayName = hasTeamPrefix ? team.name.substring(5).trim() : team.name
+    const align = isLeft ? "right" : "left"
+
+    return (
+        <motion.div
+            initial={{ x: isLeft ? -100 : 100, opacity: 0, skewX: isLeft ? -10 : 10 }}
+            animate={{ x: 0, opacity: 1, skewX: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className={`flex-1 flex flex-col ${isLeft ? 'items-end pr-8 border-r-4' : 'items-start pl-8 border-l-4'} min-w-0`}
+            style={{ borderColor: team.color }}
+        >
+            <TvText
+                variant="label"
+                align={align}
+                className="text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60"
+                style={{ color: team.color }}
+            >
+                TEAM
+            </TvText>
+
+            <TvText
+                variant="h1"
+                align={align}
+                className="text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full"
+            >
+                {displayName}
+            </TvText>
+        </motion.div>
+    )
+}
+
 export function ProjectionStandbyScreen() {
     const { teams, config, setupDraft, currentState } = useQuizStore()
 
@@ -16,14 +51,15 @@ export function ProjectionStandbyScreen() {
 
     const pairs = React.useMemo(() => {
         if (!activeTeams || activeTeams.length < 2) return []
+        // Ensure stable team data
         const result: any[][] = []
         for (let i = 0; i < activeTeams.length; i++) {
             const t1 = activeTeams[i]
             const t2 = activeTeams[(i + 1) % activeTeams.length]
-            result.push([t1, t2])
+            if (t1 && t2) result.push([t1, t2])
         }
         return result
-    }, [activeTeams])
+    }, [activeTeams.map((t: any) => t?.id).join(',')])
 
     useEffect(() => {
         // Start cinematic drone when entering standby
@@ -47,39 +83,6 @@ export function ProjectionStandbyScreen() {
 
     const currentPair = pairs[pairIndex] || (activeTeams?.length >= 2 ? [activeTeams[0], activeTeams[1]] : null)
 
-    // Component to render a team name with the "Team" label above it
-    const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
-        const hasTeamPrefix = team.name.toUpperCase().startsWith('TEAM ')
-        const displayName = hasTeamPrefix ? team.name.substring(5).trim() : team.name
-        const align = isLeft ? "right" : "left"
-
-        return (
-            <motion.div
-                initial={{ x: isLeft ? -100 : 100, opacity: 0, skewX: isLeft ? -10 : 10 }}
-                animate={{ x: 0, opacity: 1, skewX: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className={`flex-1 flex flex-col ${isLeft ? 'items-end pr-8 border-r-4' : 'items-start pl-8 border-l-4'} min-w-0`}
-                style={{ borderColor: team.color }}
-            >
-                <TvText
-                    variant="label"
-                    align={align}
-                    className="text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60"
-                    style={{ color: team.color }}
-                >
-                    TEAM
-                </TvText>
-
-                <TvText
-                    variant="h1"
-                    align={align}
-                    className="text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full"
-                >
-                    {displayName}
-                </TvText>
-            </motion.div>
-        )
-    }
 
     return (
         <motion.div
@@ -127,7 +130,7 @@ export function ProjectionStandbyScreen() {
                 <AnimatePresence mode="wait">
                     {currentPair && (
                         <motion.div
-                            key={`${pairIndex}-${currentPair[0].id}-${currentPair[1].id}`}
+                            key={`pair-${pairIndex}`}
                             className="flex items-center justify-center gap-[5vw] w-full h-full px-[5vw]"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}

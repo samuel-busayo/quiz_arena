@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+/*
+ * TECHVERSE QUIZ ARENA - CORE STYLES
+ * High-performance typography is now bundled locally via @fontsource
+ */
 
 :root {
     --tv-bg: #0E1116;

@@ -169,19 +169,27 @@ app.whenReady().then(() => {
     const sessionsPath = join(app.getPath('documents'), 'TechVerseQuizArena', 'sessions')
     require('fs/promises').mkdir(sessionsPath, { recursive: true }).catch(console.error)
 
-    ipcMain.handle('save-session', async (_, session) => {
-        try {
-            const fileName = `active_session.json`
-            const tempPath = join(sessionsPath, `${fileName}.tmp`)
-            const finalPath = join(sessionsPath, fileName)
+    // Serial Save Queue to prevent IO race conditions
+    let saveQueue: Promise<boolean> = Promise.resolve(true)
 
-            await writeFile(tempPath, JSON.stringify(session, null, 2))
-            await rename(tempPath, finalPath)
-            return true
-        } catch (err) {
-            console.error('Save Session Error:', err)
-            return false
-        }
+    ipcMain.handle('save-session', async (_, session) => {
+        // Enqueue the save operation
+        saveQueue = saveQueue.then(async () => {
+            try {
+                const finalPath = join(sessionsPath, 'active_session.json')
+
+                // Ensure directory exists
+                await require('fs/promises').mkdir(sessionsPath, { recursive: true })
+
+                // Direct write (simplifies IO path on Windows)
+                await writeFile(finalPath, JSON.stringify(session, null, 2), 'utf-8')
+                return true
+            } catch (err) {
+                console.error('Save Session Error:', err)
+                return false
+            }
+        })
+        return saveQueue
     })
 
     ipcMain.handle('get-sessions', async () => {

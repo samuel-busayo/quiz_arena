@@ -1,7 +1,7 @@
 {
     "name": "techverse-quiz-arena",
     "productName": "TechVerse Quiz Arena",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "description": "Professional Dual-Screen Quiz Competition Software",
     "main": "out/main/index.js",
     "author": "Antigravity <support@techverse.com>",
@@ -39,6 +39,9 @@
         ]
     },
     "dependencies": {
+        "@fontsource/inter": "^5.2.8",
+        "@fontsource/orbitron": "^5.2.8",
+        "@fontsource/rajdhani": "^5.2.7",
         "canvas-confetti": "^1.9.2",
         "clsx": "^2.1.0",
         "howler": "^2.2.4",

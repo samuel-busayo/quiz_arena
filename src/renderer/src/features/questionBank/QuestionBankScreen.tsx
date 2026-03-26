@@ -15,6 +15,7 @@ export function QuestionBankScreen() {
     const [currentQuestions, setCurrentQuestions] = useState<Question[]>([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
+    const [uploadTarget, setUploadTarget] = useState<string | null>(null)
 
     // Modals
     const [showNewCollectionModal, setShowNewCollectionModal] = useState(false)
@@ -140,13 +141,26 @@ export function QuestionBankScreen() {
             })
 
             if (questions.length > 0) {
-                const collectionName = file.name.replace('.txt', '')
-                const success = await window.api.saveCollection(collectionName, questions)
+                // If we have an explicit target, append. Otherwise create new.
+                const collectionName = uploadTarget || file.name.replace('.txt', '')
+
+                // If appending, get existing first
+                let finalQuestions = questions
+                if (uploadTarget) {
+                    const existing = await window.api.getCollection(uploadTarget)
+                    finalQuestions = [...(existing || []), ...questions]
+                }
+
+                const success = await window.api.saveCollection(collectionName, finalQuestions)
                 if (success) {
-                    loadCollections()
+                    await loadCollections()
                     handleSelectCollection(collectionName)
                 }
             }
+
+            // Reset upload state
+            setUploadTarget(null)
+            e.target.value = ''
         }
         reader.readAsText(file)
     }
@@ -279,7 +293,10 @@ ANS: C`
                             size="md"
                             className="w-full"
                             iconLeft={<Upload size={18} />}
-                            onClick={() => document.getElementById('file-upload')?.click()}
+                            onClick={() => {
+                                setUploadTarget(null)
+                                document.getElementById('file-upload')?.click()
+                            }}
                         >
                             UPLOAD FILE (.txt)
                         </TvButton>
@@ -361,8 +378,24 @@ ANS: C`
                             <div className="p-8 rounded-full bg-tv-panel border border-tv-border shadow-panel">
                                 <Database size={48} className="text-tv-textMuted/20" />
                             </div>
-                            <TvText variant="h3" className="text-tv-textMuted">No Stages in Current Vector</TvText>
-                            <TvText variant="muted" className="max-w-xs">Upload a source file or add questions manually to populate this collection.</TvText>
+                            <div className="space-y-2">
+                                <TvText variant="h3" className="text-tv-textMuted">No Stages in Current Vector</TvText>
+                                <TvText variant="muted" className="max-w-xs mx-auto">Upload a source file or add questions manually to populate this collection.</TvText>
+                            </div>
+
+                            {selectedCollection && (
+                                <TvButton
+                                    variant="secondary"
+                                    size="md"
+                                    iconLeft={<Upload size={18} />}
+                                    onClick={() => {
+                                        setUploadTarget(selectedCollection)
+                                        document.getElementById('file-upload')?.click()
+                                    }}
+                                >
+                                    IMPORT FROM SOURCE (.txt)
+                                </TvButton>
+                            )}
                         </div>
                     )}
                 </div>
