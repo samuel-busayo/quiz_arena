@@ -5,6 +5,7 @@ export type QuizState =
     | 'IDLE'
     | 'STANDBY'
     | 'ARMING'
+    | 'ROUND_INTRO'
     | 'PICKER_PHASE'
     | 'QUESTION'
     | 'ANSWER_REVEAL'
@@ -63,6 +64,7 @@ export interface Question {
 
 export interface QuizConfig {
     eventName?: string
+    eventTheme?: string
     rounds: number
     takesPerRound: number
     timerSeconds: number
@@ -96,6 +98,12 @@ interface QuizStore {
     isPaused: boolean
     questionQueue: Question[]
     systemSettings: SystemSettings
+
+    // Automated Runtime State
+    revealStatus: 'correct' | 'wrong' | 'timeout' | null
+    selectedOption: 'A' | 'B' | 'C' | 'D' | null
+    isConfirming: boolean
+    isLocked: boolean
 
     // Dynamic Setup State (for Projection UI before simulation)
     setupDraft: {
@@ -169,6 +177,10 @@ export const useQuizStore = create<QuizStore>()(
                 sfxEnabled: true,
                 particleDensity: 'balanced'
             },
+            revealStatus: null,
+            selectedOption: null,
+            isConfirming: false,
+            isLocked: false,
 
             // Draft setup
             setupDraft: {
@@ -186,6 +198,8 @@ export const useQuizStore = create<QuizStore>()(
                     scorePerCorrect: 10,
                     deductionPerWrong: 5,
                     showLeaderboardAfterRound: true,
+                    eventName: '',
+                    eventTheme: '',
                     mode: 'RANDOM'
                 }
             },
@@ -232,6 +246,10 @@ export const useQuizStore = create<QuizStore>()(
                     isPaused: state.isPaused,
                     questionQueue: state.questionQueue,
                     systemSettings: state.systemSettings,
+                    revealStatus: state.revealStatus,
+                    selectedOption: state.selectedOption,
+                    isConfirming: state.isConfirming,
+                    isLocked: state.isLocked,
                     setupDraft: state.setupDraft,
                     gridColumns: state.gridColumns,
                     gridNumbers: state.gridNumbers,
@@ -318,6 +336,7 @@ export const useQuizStore = create<QuizStore>()(
             resetQuiz: () => {
                 set({
                     currentState: 'IDLE',
+                    uiScreen: 'COMMAND_CENTER',
                     teams: [],
                     config: null,
                     questions: [],
@@ -328,10 +347,32 @@ export const useQuizStore = create<QuizStore>()(
                     timerRemaining: 0,
                     isPaused: false,
                     questionQueue: [],
+                    revealStatus: null,
+                    selectedOption: null,
                     gridNumbers: [],
                     currentPickerTeamId: null,
                     selectionCursor: 0,
                     currentStats: [],
+                    isConfirming: false,
+                    isLocked: false,
+                    setupDraft: {
+                        step: 1,
+                        teams: [
+                            { id: '1', name: 'TEAM ALPHA', color: '#00D1FF', score: 0, isEliminated: false },
+                            { id: '2', name: 'TEAM BETA', color: '#FF3D00', score: 0, isEliminated: false }
+                        ],
+                        collectionName: null,
+                        config: {
+                            rounds: 3,
+                            takesPerRound: 2,
+                            timerSeconds: 30,
+                            extraTimerSeconds: 15,
+                            scorePerCorrect: 10,
+                            deductionPerWrong: 5,
+                            showLeaderboardAfterRound: true,
+                            mode: 'RANDOM'
+                        }
+                    }
                 })
                 get().syncState()
             },
@@ -394,7 +435,11 @@ export const useQuizStore = create<QuizStore>()(
                 currentTeamId: state.currentTeamId,
                 currentQuestion: state.currentQuestion,
                 questionQueue: state.questionQueue,
-                systemSettings: state.systemSettings
+                systemSettings: state.systemSettings,
+                revealStatus: state.revealStatus,
+                selectedOption: state.selectedOption,
+                isConfirming: state.isConfirming,
+                isLocked: state.isLocked
             })
         }
     )

@@ -41,7 +41,6 @@ export class ProjectionWindowManager {
 
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
             this.window.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#projector`)
-            this.window.webContents.openDevTools({ mode: 'detach' })
         } else {
             this.window.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'projector' })
         }

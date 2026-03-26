@@ -91,11 +91,11 @@ export function QuizSetupScreen() {
                                         </button>
                                     </div>
                                     <input
-                                        className="w-full bg-transparent border-b border-tv-border py-2 font-display text-xl text-tv-accent outline-none focus:border-tv-accent transition-colors"
+                                        className="w-full bg-transparent border-b border-tv-border py-2 font-display text-xl text-tv-accent outline-none focus:border-tv-accent transition-colors select-text"
                                         value={team.name}
                                         onChange={(e) => {
                                             const next = [...setupTeams]
-                                            next[idx].name = e.target.value.toUpperCase()
+                                            next[idx] = { ...next[idx], name: e.target.value.toUpperCase() }
                                             updateSetupDraft({ teams: next })
                                         }}
                                     />
@@ -157,18 +157,32 @@ export function QuizSetupScreen() {
 
                     {step === 3 && (
                         <div className="space-y-10 max-w-2xl">
-                            <div className="p-6 bg-tv-panel border border-tv-border rounded-lg space-y-4">
-                                <div className="flex items-center gap-2 text-tv-accent">
-                                    <Info size={16} />
-                                    <TvText variant="label">Event Branding</TvText>
+                            <div className="p-8 bg-tv-panel/60 border border-tv-border rounded-xl space-y-6 focus-within:border-tv-accent focus-within:shadow-glow-soft hover:bg-tv-panel/80 transition-all group">
+                                <div className="flex items-center gap-3 text-tv-accent group-focus-within:animate-pulse">
+                                    <Info size={20} />
+                                    <TvText variant="label" className="text-sm tracking-widest uppercase">Event Branding</TvText>
                                 </div>
                                 <input
                                     placeholder="ENTER EVENT NAME (E.G. INTER-HOUSE QUIZ)"
-                                    className="w-full bg-transparent border-b border-tv-border py-3 font-display text-2xl text-white outline-none focus:border-tv-accent transition-colors placeholder:opacity-20 uppercase"
+                                    className="w-full bg-transparent border-b border-tv-border py-4 font-display text-[clamp(1.5rem,4vh,3.5rem)] text-white font-black outline-none focus:border-tv-accent transition-colors placeholder:opacity-10 placeholder:text-white uppercase tracking-tighter select-text"
                                     value={setupConfig.eventName || ''}
                                     onChange={(e) => updateSetupDraft({ config: { ...setupConfig, eventName: e.target.value.toUpperCase() } })}
                                 />
-                                <TvText variant="muted" className="text-[10px]">Title will be displayed prominently on the Projection Standby screen.</TvText>
+
+                                <div className="pt-4 border-t border-tv-border/30">
+                                    <div className="flex items-center gap-2 text-tv-accent/60 mb-2">
+                                        <Target size={14} />
+                                        <TvText variant="label" className="text-[10px] tracking-widest uppercase">Program Theme</TvText>
+                                    </div>
+                                    <input
+                                        placeholder="ENTER PROGRAM THEME (E.G. KNOWLEDGE IS POWER)"
+                                        className="w-full bg-transparent border-b border-tv-border/50 py-2 font-display text-xl text-tv-accent outline-none focus:border-tv-accent transition-colors placeholder:opacity-5 uppercase select-text"
+                                        value={setupConfig.eventTheme || ''}
+                                        onChange={(e) => updateSetupDraft({ config: { ...setupConfig, eventTheme: e.target.value.toUpperCase() } })}
+                                    />
+                                </div>
+
+                                <TvText variant="muted" className="text-xs opacity-40 italic mt-2">These identity markers will be displayed prominently on the Projection Standby screen.</TvText>
                             </div>
 
                             <div className="grid grid-cols-2 gap-10">

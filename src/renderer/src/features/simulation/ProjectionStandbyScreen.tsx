@@ -1,179 +1,187 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuizStore } from '../../store/useQuizStore'
 import { TvText } from '../../components/ui/TvText'
-import { cn } from '../../utils/cn'
-
-const MESSAGES = [
-    "Preparing Quiz Environment...",
-    "Teams Finalizing Deployment...",
-    "Loading Question Modules...",
-    "Synchronizing Control Console...",
-    "Competition Begins Shortly..."
-]
+import { audioEngine } from './AudioEngine'
 
 export function ProjectionStandbyScreen() {
-    const { config, teams } = useQuizStore()
-    const [msgIndex, setMsgIndex] = useState(0)
+    const { teams, config, setupDraft, currentState } = useQuizStore()
+
+    // Fallback to setupDraft if config isn't fully locked yet, though in SIMULATION_CONSOLE config should be set
+    const activeConfig = config || setupDraft.config
+    const activeCollection = config?.collectionName || setupDraft.collectionName
+    const activeTeams = teams?.length > 0 ? teams : (setupDraft.teams as any)
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setMsgIndex(prev => (prev + 1) % MESSAGES.length)
-        }, 6000)
-        return () => clearInterval(timer)
-    }, [])
+        // Start cinematic drone when entering standby
+        // We only want this in IDLE/STANDBY
+        if (currentState === 'IDLE' || currentState === 'STANDBY') {
+            audioEngine.playBgm('standbyAmbient', true)
+        }
+        return () => {
+            audioEngine.stopBgm()
+        }
+    }, [currentState])
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#02040a]">
-            {/* AMBIENT BACKGROUND MOTION */}
-            <div className="absolute inset-0 pointer-events-none">
-                {/* Subtle base glows instead of grid */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(0,229,255,0.05)_0%,transparent_60%)]" />
+        <motion.div
+            className="absolute inset-0 bg-[#02040a] flex flex-col justify-between items-center overflow-hidden py-[8vh]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.8 } }} // Base container exit fade
+        >
+            {/* BACKGROUND MOTION SYSTEM */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+                {/* Faint arena grid */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:100px_100px] opacity-[0.03]" />
+
+                {/* Slow light beam sweeps */}
                 <motion.div
-                    animate={{
-                        rotate: 360,
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-                    className="w-[150%] h-[150%] bg-[radial-gradient(circle,rgba(0,229,255,0.03)_0%,transparent_60%)]"
+                    animate={{ x: ['-200%', '200%'] }}
+                    transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                    className="absolute inset-y-0 w-[40vw] bg-gradient-to-r from-transparent via-[rgba(0,229,255,0.03)] to-transparent skew-x-[-30deg]"
                 />
-                {/* Scanning Line */}
-                <motion.div
-                    animate={{ y: ['-100%', '100%'] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-x-0 h-[20vh] bg-gradient-to-b from-transparent via-tv-accent/5 to-transparent z-0 opacity-20"
-                />
-                {/* Slow drifting particles */}
-                {[...Array(40)].map((_, i) => (
+
+                {/* Drifting digital particles */}
+                {[...Array(15)].map((_, i) => (
                     <motion.div
                         key={i}
+                        className="absolute w-1 h-1 bg-white rounded-full opacity-[0.05] blur-[1px]"
                         initial={{
-                            x: `${Math.random() * 100}%`,
-                            y: `${Math.random() * 100}%`,
-                            opacity: Math.random() * 0.5
+                            y: '110vh',
+                            x: `${Math.random() * 100}vw`
                         }}
                         animate={{
-                            x: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
-                            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`]
+                            y: '-10vh',
+                            opacity: [0, 0.05, 0]
                         }}
                         transition={{
-                            duration: 20 + Math.random() * 30,
+                            duration: 10 + Math.random() * 20,
                             repeat: Infinity,
-                            ease: "linear"
+                            ease: 'linear',
+                            delay: Math.random() * 10
                         }}
-                        className="absolute w-1 h-1 bg-white rounded-full"
                     />
                 ))}
             </div>
 
-            {/* CORNER HUD WIDGETS */}
-            <div className="absolute inset-0 p-10 pointer-events-none z-20">
-                {/* Top Left: System Local Time */}
-                <div className="absolute top-10 left-10 flex flex-col gap-1 opacity-40">
-                    <TvText variant="label" className="text-[8px] tracking-[0.3em]">SYSTEM_LOC_TIME</TvText>
-                    <TvText variant="h3" className="text-sm font-mono">{new Date().toLocaleTimeString()}</TvText>
-                </div>
-                {/* Top Right: Signal Status */}
-                <div className="absolute top-10 right-10 flex flex-col items-end gap-1 opacity-40">
-                    <TvText variant="label" className="text-[8px] tracking-[0.3em]">NEURAL_SIGNAL_STR</TvText>
-                    <div className="flex gap-1 h-4 items-end">
-                        {[1, 2, 3, 4, 5].map(i => (
-                            <motion.div
-                                key={i}
-                                animate={{ height: [8, 16, 8] }}
-                                transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
-                                className="w-1 bg-tv-accent rounded-t-[1px]"
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
 
-            {/* HEADER BRAND BLOCK */}
+            {/* CENTER HERO: ORGANIZER & THEME */}
             <motion.div
-                initial={{ opacity: 0, y: -50 }}
+                className="z-10 text-center flex-1 flex flex-col justify-center items-center"
+                initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center z-10 mb-20"
+                exit={{ scale: 0.8, opacity: 0, transition: { duration: 0.6, ease: 'backIn' } }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
             >
+                <TvText variant="label" className="text-[clamp(1rem,1.5vw,2rem)] tracking-[1em] text-tv-accent mb-[2vh] uppercase opacity-70">
+                    TECHVERSE ARENA PRESENTS
+                </TvText>
+
                 <motion.div
-                    animate={{ textShadow: ["0 0 0px #00E5FF", "0 0 20px #00E5FF", "0 0 0px #00E5FF"] }}
-                    transition={{ duration: 5, repeat: Infinity }}
+                    initial={{ letterSpacing: '0.1em', opacity: 0 }}
+                    animate={{ letterSpacing: '0.4em', opacity: 1 }}
+                    transition={{ duration: 2, ease: 'easeOut' }}
                 >
-                    <TvText variant="h1" className="text-[clamp(3rem,8vw,10rem)] font-black italic tracking-[0.2em] text-white leading-tight">
-                        TECHVERSE <span className="text-tv-accent">QUIZ ARENA</span>
+                    <TvText variant="h1" className="text-[clamp(3rem,8vw,11rem)] font-black uppercase text-white drop-shadow-glow leading-none mb-[4vh]">
+                        {activeConfig?.eventName || 'ORGANIZER NAME'}
                     </TvText>
                 </motion.div>
-                <TvText align="center" variant="label" className="text-sm tracking-[0.8em] opacity-40 uppercase mt-4 block ml-[0.8em]">
-                    Powered by TechVerse Innovation
-                </TvText>
+
+                <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: 'clamp(200px, 30vw, 500px)' }}
+                    transition={{ delay: 0.8, duration: 1.2, ease: 'circOut' }}
+                    className="h-[2px] bg-tv-accent/50 mb-[4vh] relative"
+                >
+                    <div className="absolute inset-0 bg-tv-accent blur-[4px]" />
+                </motion.div>
+
+                {activeConfig?.eventTheme && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 1.2, duration: 1 }}
+                    >
+                        <TvText variant="h2" className="text-[clamp(1.5rem,3vw,4rem)] text-tv-accent font-black italic tracking-tighter uppercase px-8 py-2 border-x-2 border-tv-accent/20 bg-tv-accent/5">
+                            {activeConfig.eventTheme}
+                        </TvText>
+                    </motion.div>
+                )}
             </motion.div>
 
-            {/* EVENT TITLE BLOCK */}
-            {config?.eventName && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.6 }}
-                    className="mb-32 text-center z-10"
-                >
-                    <TvText variant="h2" className="text-[clamp(1.5rem,4vw,4rem)] font-light uppercase tracking-[0.4em] text-white/60">
-                        {config.eventName}
-                    </TvText>
-                </motion.div>
-            )}
-
-            {/* STATUS MESSAGE SYSTEM */}
-            <div className="h-10 mb-40 z-10">
+            {/* WRESTLING 'VS' STYLE TEAM DISPLAY */}
+            <div className="z-10 w-full max-w-[90vw] h-[25vh] relative flex items-center justify-center mb-[10vh]">
                 <AnimatePresence mode="wait">
-                    <motion.div
-                        key={msgIndex}
-                        initial={{ opacity: 0, x: -20, filter: 'blur(10px)' }}
-                        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                        exit={{ opacity: 0, x: 20, filter: 'blur(10px)' }}
-                        className="text-tv-accent flex items-center gap-4"
-                    >
-                        <motion.div
-                            animate={{ opacity: [0.2, 1, 0.2] }}
-                            transition={{ duration: 0.5, repeat: Infinity }}
-                            className="w-1.5 h-1.5 rounded-full bg-tv-accent shadow-[0_0_8px_#00E5FF]"
-                        />
-                        <TvText align="center" variant="h3" className="text-[clamp(1rem,2vw,2rem)] tracking-[0.3em] font-medium uppercase italic drop-shadow-glow">
-                            {MESSAGES[msgIndex]}
-                        </TvText>
-                        <motion.div
-                            animate={{ opacity: [0.2, 1, 0.2] }}
-                            transition={{ duration: 0.5, repeat: Infinity }}
-                            className="w-1.5 h-1.5 rounded-full bg-tv-accent shadow-[0_0_8px_#00E5FF]"
-                        />
-                    </motion.div>
+                    {activeTeams && activeTeams.length >= 2 && (
+                        <div className="flex items-center justify-center gap-[4vw] w-full h-full">
+                            {/* TEAM 1 - SLIDE FROM LEFT */}
+                            <motion.div
+                                initial={{ x: -200, opacity: 0, skewX: -20 }}
+                                animate={{ x: 0, opacity: 1, skewX: 0 }}
+                                exit={{ x: -100, opacity: 0 }}
+                                transition={{ duration: 0.8, ease: "anticipate", delay: 1.5 }}
+                                className="flex-1 flex flex-col items-end text-right pr-[2vw] border-r-4"
+                                style={{ borderColor: activeTeams[0].color }}
+                            >
+                                <TvText variant="label" className="text-[1.5vw] opacity-50 mb-1" style={{ color: activeTeams[0].color }}>CONTENDER 01</TvText>
+                                <TvText variant="h1" className="text-[clamp(2.5rem,5vw,7rem)] font-black italic leading-none text-white uppercase truncate w-full">
+                                    {activeTeams[0].name}
+                                </TvText>
+                            </motion.div>
+
+                            {/* VS GRAPHIC - POP IN CENTER */}
+                            <motion.div
+                                initial={{ scale: 0, rotate: -45, opacity: 0 }}
+                                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                                transition={{ type: "spring", damping: 12, stiffness: 200, delay: 2 }}
+                                className="relative flex items-center justify-center z-20"
+                            >
+                                <div className="absolute inset-0 bg-tv-accent blur-[40px] opacity-20 animate-pulse" />
+                                <div className="bg-white text-black font-black text-[clamp(2rem,4vw,6rem)] italic px-6 py-2 skew-x-[-15deg] shadow-glow">
+                                    VS
+                                </div>
+                            </motion.div>
+
+                            {/* TEAM 2 - SLIDE FROM RIGHT */}
+                            <motion.div
+                                initial={{ x: 200, opacity: 0, skewX: 20 }}
+                                animate={{ x: 0, opacity: 1, skewX: 0 }}
+                                exit={{ x: 100, opacity: 0 }}
+                                transition={{ duration: 0.8, ease: "anticipate", delay: 1.7 }}
+                                className="flex-1 flex flex-col items-start text-left pl-[2vw] border-l-4"
+                                style={{ borderColor: activeTeams[1].color }}
+                            >
+                                <TvText variant="label" className="text-[1.5vw] opacity-50 mb-1" style={{ color: activeTeams[1].color }}>CONTENDER 02</TvText>
+                                <TvText variant="h1" className="text-[clamp(2.5rem,5vw,7rem)] font-black italic leading-none text-white uppercase truncate w-full">
+                                    {activeTeams[1].name}
+                                </TvText>
+                            </motion.div>
+                        </div>
+                    )}
                 </AnimatePresence>
             </div>
 
-            {/* TEAM PREVIEW STRIP */}
-            {teams.length > 0 && (
-                <div className="flex gap-16 z-10 flex-wrap justify-center">
-                    <AnimatePresence>
-                        {teams.map((team, idx) => (
-                            <motion.div
-                                key={team.id}
-                                initial={{ opacity: 0, x: 50 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + idx * 0.1 }}
-                                className="relative py-5 px-12 rounded border-l-4 bg-white/5 flex flex-col items-start"
-                                style={{ borderLeftColor: team.color }}
-                            >
-                                <motion.div
-                                    className="absolute inset-0 opacity-10 pointer-events-none"
-                                    animate={{ opacity: [0.05, 0.15, 0.05] }}
-                                    transition={{ duration: 3, repeat: Infinity, delay: idx * 0.5 }}
-                                    style={{ backgroundColor: team.color }}
-                                />
-                                <TvText variant="label" className="text-xs text-white opacity-90 mb-2 font-bold tracking-[0.4em]">TEAM {idx + 1}</TvText>
-                                <TvText variant="h3" className="font-bold tracking-widest text-white uppercase text-xl">{team.name}</TvText>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+            {/* STARTING SOON INDICATOR */}
+            <motion.div
+                className="z-10 absolute bottom-[4vh] flex items-center gap-[1vw]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2, duration: 2 }}
+                exit={{ y: '10vh', opacity: 0, transition: { duration: 0.8 } }} // Drops down
+            >
+                <div className="relative flex items-center justify-center w-[2vw] h-[2vw]">
+                    <motion.div
+                        animate={{ scale: [1, 2.5], opacity: [0.8, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+                        className="absolute inset-0 bg-tv-accent rounded-full"
+                    />
+                    <div className="w-[1vw] h-[1vw] bg-tv-accent rounded-full z-10" />
                 </div>
-            )}
-        </div>
+                <TvText variant="label" className="text-[clamp(1.2rem,1.5vw,2rem)] tracking-[0.5em] uppercase text-tv-accent">
+                    QUIZ BEGINS SHORTLY
+                </TvText>
+            </motion.div>
+        </motion.div>
     )
 }

@@ -36,7 +36,7 @@ export function MainShell({ children }: MainShellProps) {
     }, [isPaused, setPaused, resetQuiz])
 
     return (
-        <div className={`h-screen w-screen tech-surface select-none ${themeClass}`}>
+        <div className={`h-screen w-screen tech-surface ${themeClass}`}>
             {/* The .tech-surface class in index.css includes the grid overlay */}
             <main className="relative z-10 h-full w-full overflow-hidden">
                 {children}

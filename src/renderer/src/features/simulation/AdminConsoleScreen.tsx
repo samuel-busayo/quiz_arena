@@ -28,10 +28,12 @@ export function AdminConsoleScreen() {
         timerRemaining,
         isPaused,
         setPaused,
+        selectedOption,
+        isConfirming,
+        isLocked
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
-    const [selectedAnswer, setSelectedAnswer] = useState<'A' | 'B' | 'C' | 'D' | null>(null)
     const [displayInfo, setDisplayInfo] = useState({ count: 1, primaryRes: '...', secondaryRes: '...', isProjectorAlive: false })
 
     useEffect(() => {
@@ -44,9 +46,21 @@ export function AdminConsoleScreen() {
         return () => clearInterval(timer)
     }, [])
 
-    const handleResult = (correct: boolean) => {
-        simulationEngine.revealAnswer(correct)
-    }
+    // KEYBOARD INPUT ENGINE
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (currentState !== 'QUESTION' || isConfirming || isLocked) return
+
+            const key = e.key.toLowerCase()
+            if (key === 'a') simulationEngine.selectAnswer('A')
+            if (key === 'b') simulationEngine.selectAnswer('B')
+            if (key === 'c') simulationEngine.selectAnswer('C')
+            if (key === 'd') simulationEngine.selectAnswer('D')
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [currentState, isConfirming, isLocked])
 
     return (
         <div className="h-screen w-screen bg-tv-background overflow-hidden flex flex-col font-rajdhani text-white relative">
@@ -101,7 +115,7 @@ export function AdminConsoleScreen() {
                             className="text-tv-danger hover:bg-tv-danger/10 border-white/10"
                             onClick={() => {
                                 if (confirm('ABORT MISSION AND RETURN TO COMMAND CENTER?')) {
-                                    setUiScreen('COMMAND_CENTER')
+                                    useQuizStore.getState().resetQuiz()
                                 }
                             }}
                         >
@@ -211,7 +225,9 @@ export function AdminConsoleScreen() {
                                             text={currentQuestion.options[key]}
                                             isCorrect={currentQuestion.answer === key}
                                             isRevealed={currentState === 'ANSWER_REVEAL'}
-                                            onClick={() => setSelectedAnswer(key)}
+                                            onClick={() => simulationEngine.selectAnswer(key)}
+                                            isSelected={selectedOption === key}
+                                            disabled={isLocked}
                                         />
                                     ))}
                                 </div>
@@ -223,6 +239,56 @@ export function AdminConsoleScreen() {
                                 <Trophy size={80} className="text-tv-accent drop-shadow-glow animate-bounce" />
                                 <TvText variant="h1" className="text-[clamp(2rem,6vh,4rem)] font-black italic leading-none">MISSION COMPLETE</TvText>
                                 <TvButton variant="ghost" size="sm" onClick={() => useQuizStore.getState().resetQuiz()}>CLOSE SESSION</TvButton>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* ADMIN CONFIRMATION MODAL */}
+                    <AnimatePresence>
+                        {isConfirming && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+                            >
+                                <TvPanel className="max-w-md w-full p-8 border-tv-accent/30 shadow-[0_0_50px_rgba(0,229,255,0.2)]">
+                                    <div className="flex flex-col items-center gap-6 text-center">
+                                        <div className="w-16 h-16 rounded-full bg-tv-accentSoft flex items-center justify-center border border-tv-accent/50 mb-2">
+                                            <TvText variant="h1" className="text-tv-accent">{selectedOption}</TvText>
+                                        </div>
+
+                                        <div>
+                                            <TvText variant="h2" className="text-2xl font-bold uppercase tracking-tight mb-2">
+                                                Confirm Answer?
+                                            </TvText>
+                                            <TvText variant="body" className="opacity-60 text-sm">
+                                                Are you sure this is the team's final answer? This action cannot be undone.
+                                            </TvText>
+                                        </div>
+
+                                        <div className="flex flex-col w-full gap-3 mt-4">
+                                            <TvButton
+                                                variant="primary"
+                                                size="lg"
+                                                glow
+                                                className="w-full py-4 text-lg"
+                                                disabled={isLocked}
+                                                onClick={() => simulationEngine.confirmAnswer()}
+                                            >
+                                                {isLocked ? 'LOCKING...' : 'YES – LOCK ANSWER'}
+                                            </TvButton>
+                                            <TvButton
+                                                variant="ghost"
+                                                className="w-full text-white/40 hover:text-white"
+                                                disabled={isLocked}
+                                                onClick={() => simulationEngine.cancelSelection()}
+                                            >
+                                                CANCEL
+                                            </TvButton>
+                                        </div>
+                                    </div>
+                                </TvPanel>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -266,25 +332,10 @@ export function AdminConsoleScreen() {
 
             {/* BOTTOM CONTROL STRIP */}
             <footer className="h-20 border-t border-white/10 bg-black/60 backdrop-blur-xl flex items-center justify-between px-12 z-50">
-                <div className="flex gap-4">
-                    <TvButton
-                        variant="primary"
-                        size="md"
-                        className="bg-tv-success hover:bg-tv-success/80 border-tv-success px-8"
-                        iconLeft={<CheckCircle2 size={18} />}
-                        onClick={() => handleResult(true)}
-                    >
-                        CORRECT (F1)
-                    </TvButton>
-                    <TvButton
-                        variant="danger"
-                        size="md"
-                        className="px-8"
-                        iconLeft={<XCircle size={18} />}
-                        onClick={() => handleResult(false)}
-                    >
-                        WRONG (F2)
-                    </TvButton>
+                <div className="flex gap-4 items-center">
+                    <TvText variant="label" className="text-tv-accent tracking-[0.2em] opacity-80 uppercase">
+                        {currentState === 'QUESTION' ? 'AWAITING TEAM INPUT...' : 'AUTO-SCORING ENGINE ACTIVE'}
+                    </TvText>
                 </div>
 
                 <div className="flex items-center gap-6">
@@ -327,20 +378,32 @@ function DebugInfo({ label, value, color }: { label: string, value: string | num
     )
 }
 
-function OptionControl({ label, text, isCorrect, isRevealed, onClick }: { label: string, text: string, isCorrect: boolean, isRevealed: boolean, onClick: () => void }) {
+function OptionControl({ label, text, isCorrect, isRevealed, onClick, isSelected, disabled }: {
+    label: string,
+    text: string,
+    isCorrect: boolean,
+    isRevealed: boolean,
+    onClick: () => void,
+    isSelected?: boolean,
+    disabled?: boolean
+}) {
     return (
         <button
             onClick={onClick}
+            disabled={disabled || isRevealed}
             className={cn(
                 "p-[1vw] rounded border-l-4 text-left flex items-start gap-[1vw] transition-all relative overflow-hidden group",
-                isRevealed && isCorrect ? 'bg-tv-success/20 border-tv-success shadow-glow scale-[1.02]' : 'bg-tv-panel border-white/10 hover:border-tv-accent/50',
-                isRevealed && !isCorrect ? 'opacity-40 grayscale-[0.5]' : ''
+                !isRevealed ? 'bg-tv-panel hover:bg-white/10 border-white/10' : '',
+                isRevealed && isCorrect ? 'bg-tv-success/20 border-tv-success shadow-glow scale-[1.02] z-10' : '',
+                isRevealed && isSelected && !isCorrect ? 'bg-tv-danger/20 border-tv-danger animate-[shake_0.5s_ease-in-out]' : '',
+                isRevealed && !isCorrect && !isSelected ? 'opacity-40 grayscale-[0.5]' : '',
+                disabled && "opacity-50 cursor-not-allowed"
             )}
-            style={{ borderLeftColor: isRevealed && isCorrect ? '#00E676' : 'rgba(255,255,255,0.1)' }}
+            style={{ borderLeftColor: isRevealed && isCorrect ? '#00E676' : isRevealed && isSelected && !isCorrect ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.1)' }}
         >
             <TvText variant="h2" className={cn(
                 "font-black opacity-30 group-hover:opacity-100 transition-opacity text-xl",
-                isRevealed && isCorrect ? 'text-tv-success opacity-100' : 'text-white'
+                isRevealed && isCorrect ? 'text-tv-success opacity-100' : isRevealed && isSelected && !isCorrect ? 'text-tv-danger opacity-100' : (isSelected && !isRevealed) ? 'text-tv-accent opacity-100' : 'text-white'
             )}>
                 {label}
             </TvText>
@@ -348,6 +411,12 @@ function OptionControl({ label, text, isCorrect, isRevealed, onClick }: { label:
                 <TvText variant="body" className="text-[clamp(0.9rem,2.2vh,1.6rem)] font-bold uppercase tracking-tight">{text}</TvText>
                 {isRevealed && isCorrect && (
                     <TvText variant="label" className="text-[10px] text-tv-success tracking-widest mt-1 block">SYSTEM VERIFIED</TvText>
+                )}
+                {isRevealed && isSelected && !isCorrect && (
+                    <TvText variant="label" className="text-[10px] text-tv-danger tracking-widest mt-1 block">INCORRECT</TvText>
+                )}
+                {!isRevealed && isSelected && (
+                    <TvText variant="label" className="text-[10px] text-tv-accent tracking-widest mt-1 block">AWAITING LOCK</TvText>
                 )}
             </div>
         </button>

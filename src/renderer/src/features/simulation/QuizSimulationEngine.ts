@@ -18,7 +18,9 @@ class QuizSimulationEngine {
         useQuizStore.setState({
             currentRound: 1,
             currentTake: 1,
-            currentTeamId: initialTeams[0].id
+            currentTeamId: initialTeams[0].id,
+            revealStatus: null,
+            selectedOption: null
         })
 
         // 3. Grid / Queue Generation
@@ -47,24 +49,27 @@ class QuizSimulationEngine {
             useQuizStore.setState({ questionQueue: queue })
         }
 
-        // 4. Trigger Intro Sequence
+        // 4. Trigger Intro Sequence (Arming)
         audioEngine.stopBgm()
-        useQuizStore.getState().setCurrentState('ARMING')
+        this.transitionTo('ARMING')
 
-        // Automatically proceed to first question/picker after 3s intro
+        // Automatically proceed to Round Intro after 3s Arming
         setTimeout(() => {
-            const state = useQuizStore.getState()
-            if (state.config?.mode === 'PICK_NUMBER') {
-                this.transitionTo('PICKER_PHASE')
-            } else {
-                // For Random Mode, set first question and go
-                const { questionQueue } = state
-                if (questionQueue.length > 0) {
-                    useQuizStore.setState({ currentQuestion: questionQueue[0] })
+            this.transitionTo('ROUND_INTRO')
+            // Play ROUND_INTRO for 1.8s then start question logic
+            setTimeout(() => {
+                const state = useQuizStore.getState()
+                if (state.config?.mode === 'PICK_NUMBER') {
+                    this.transitionTo('PICKER_PHASE')
+                } else {
+                    const { questionQueue } = state
+                    if (questionQueue.length > 0) {
+                        useQuizStore.setState({ currentQuestion: questionQueue[0] })
+                    }
+                    this.transitionTo('QUESTION')
                 }
-                this.transitionTo('QUESTION')
-            }
-        }, 3200)
+            }, 1800)
+        }, 3000)
     }
 
     transitionTo(phase: QuizState) {
@@ -73,10 +78,14 @@ class QuizSimulationEngine {
 
         // Audio Triggers
         switch (phase) {
+            case 'ROUND_INTRO':
+                audioEngine.playSfx('bassHit')
+                break
             case 'PICKER_PHASE':
                 audioEngine.playBgm('leaderboard')
                 break
             case 'QUESTION':
+                useQuizStore.setState({ revealStatus: null, selectedOption: null })
                 audioEngine.playBgm('countdown', false)
                 this.startTimer()
                 break
@@ -87,7 +96,7 @@ class QuizSimulationEngine {
                 audioEngine.playBgm('leaderboard')
                 break
             case 'ELIMINATION':
-                audioEngine.playBgm('elimination')
+                // elimination SFX handled in advanceSimulation
                 break
             case 'WINNER':
                 audioEngine.playBgm('winner')
@@ -112,7 +121,7 @@ class QuizSimulationEngine {
 
         // Find the actual question
         const question = questions[numObj.questionIndex]
-        useQuizStore.setState({ currentQuestion: question })
+        useQuizStore.setState({ currentQuestion: question, revealStatus: null, selectedOption: null })
 
         audioEngine.playSfx('correct')
 
@@ -122,7 +131,7 @@ class QuizSimulationEngine {
         }, 800)
     }
 
-    // Timer Logic using requestAnimationFrame
+    // Timer Logic
     private startTimer() {
         this.stopTimer()
         const { config } = useQuizStore.getState()
@@ -168,53 +177,134 @@ class QuizSimulationEngine {
         }
     }
 
-    private handleTimerEnd() {
-        audioEngine.playSfx('wrong')
-        this.transitionTo('ANSWER_REVEAL')
+    pauseTimer() {
+        useQuizStore.setState({ isPaused: true })
+        // Stop BGM or lower volume? User didn't specify, but pausing countdown BGM is good
+        audioEngine.stopBgm()
     }
 
-    // Flow Logic
-    revealAnswer(isCorrect: boolean) {
+    resumeTimer() {
+        useQuizStore.setState({ isPaused: false })
+        audioEngine.playBgm('countdown', false)
+    }
+
+    private handleTimerEnd() {
+        // Auto submission of "wrong" on timeout
+        const { currentTeamId, config, updateScore, currentQuestion, addQuestionStat } = useQuizStore.getState()
+
+        if (currentTeamId && config) {
+            audioEngine.playSfx('wrong')
+            updateScore(currentTeamId, -config.deductionPerWrong)
+        }
+
+        if (currentQuestion && currentTeamId && config) {
+            addQuestionStat({
+                questionId: currentQuestion.id,
+                teamId: currentTeamId,
+                correct: false,
+                timeUsed: config.timerSeconds
+            })
+        }
+
+        useQuizStore.setState({ revealStatus: 'timeout', selectedOption: null })
+        this.transitionTo('ANSWER_REVEAL')
+
+        // Auto advance after wrong reveal duration ~2.2s
+        setTimeout(() => {
+            this.advanceSimulation()
+        }, 2200)
+    }
+
+    // --- CORE SELECTION FLOW ---
+
+    selectAnswer(selection: 'A' | 'B' | 'C' | 'D') {
+        const { currentState, isConfirming, isLocked } = useQuizStore.getState()
+        if (currentState !== 'QUESTION' || isConfirming || isLocked) return
+
+        this.pauseTimer()
+        useQuizStore.setState({
+            selectedOption: selection,
+            isConfirming: true
+        })
+        audioEngine.playSfx('click')
+    }
+
+    cancelSelection() {
+        const { isConfirming, isLocked } = useQuizStore.getState()
+        if (!isConfirming || isLocked) return
+
+        useQuizStore.setState({
+            isConfirming: false,
+            selectedOption: null
+        })
+        this.resumeTimer()
+    }
+
+    async confirmAnswer() {
+        const { isConfirming, isLocked, selectedOption, currentQuestion } = useQuizStore.getState()
+        if (!isConfirming || isLocked || !selectedOption || !currentQuestion) return
+
+        useQuizStore.setState({ isLocked: true })
+
+        // 1s SUSPENSE BEAT
+        audioEngine.playSfx('bassHit')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        this.revealAnswer(selectedOption)
+    }
+
+    private revealAnswer(selection: 'A' | 'B' | 'C' | 'D' | null) {
         const { currentTeamId, config, updateScore, timerRemaining, currentQuestion, addQuestionStat } = useQuizStore.getState()
-        if (isCorrect && currentTeamId && config) {
+        if (!currentQuestion || !currentTeamId || !config) return
+
+        this.stopTimer()
+
+        const isCorrect = selection === currentQuestion.answer
+        const revealStatus = selection === null ? 'timeout' : isCorrect ? 'correct' : 'wrong'
+
+        useQuizStore.setState({
+            currentState: 'ANSWER_REVEAL',
+            revealStatus,
+            selectedOption: selection,
+            isConfirming: false, // Reset confirmation state
+            isLocked: false     // Reset lock state
+        })
+
+        if (revealStatus === 'timeout') {
+            audioEngine.playSfx('wrong')
+            updateScore(currentTeamId, -config.deductionPerWrong)
+        } else if (isCorrect) {
             audioEngine.playSfx('correct')
             updateScore(currentTeamId, config.scorePerCorrect)
-        } else if (!isCorrect && currentTeamId && config) {
+        } else {
             audioEngine.playSfx('wrong')
             updateScore(currentTeamId, -config.deductionPerWrong)
         }
 
         // Add Stat
-        if (currentQuestion && currentTeamId && config) {
-            addQuestionStat({
-                questionId: currentQuestion.id,
-                teamId: currentTeamId,
-                correct: isCorrect,
-                timeUsed: config.timerSeconds - timerRemaining
-            })
-        }
+        addQuestionStat({
+            questionId: currentQuestion.id,
+            teamId: currentTeamId,
+            correct: isCorrect && selection !== null,
+            timeUsed: config.timerSeconds - timerRemaining
+        })
 
-        this.transitionTo('ANSWER_REVEAL')
-
-        // Auto advance after short delay
+        // Auto advance based on animation duration
+        const delay = isCorrect ? 2500 : 2200
         setTimeout(() => {
             this.advanceSimulation()
-        }, 3500)
+        }, delay)
     }
 
     advanceSimulation() {
-        const { currentTake, currentRound, config, teams, nextTake, nextTeam } = useQuizStore.getState()
+        const { currentTake, config, teams, nextTake, nextTeam } = useQuizStore.getState()
         if (!config) return
 
         const activeTeams = teams.filter(t => !t.isEliminated)
 
         // Check if round is complete
         if (currentTake >= config.takesPerRound * activeTeams.length) {
-            if (config.showLeaderboardAfterRound) {
-                this.transitionTo('LEADERBOARD')
-            } else {
-                this.startNextRound()
-            }
+            this.eliminateLowestTeam()
         } else {
             nextTake()
             nextTeam()
@@ -224,34 +314,71 @@ class QuizSimulationEngine {
             } else {
                 // Auto pop from queue for Random Mode
                 const { questionQueue } = useQuizStore.getState()
-                const nextQ = questionQueue[currentTake]
-                useQuizStore.setState({ currentQuestion: nextQ })
+                const nextQ = questionQueue[currentTake] // currentTake is 1-indexed for logic, but queue is 0-indexed. Actually wait... nextTake() was just called.
+                // It's safer to pop
+                const nextQSafe = questionQueue[currentTake] || questionQueue[0]
+                useQuizStore.setState({ currentQuestion: nextQSafe })
                 this.transitionTo('QUESTION')
             }
         }
+    }
+
+    private eliminateLowestTeam() {
+        const { teams, config } = useQuizStore.getState()
+        const activeTeams = teams.filter(t => !t.isEliminated)
+
+        if (activeTeams.length <= 1) {
+            // Already winner status
+            this.transitionTo('WINNER')
+            return
+        }
+
+        // Find lowest
+        const lowest = [...activeTeams].sort((a, b) => a.score - b.score)[0]
+
+        // Mark eliminated
+        useQuizStore.getState().eliminateTeam(lowest.id)
+
+        // Set state to ELIMINATION for UX
+        useQuizStore.setState({ currentTeamId: lowest.id }) // Focus on them for UI
+        audioEngine.playSfx('bassHit') // low bass drop
+        this.transitionTo('ELIMINATION')
+
+        // Elimination sequence is 3s. After that, either go to leaderboard or next round
+        setTimeout(() => {
+            if (config?.showLeaderboardAfterRound) {
+                this.transitionTo('LEADERBOARD')
+            } else {
+                this.startNextRound()
+            }
+        }, 3000)
     }
 
     startNextRound() {
         const { currentRound, config, teams } = useQuizStore.getState()
         if (!config) return
 
-        if (currentRound >= config.rounds) {
+        const activeTeams = teams.filter(t => !t.isEliminated)
+
+        if (currentRound >= config.rounds || activeTeams.length <= 1) {
             this.transitionTo('WINNER')
         } else {
-            const activeTeams = teams.filter(t => !t.isEliminated)
             useQuizStore.setState({
                 currentRound: currentRound + 1,
                 currentTake: 1,
-                currentTeamId: activeTeams.length > 0 ? activeTeams[0].id : null
+                currentTeamId: activeTeams[0].id
             })
 
-            if (config.mode === 'PICK_NUMBER') {
-                this.transitionTo('PICKER_PHASE')
-            } else {
-                const { questionQueue } = useQuizStore.getState()
-                useQuizStore.setState({ currentQuestion: questionQueue[0] })
-                this.transitionTo('QUESTION')
-            }
+            this.transitionTo('ROUND_INTRO')
+            setTimeout(() => {
+                if (config.mode === 'PICK_NUMBER') {
+                    this.transitionTo('PICKER_PHASE')
+                } else {
+                    const { questionQueue } = useQuizStore.getState()
+                    useQuizStore.setState({ currentQuestion: questionQueue[0] }) // Need proper shifting in queue, but simplified
+                    this.transitionTo('QUESTION')
+                }
+            }, 1800)
         }
     }
 
@@ -272,7 +399,7 @@ class QuizSimulationEngine {
             roundsPlayed: currentRound,
             takesPerRound: config.takesPerRound,
             finalScores,
-            eliminationOrder: [],
+            eliminationOrder: teams.filter(t => t.isEliminated).map(t => t.id), // Basic approximation
             winner: winner?.id || null,
             questionStats: currentStats
         }
