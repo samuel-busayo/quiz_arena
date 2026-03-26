@@ -103,9 +103,9 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
             </motion.div>
 
             {/* Grid Container with Auto-Fit logic */}
-            <div className="flex-1 w-full min-h-0 min-w-0 flex items-center justify-center overflow-hidden">
+            <div className="flex-1 w-full min-h-0 min-w-0 flex items-center justify-center overflow-hidden relative">
                 <div
-                    className="grid gap-2 sm:gap-4 w-full h-full max-w-[1600px] max-h-full"
+                    className="grid gap-1 sm:gap-2 md:gap-4 w-full h-full max-w-[1600px] absolute inset-0 m-auto"
                     style={{
                         gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))`,
                         gridTemplateRows: `repeat(${Math.ceil(gridNumbers.length / gridColumns)}, minmax(0, 1fr))`
@@ -131,10 +131,10 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
                                 )}
                             >
                                 <TvText variant="h2" className={cn(
-                                    "font-orbitron font-black text-center transition-all duration-300 z-10",
-                                    gridNumbers.length > 50 ? "text-[clamp(1rem,2.5vh,2.2rem)]" :
-                                        gridNumbers.length > 30 ? "text-[clamp(1.2rem,3.5vh,3rem)]" :
-                                            "text-[clamp(1.5rem,5vh,4.5rem)]",
+                                    "font-orbitron font-black text-center transition-all duration-300 z-10 select-none",
+                                    gridNumbers.length > 50 ? "text-[min(1.8rem,5vw,2vh)]" :
+                                        gridNumbers.length > 30 ? "text-[min(2.5rem,8vw,3.5vh)]" :
+                                            "text-[min(4rem,12vw,5.5vh)]",
                                     isSelected ? "text-white" : "text-tv-textMuted",
                                     num.used && "opacity-10"
                                 )}>
@@ -196,37 +196,19 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
                 </div>
             </div>
 
-            {/* Footer Hints */}
+            {/* Footer Hints (Consolidated) */}
             {isAdmin && (
-                <div className={cn(
-                    "flex items-center justify-between w-full max-w-4xl px-4 shrink-0",
-                    isAdmin ? "mt-2" : "mt-8"
-                )}>
-                    <div className="flex gap-8 opacity-40">
-                        <div className="flex items-center gap-2">
-                            <kbd className="px-2 py-1 bg-white/10 rounded border border-white/20 text-[9px] font-mono">ARROWS</kbd>
-                            <TvText variant="body" className="text-[10px] uppercase tracking-widest leading-none">Navigate</TvText>
+                <div className="mt-4 flex items-center justify-center w-full max-w-4xl px-4 shrink-0">
+                    <div className="flex gap-12 opacity-40">
+                        <div className="flex items-center gap-3">
+                            <kbd className="px-2 py-1 bg-white/10 rounded border border-white/20 text-[10px] font-mono shadow-inner shadow-white/5">ARROWS</kbd>
+                            <TvText variant="body" className="text-[11px] uppercase tracking-[0.2em] font-medium">Navigate</TvText>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <kbd className="px-2 py-1 bg-white/10 rounded border border-white/20 text-[9px] font-mono">ENTER</kbd>
-                            <TvText variant="body" className="text-[10px] uppercase tracking-widest leading-none">Confirm Pick</TvText>
+                        <div className="flex items-center gap-3">
+                            <kbd className="px-2 py-1 bg-white/10 rounded border border-white/20 text-[10px] font-mono shadow-inner shadow-white/5">ENTER</kbd>
+                            <TvText variant="body" className="text-[11px] uppercase tracking-[0.2em] font-medium">Confirm Pick</TvText>
                         </div>
                     </div>
-
-                    <AnimatePresence>
-                        {isAdmin && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="bg-tv-accentSoft border border-tv-accent/30 p-2 md:p-3 rounded-lg flex-1 ml-6 md:ml-12 max-w-xl"
-                            >
-                                <TvText variant="label" className="text-[8px] text-tv-accent tracking-widest mb-1 block uppercase">PREVIEW: NODE {gridNumbers[selectionCursor]?.value}</TvText>
-                                <TvText variant="body" className="text-[11px] md:text-xs font-bold line-clamp-2 italic opacity-80 leading-tight">
-                                    {questions[gridNumbers[selectionCursor]?.questionIndex]?.question}
-                                </TvText>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             )}
         </div>
