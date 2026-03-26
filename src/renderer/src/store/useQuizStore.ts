@@ -110,6 +110,7 @@ interface QuizStore {
     hasSavedSession: boolean
     isInitialized: boolean
     tieBreakerTeams: string[]
+    tieBreakerPurpose: 'elimination' | 'winner' | null
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
@@ -159,6 +160,7 @@ interface QuizStore {
     setUiOverlay: (overlay: 'leaderboard' | null) => void
     useLifeline: (teamId: string) => void
     setTieBreakerTeams: (teamIds: string[]) => void
+    setTieBreakerPurpose: (purpose: 'elimination' | 'winner' | null) => void
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -245,6 +247,7 @@ export const useQuizStore = create<QuizStore>()(
             results: [],
             currentStats: [],
             tieBreakerTeams: [],
+            tieBreakerPurpose: null,
 
             initialize: (view) => {
                 if (view === 'projector') {
@@ -310,7 +313,8 @@ export const useQuizStore = create<QuizStore>()(
                     selectionCursor: state.selectionCursor,
                     uiOverlay: state.uiOverlay,
                     eliminatedOptions: state.eliminatedOptions,
-                    tieBreakerTeams: state.tieBreakerTeams
+                    tieBreakerTeams: state.tieBreakerTeams,
+                    tieBreakerPurpose: state.tieBreakerPurpose
                 })
             },
 
@@ -394,6 +398,11 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            setTieBreakerPurpose: (purpose) => {
+                set({ tieBreakerPurpose: purpose })
+                get().syncState()
+            },
+
             eliminateTeam: (teamId) => {
                 set((state) => ({
                     teams: state.teams.map(t => t.id === teamId ? { ...t, isEliminated: true } : t)
@@ -427,6 +436,7 @@ export const useQuizStore = create<QuizStore>()(
                     uiOverlay: null,
                     eliminatedOptions: [],
                     tieBreakerTeams: [],
+                    tieBreakerPurpose: null,
                     hasSavedSession: currentHasSave // Persist the fact that a save exists on disk
                 })
                 get().syncState()
@@ -507,6 +517,7 @@ export const useQuizStore = create<QuizStore>()(
                     currentStats: state.currentStats,
                     eliminatedOptions: state.eliminatedOptions,
                     tieBreakerTeams: state.tieBreakerTeams,
+                    tieBreakerPurpose: state.tieBreakerPurpose,
                     config: state.config
                 }
 
@@ -533,6 +544,7 @@ export const useQuizStore = create<QuizStore>()(
                         currentStats: session.currentStats,
                         eliminatedOptions: session.eliminatedOptions,
                         tieBreakerTeams: session.tieBreakerTeams || [],
+                        tieBreakerPurpose: session.tieBreakerPurpose || null,
                         config: session.config,
                         uiScreen: 'SIMULATION_CONSOLE',
                         hasSavedSession: true
@@ -572,7 +584,8 @@ export const useQuizStore = create<QuizStore>()(
                 isLocked: state.isLocked,
                 uiOverlay: state.uiOverlay,
                 eliminatedOptions: state.eliminatedOptions,
-                tieBreakerTeams: state.tieBreakerTeams
+                tieBreakerTeams: state.tieBreakerTeams,
+                tieBreakerPurpose: state.tieBreakerPurpose
             })
         }
     )

@@ -1,5 +1,6 @@
-import { useQuizStore, QuizState, QuizResult } from '../../store/useQuizStore'
+import { useQuizStore, QuizState, QuizResult, Question } from '../../store/useQuizStore'
 import { audioEngine } from './AudioEngine'
+import failsafeBank from '../../data/failsafe_bank.json'
 
 class QuizSimulationEngine {
     private timerId: number | null = null
@@ -409,36 +410,63 @@ class QuizSimulationEngine {
     }
 
     private handleTieBreakerProgress() {
-        const { currentTake, tieBreakerTeams, nextTake, setTieBreakerTeams, teams } = useQuizStore.getState()
+        const { currentTake, tieBreakerTeams, tieBreakerPurpose, teams, setTieBreakerTeams } = useQuizStore.getState()
 
-        // Tie breaker is 1 take per team
+        // Tie breaker is 1 take per team (currentTake is 1-indexed)
         if (currentTake >= tieBreakerTeams.length) {
-            // Re-evaluate the tie
+            // Re-evaluate the stalemates after full loop
             const tiedTeamsData = teams.filter(t => tieBreakerTeams.includes(t.id))
-            const sortedByScore = [...tiedTeamsData].sort((a, b) => b.score - a.score)
 
-            const highestScore = sortedByScore[0].score
-            const winners = tiedTeamsData.filter(t => t.score === highestScore)
+            if (tieBreakerPurpose === 'winner') {
+                const maxScore = Math.max(...tiedTeamsData.map(t => t.score))
+                const winners = tiedTeamsData.filter(t => t.score === maxScore)
 
-            if (winners.length === 1) {
-                // Resolved!
-                console.log(`Tie Breaker Resolved: ${winners[0].name} wins.`)
-                this.transitionTo('WINNER')
-            } else {
-                // Still tied, repeat loop with new winners
-                setTieBreakerTeams(winners.map(w => w.id))
-                useQuizStore.setState({
-                    currentTake: 1,
-                    currentTeamId: winners[0].id
-                })
-                this.transitionTo('TIE_BREAKER')
+                if (winners.length === 1) {
+                    console.log(`Tie Breaker (Winner) Resolved: ${winners[0].name} wins.`)
+                    this.transitionTo('WINNER')
+                } else {
+                    // Still tied for win, repeat loop with remaining tied teams
+                    setTieBreakerTeams(winners.map(w => w.id))
+                    useQuizStore.setState({ currentTake: 1, currentTeamId: winners[0].id })
+                    this.transitionTo('TIE_BREAKER')
+                }
+            } else if (tieBreakerPurpose === 'elimination') {
+                const minScore = Math.min(...tiedTeamsData.map(t => t.score))
+                const candidates = tiedTeamsData.filter(t => t.score === minScore)
+
+                if (candidates.length === 1) {
+                    console.log(`Tie Breaker (Elimination) Resolved: ${candidates[0].name} eliminated.`)
+                    const target = candidates[0]
+                    useQuizStore.getState().eliminateTeam(target.id)
+                    useQuizStore.setState({ currentTeamId: target.id })
+                    this.transitionTo('ELIMINATION')
+
+                    // Proceed to next phase after elimination delay
+                    setTimeout(() => {
+                        const { config } = useQuizStore.getState()
+                        if (config?.showLeaderboardAfterRound) {
+                            this.transitionTo('LEADERBOARD')
+                        } else {
+                            this.startNextRound()
+                        }
+                    }, 5000)
+                } else {
+                    // Still tied for lowest, repeat loop with remaining candidates
+                    setTieBreakerTeams(candidates.map(c => c.id))
+                    useQuizStore.setState({ currentTake: 1, currentTeamId: candidates[0].id })
+                    this.transitionTo('TIE_BREAKER')
+                }
             }
         } else {
-            // Next take in current tie breaker loop
-            nextTake()
-            const nextTeamId = tieBreakerTeams[currentTake] // currentTake is now target index (1-based soon to be incremented)
-            useQuizStore.setState({ currentTeamId: nextTeamId })
-            this.transitionTo('TIE_BREAKER')
+            // Next take in current tie breaker set
+            const nextIdx = currentTake // currentTake is 1, index 1 is the 2nd team
+            const nextTeamId = tieBreakerTeams[nextIdx]
+
+            useQuizStore.setState({
+                currentTeamId: nextTeamId,
+                currentTake: currentTake + 1
+            })
+            this.transitionTo('TURN_INTRO')
         }
     }
 
@@ -459,6 +487,7 @@ class QuizSimulationEngine {
         if (candidates.length > 1) {
             // TIE FOR ELIMINATION
             useQuizStore.getState().setTieBreakerTeams(candidates.map(c => c.id))
+            useQuizStore.getState().setTieBreakerPurpose('elimination')
             useQuizStore.setState({ currentTeamId: candidates[0].id })
             this.transitionTo('TIE_BREAKER')
             return
@@ -497,6 +526,7 @@ class QuizSimulationEngine {
 
             if (winners.length > 1) {
                 useQuizStore.getState().setTieBreakerTeams(winners.map(w => w.id))
+                useQuizStore.getState().setTieBreakerPurpose('winner')
                 useQuizStore.setState({ currentTeamId: winners[0].id })
                 this.transitionTo('TIE_BREAKER')
             } else {
@@ -610,11 +640,19 @@ class QuizSimulationEngine {
     }
 
     private pickNextRandomQuestion() {
-        const { questionQueue, currentStats } = useQuizStore.getState()
+        const { questionQueue, currentStats, currentState } = useQuizStore.getState()
         const nextIndex = currentStats.length
 
         if (nextIndex < questionQueue.length) {
             return questionQueue[nextIndex]
+        }
+
+        // Exhaustion!
+        if (currentState === 'TIE_BREAKER') {
+            const failsafe = (failsafeBank as Question[]).sort(() => Math.random() - 0.5)
+            const newQueue = [...questionQueue, ...failsafe]
+            useQuizStore.setState({ questionQueue: newQueue })
+            return newQueue[nextIndex]
         }
 
         console.warn('QuizSimulationEngine: Question pool exhausted.')

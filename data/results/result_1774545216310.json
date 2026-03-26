@@ -1,0 +1,229 @@
+{
+  "id": "1774545216310",
+  "date": "2026-03-26T17:13:36.310Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 10,
+    "timerSeconds": 20,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 50,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "",
+    "eventTheme": "",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "General_Knowledge"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 350,
+      "isEliminated": false,
+      "lifelineRemaining": 1
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 350,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 10,
+  "finalScores": {
+    "1": 350,
+    "2": 350
+  },
+  "eliminationOrder": [],
+  "winner": "1",
+  "questionStats": [
+    {
+      "questionId": "q1774447330950_7",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_27",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_6",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_8",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_28",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 16
+    },
+    {
+      "questionId": "q1774447330950_14",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 7
+    },
+    {
+      "questionId": "q1774447330950_0",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 8
+    },
+    {
+      "questionId": "q1774447330950_1",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_29",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774447330950_15",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 8
+    },
+    {
+      "questionId": "q1774447330950_19",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_2",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_12",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_3",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_23",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_25",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_9",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 6
+    },
+    {
+      "questionId": "q1774447330950_21",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_13",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774447330950_22",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_11",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_4",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_16",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_26",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_20",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_18",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_24",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_17",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_5",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 20
+    },
+    {
+      "questionId": "q1774447330950_10",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 20
+    }
+  ]
+}

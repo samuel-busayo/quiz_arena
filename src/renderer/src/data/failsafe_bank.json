@@ -1,0 +1,652 @@
+[
+    {
+        "id": "fail_1",
+        "category": "Nigerian History",
+        "question": "Who was the first ceremonial President of Nigeria in 1963?",
+        "options": {
+            "A": "Abubakar Tafawa Balewa",
+            "B": "Nnamdi Azikiwe",
+            "C": "Shehu Shagari",
+            "D": "Obafemi Awolowo"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_2",
+        "category": "Nigerian History",
+        "question": "In what year did Nigeria officially become a Republic?",
+        "options": {
+            "A": "1960",
+            "B": "1963",
+            "C": "1970",
+            "D": "1999"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_3",
+        "category": "Nigerian History",
+        "question": "Who was the first Prime Minister of Nigeria?",
+        "options": {
+            "A": "Ahmadu Bello",
+            "B": "Herbert Macaulay",
+            "C": "Abubakar Tafawa Balewa",
+            "D": "Sani Abacha"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_4",
+        "category": "Nigerian History",
+        "question": "Which Nigerian city was the first to have electricity in 1896?",
+        "options": {
+            "A": "Lagos",
+            "B": "Ibadan",
+            "C": "Abeokuta",
+            "D": "Enugu"
+        },
+        "answer": "A",
+        "used": false
+    },
+    {
+        "id": "fail_5",
+        "category": "Nigerian History",
+        "question": "Who is known as the 'Mother of Nigerian Politics'?",
+        "options": {
+            "A": "Margaret Ekpo",
+            "B": "Hajia Gambo Sawaba",
+            "C": "Funmilayo Ransome-Kuti",
+            "D": "Flora Nwapa"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_6",
+        "category": "Nigerian History",
+        "question": "The 1914 Amalgamation of Northern and Southern Protectorates was led by whom?",
+        "options": {
+            "A": "Lord Curzon",
+            "B": "Lord Lugard",
+            "C": "Lord Mountbatten",
+            "D": "Sir James Robertson"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_7",
+        "category": "Nigerian History",
+        "question": "Which pre-colonial empire was famous for its high-quality bronze and ivory carvings?",
+        "options": {
+            "A": "Oyo Empire",
+            "B": "Kanim-Bornu Empire",
+            "C": "Benin Empire",
+            "D": "Sokoto Caliphate"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_8",
+        "category": "Nigerian History",
+        "question": "In what year was the first Nigerian military coup recorded?",
+        "options": {
+            "A": "1960",
+            "B": "1966",
+            "C": "1975",
+            "D": "1983"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_9",
+        "category": "Nigerian History",
+        "question": "Who was the Military Head of State who handed over to a civilian government in 1979?",
+        "options": {
+            "A": "Murtala Mohammed",
+            "B": "Olusegun Obasanjo",
+            "C": "Ibrahim Babangida",
+            "D": "Muhammadu Buhari"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_10",
+        "category": "Nigerian History",
+        "question": "The famous Nok terracotta heads are linked to which ancient civilization?",
+        "options": {
+            "A": "Igbo-Ukwu",
+            "B": "Nok Culture",
+            "C": "Ife Kingdom",
+            "D": "Jukun Kingdom"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_11",
+        "category": "Science Fact",
+        "question": "Which gas is the most abundant in the Earth's atmosphere?",
+        "options": {
+            "A": "Oxygen",
+            "B": "Nitrogen",
+            "C": "Carbon Dioxide",
+            "D": "Hydrogen"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_12",
+        "category": "Science Fact",
+        "question": "What is the hardest natural substance known on Earth?",
+        "options": {
+            "A": "Graphite",
+            "B": "Quartz",
+            "C": "Diamond",
+            "D": "Steel"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_13",
+        "category": "Science Fact",
+        "question": "Which planet in our solar system is nicknamed the 'Red Planet'?",
+        "options": {
+            "A": "Venus",
+            "B": "Mars",
+            "C": "Jupiter",
+            "D": "Saturn"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_14",
+        "category": "Science Fact",
+        "question": "In chemistry, what is the symbol for the element Gold?",
+        "options": {
+            "A": "Ag",
+            "B": "Gd",
+            "C": "Au",
+            "D": "Fe"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_15",
+        "category": "Science Fact",
+        "question": "Which organ in the human body is primarily responsible for producing insulin?",
+        "options": {
+            "A": "Liver",
+            "B": "Pancreas",
+            "C": "Kidneys",
+            "D": "Gallbladder"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_16",
+        "category": "Science Fact",
+        "question": "What is the approximate speed of light in a vacuum?",
+        "options": {
+            "A": "300,000 km/s",
+            "B": "150,000 km/s",
+            "C": "3,000,000 km/s",
+            "D": "30,000 km/s"
+        },
+        "answer": "A",
+        "used": false
+    },
+    {
+        "id": "fail_17",
+        "category": "Science Fact",
+        "question": "Which scientist formulated the laws of motion and universal gravitation?",
+        "options": {
+            "A": "Albert Einstein",
+            "B": "Galileo Galilei",
+            "C": "Isaac Newton",
+            "D": "Marie Curie"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_18",
+        "category": "Science Fact",
+        "question": "What structure is often called the 'powerhouse of the cell'?",
+        "options": {
+            "A": "Nucleus",
+            "B": "Mitochondria",
+            "C": "Ribosome",
+            "D": "Chloroplast"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_19",
+        "category": "Science Fact",
+        "question": "At what temperature does water boil at standard sea-level pressure (Celsius)?",
+        "options": {
+            "A": "0°C",
+            "B": "50°C",
+            "C": "100°C",
+            "D": "212°C"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_20",
+        "category": "Science Fact",
+        "question": "What is the biological process by which plants convert sunlight into energy?",
+        "options": {
+            "A": "Respiration",
+            "B": "Transpiration",
+            "C": "Photosynthesis",
+            "D": "Osmosis"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_21",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which Wizkid album became the longest-charting African album on the Billboard 200?",
+        "options": {
+            "A": "Sounds from the Other Side",
+            "B": "Made in Lagos",
+            "C": "More Love, Less Ego",
+            "D": "Ayo"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_22",
+        "category": "Nigerian Music (2015+)",
+        "question": "Who was the first Nigerian artist to win a Grammy for a solo project in 2021?",
+        "options": {
+            "A": "Davido",
+            "B": "Burna Boy",
+            "C": "Femi Kuti",
+            "D": "Wizkid"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_23",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which song by CKay became a global hit and the most Shazamed track in the world in 2021?",
+        "options": {
+            "A": "Emiliana",
+            "B": "Love Nwantiti",
+            "C": "Watawi",
+            "D": "Capture My Soul"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_24",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which Nigerian music executive founded the record label 'Mavin Records'?",
+        "options": {
+            "A": "Olamide",
+            "B": "Banky W",
+            "C": "Don Jazzy",
+            "D": "Davido"
+        },
+        "answer": "C",
+        "used": false
+    },
+    {
+        "id": "fail_25",
+        "category": "Nigerian Music (2015+)",
+        "question": "Who is the first Nigerian artist to sell out the O2 Arena in London multiple times since 2018?",
+        "options": {
+            "A": "Flavour",
+            "B": "Wizkid",
+            "C": "P-Square",
+            "D": "Yemi Alade"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_26",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which 2022 hit song by Rema reached the top 10 of the Billboard Hot 100?",
+        "options": {
+            "A": "Dumebi",
+            "B": "Calm Down",
+            "C": "Soundgasm",
+            "D": "Holiday"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_27",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which female Nigerian artist won the Best International Act at the 2022 BET Awards?",
+        "options": {
+            "A": "Tiwa Savage",
+            "B": "Tems",
+            "C": "Seyi Shay",
+            "D": "Simi"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_28",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which Davido music video was the first by a Nigerian artist to hit 100 million views on YouTube?",
+        "options": {
+            "A": "If",
+            "B": "Fall",
+            "C": "Fia",
+            "D": "Skelewu"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_29",
+        "category": "Nigerian Music (2015+)",
+        "question": "Which acclaimed Burna Boy album was released in 2019 featuring the hit 'Ye'?",
+        "options": {
+            "A": "Outside",
+            "B": "African Giant",
+            "C": "Love, Damini",
+            "D": "L.I.F.E"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_30",
+        "category": "Nigerian Music (2015+)",
+        "question": "Wizkid collaborated with which American megastar on the award-winning song 'Brown Skin Girl'?",
+        "options": {
+            "A": "Rihanna",
+            "B": "Beyoncé",
+            "C": "Nicki Minaj",
+            "D": "Taylor Swift"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_31",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2016 movie became the first Nollywood film to gross over 400 million Naira?",
+        "options": {
+            "A": "The Wedding Party",
+            "B": "Fifty",
+            "C": "Chief Daddy",
+            "D": "King of Boys"
+        },
+        "answer": "A",
+        "used": false
+    },
+    {
+        "id": "fail_32",
+        "category": "Nollywood movies (2015+)",
+        "question": "Who directed and starred in the record-breaking 2020 film 'Omo Ghetto: The Saga'?",
+        "options": {
+            "A": "Mo Abudu",
+            "B": "Funke Akindele",
+            "C": "Toyin Abraham",
+            "D": "Kemi Adetiba"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_33",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2023 Nollywood movie became the first to gross over 1 Billion Naira in the Nigerian box office?",
+        "options": {
+            "A": "Orisa",
+            "B": "A Tribe Called Judah",
+            "C": "Malaika",
+            "D": "The Black Book"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_34",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which Nollywood actress is the lead in the 2018 film 'Lionheart', Nigeria's first Oscar submission?",
+        "options": {
+            "A": "Omotola Jalade-Ekeinde",
+            "B": "Genevieve Nnaji",
+            "C": "Rita Dominic",
+            "D": "Mercy Johnson"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_35",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2022 epic film by Femi Adebayo tells the story of a legendary warrior whose name means 'King of Thieves'?",
+        "options": {
+            "A": "Ageshinkole",
+            "B": "Anikulapo",
+            "C": "Jagun Jagun",
+            "D": "Elesin Oba"
+        },
+        "answer": "A",
+        "used": false
+    },
+    {
+        "id": "fail_36",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which filmmaker produced and directed the 2021 musical biopic 'Ayinla'?",
+        "options": {
+            "A": "Kunle Afolayan",
+            "B": "Tunde Kelani",
+            "C": "Tade Ogidan",
+            "D": "Charles Novia"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_37",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2018 movie features a group of wealthy men and was a major box office hit 'The Real Yoruba Demons'?",
+        "options": {
+            "A": "Living in Bondage",
+            "B": "Merry Men",
+            "C": "Sugar Rush",
+            "D": "Your Excellency"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_38",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2017 sequel broke records to become one of the highest-grossing Nollywood movies of its time?",
+        "options": {
+            "A": "The Wedding Party 2",
+            "B": "King of Boys 2",
+            "C": "Jenifa's Diary",
+            "D": "MUMMY DEAREST"
+        },
+        "answer": "A",
+        "used": false
+    },
+    {
+        "id": "fail_39",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2018 political thriller directed by Kemi Adetiba became a cult classic starring Sola Sobowale?",
+        "options": {
+            "A": "Lionheart",
+            "B": "King of Boys",
+            "C": "Up North",
+            "D": "Bling Lagosians"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_40",
+        "category": "Nollywood movies (2015+)",
+        "question": "Which 2022 Netflix original limited series, produced by Mo Abudu, features a high-stakes crime of wealthy socialites?",
+        "options": {
+            "A": "Castle & Castle",
+            "B": "Blood Sisters",
+            "C": "Far From Home",
+            "D": "Glamour Girls"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_41",
+        "category": "ICT/Coding/Robotics",
+        "question": "What does the common acronym 'URL' stand for in web technology?",
+        "options": {
+            "A": "Universal Record Locator",
+            "B": "Uniform Resource Locator",
+            "C": "Unified Reading Log",
+            "D": "User Response Link"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_42",
+        "category": "ICT/Coding/Robotics",
+        "question": "In HTML coding, which tag is used specifically to create a clickable hyperlink?",
+        "options": {
+            "A": "<h>",
+            "B": "<a>",
+            "C": "<li>",
+            "D": "<div>"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_43",
+        "category": "ICT/Coding/Robotics",
+        "question": "What is the binary representation of the decimal number 5?",
+        "options": {
+            "A": "100",
+            "B": "101",
+            "C": "110",
+            "D": "111"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_44",
+        "category": "ICT/Coding/Robotics",
+        "question": "Which programming language is predominantly used for logic on the web and uses the '.js' extension?",
+        "options": {
+            "A": "Python",
+            "B": "JavaScript",
+            "C": "C++",
+            "D": "Java"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_45",
+        "category": "ICT/Coding/Robotics",
+        "question": "What is the name of the 'brain' of the computer that handles most of its processing?",
+        "options": {
+            "A": "HDD",
+            "B": "CPU",
+            "C": "RAM",
+            "D": "GPU"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_46",
+        "category": "ICT/Coding/Robotics",
+        "question": "In coding platforms like Scratch, what do you call a set of instructions that is programmed to repeat?",
+        "options": {
+            "A": "Variable",
+            "B": "Loop",
+            "C": "Function",
+            "D": "Array"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_47",
+        "category": "ICT/Coding/Robotics",
+        "question": "What does 'IoT' stand for in modern networking?",
+        "options": {
+            "A": "Internal Office Traffic",
+            "B": "Internet of Things",
+            "C": "Input Output Transfer",
+            "D": "Information on Tap"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_48",
+        "category": "ICT/Coding/Robotics",
+        "question": "Which logic gate outputs a 'True' result ONLY if both of its inputs are also 'True'?",
+        "options": {
+            "A": "OR Gate",
+            "B": "AND Gate",
+            "C": "NOT Gate",
+            "D": "NAND Gate"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_49",
+        "category": "ICT/Coding/Robotics",
+        "question": "What is the standard term for a mistake or error in the source code of a computer program?",
+        "options": {
+            "A": "Worm",
+            "B": "Bug",
+            "C": "Cookie",
+            "D": "Cache"
+        },
+        "answer": "B",
+        "used": false
+    },
+    {
+        "id": "fail_50",
+        "category": "ICT/Coding/Robotics",
+        "question": "Which component of a robot allows it to collect and perceive data from its surroundings?",
+        "options": {
+            "A": "Actuator",
+            "B": "Sensor",
+            "C": "Motor",
+            "D": "Circuit"
+        },
+        "answer": "B",
+        "used": false
+    }
+]
