@@ -17,19 +17,16 @@ import { ResultsHistoryScreen } from './screens/ResultsHistoryScreen'
 function App() {
     const { initialize, uiScreen } = useQuizStore()
 
-    useEffect(() => {
-        // Detect window role
-        const isProjector = window.location.search.includes('projector')
-        const view = isProjector ? 'projector' : 'admin'
-
-        // Identity for global shortcut logic
-        window.name = view
-
-        initialize(view)
-    }, [initialize])
-
     // Detect View Role
-    const isProjector = window.location.search.includes('projector')
+    const isProjector = window.location.hash.includes('projector')
+    const view = isProjector ? 'projector' : 'admin'
+
+    // Immediate identity for MainShell shortcuts
+    window.name = view
+
+    useEffect(() => {
+        initialize(view)
+    }, [initialize, view])
 
     if (isProjector) {
         return (

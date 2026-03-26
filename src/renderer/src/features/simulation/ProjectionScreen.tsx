@@ -7,6 +7,8 @@ import { PickNumberGrid } from './PickNumberGrid'
 import { Trophy } from 'lucide-react'
 import { cn } from '../../utils/cn'
 import { ProjectionStandbyScreen } from './ProjectionStandbyScreen'
+import { ProjectionHoldingScreen } from './ProjectionHoldingScreen'
+import { ProjectionArmingScreen } from './ProjectionArmingScreen'
 import { audioEngine } from './AudioEngine'
 
 export function ProjectionScreen() {
@@ -17,7 +19,8 @@ export function ProjectionScreen() {
         currentTeamId,
         currentQuestion,
         timerRemaining,
-        config
+        config,
+        uiScreen
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
@@ -28,11 +31,9 @@ export function ProjectionScreen() {
     const [dpiScale, setDpiScale] = React.useState(1)
 
     React.useEffect(() => {
-        // Detect DPI Scaling
+        // DPI Scaling detection (Optional now with viewport units, but keeping listener if needed)
         const scale = window.devicePixelRatio
-        if (scale > 1.25) {
-            setDpiScale(1 / (scale / 1.25)) // Subtle reduction to normalize massive UI
-        }
+        // Removed auto-reduction as we are moving to robust viewport units
 
         // Cursor Hiding Logic
         let timer: NodeJS.Timeout
@@ -71,53 +72,109 @@ export function ProjectionScreen() {
             }}
         >
             {/* Cinematic Background */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.15)_0%,transparent_70%)]" />
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:100px_100px]" />
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.08)_0%,transparent_70%)]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#02040a] via-transparent to-[#02040a] opacity-80" />
             </div>
 
             <AnimatePresence mode="wait">
-                {/* INTRO SEQUENCE */}
+                {/* INTRO SEQUENCE (ARMING PHASE) */}
                 {showIntro && (
                     <motion.div
                         key="intro-seq"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
+                        className="fixed inset-0 z-[100] bg-[#02040a] flex flex-col items-center justify-center overflow-hidden"
                     >
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.5, ease: "circOut" }}
-                            className="text-center"
-                        >
-                            <TvText variant="h2" className="text-2xl tracking-[1em] uppercase opacity-40 mb-4">ROUND {currentRound}</TvText>
-                            <div className="h-[1px] w-64 bg-tv-accent/30 mx-auto mb-10" />
-                            <TvText variant="h2" className="text-4xl tracking-[0.5em] uppercase opacity-60 mb-8">FIRST MISSION</TvText>
+                        {/* Warp Speed Background Rings */}
+                        {[...Array(3)].map((_, i) => (
                             <motion.div
-                                initial={{ y: 20, opacity: 0 }}
+                                key={i}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: [0, 4], opacity: [0, 0.2, 0] }}
+                                transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: i * 0.5,
+                                    ease: "circOut"
+                                }}
+                                className="absolute border-2 border-tv-accent rounded-full w-96 h-96"
+                            />
+                        ))}
+
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0, filter: 'blur(20px)' }}
+                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                            transition={{ duration: 0.8, ease: "circOut" }}
+                            className="text-center z-10"
+                        >
+                            <div className="flex flex-col items-center mb-12">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: 200 }}
+                                    className="h-[1px] bg-tv-accent/50 mb-4"
+                                />
+                                <TvText variant="h2" className="text-xl tracking-[1.2em] uppercase text-tv-accent/60 mb-2">MISSION BRIEFING</TvText>
+                                <TvText variant="h2" className="text-4xl tracking-[0.6em] uppercase font-light">ROUND {currentRound}</TvText>
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: 400 }}
+                                    className="h-[1px] bg-tv-accent/50 mt-4"
+                                />
+                            </div>
+
+                            <motion.div
+                                initial={{ y: 50, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 0.8 }}
+                                transition={{ delay: 0.6, duration: 1, type: "spring" }}
+                                className="relative"
                             >
-                                <TvText variant="h1" className="text-[120px] font-black uppercase text-tv-accent drop-shadow-glow">
-                                    {teams[0]?.name}
+                                <TvText variant="label" className="text-tv-accent opacity-50 tracking-[0.5em] mb-4 block">ACTIVE OPERATIVE</TvText>
+                                <TvText variant="h1" className="text-[clamp(4rem,12vw,10rem)] font-black uppercase text-white drop-shadow-[0_0_30px_rgba(0,229,255,0.4)] italic">
+                                    {activeTeam?.name || teams[0]?.name || 'REDACTED'}
                                 </TvText>
                             </motion.div>
                         </motion.div>
 
-                        {/* Flash Sweep */}
+                        {/* Scanline Sweep */}
                         <motion.div
-                            initial={{ x: '-100%' }}
-                            animate={{ x: '200%' }}
-                            transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
-                            className="absolute top-1/2 left-0 w-[50%] h-[2px] bg-tv-accent shadow-[0_0_20px_#00E5FF] rotate-[-45deg] pointer-events-none"
+                            initial={{ x: '-100%', skewX: -45 }}
+                            animate={{ x: '200%', skewX: -45 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
+                            className="absolute top-0 bottom-0 left-0 w-[30%] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
                         />
                     </motion.div>
                 )}
 
-                {/* STANDBY SCREEN */}
-                {(currentState === 'STANDBY' || (currentState === 'IDLE' && !showIntro)) && (
+                {/* HOLDING SCREEN (NOT ARMED, MAIN DASHBOARD) */}
+                {!['QUIZ_SETUP', 'SIMULATION_CONSOLE'].includes(uiScreen) && !showIntro && (
+                    <motion.div
+                        key="holding"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex-1 w-full"
+                    >
+                        <ProjectionHoldingScreen />
+                    </motion.div>
+                )}
+
+                {/* SYSTEM ARMING SCREEN (DURING SETUP) */}
+                {uiScreen === 'QUIZ_SETUP' && (
+                    <motion.div
+                        key="arming"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex-1 w-full"
+                    >
+                        <ProjectionArmingScreen />
+                    </motion.div>
+                )}
+
+                {/* STANDBY SCREEN (SIMULATION IDLE/STANDBY POST-ARMING) */}
+                {(uiScreen === 'SIMULATION_CONSOLE' && (currentState === 'IDLE' || currentState === 'STANDBY') && !showIntro) && (
                     <motion.div
                         key="standby"
                         initial={{ opacity: 0 }}
@@ -153,10 +210,10 @@ export function ProjectionScreen() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -50 }}
                         transition={{ duration: 0.6, ease: "backOut" }}
-                        className="flex-1 flex flex-col p-20 z-10"
+                        className="flex-1 flex flex-col p-[4vw] z-10"
                     >
                         {/* TEAM NAME HEADER */}
-                        <header className="flex flex-col items-center mb-20">
+                        <header className="flex flex-col items-center mb-[4vh]">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: '100%' }}
@@ -165,26 +222,26 @@ export function ProjectionScreen() {
                             >
                                 <div className="absolute inset-0 blur-lg" style={{ backgroundColor: activeTeam?.color }} />
                             </motion.div>
-                            <TvText variant="h1" className="text-[64px] font-black uppercase tracking-widest drop-shadow-glow" style={{ color: activeTeam?.color }}>
+                            <TvText variant="h1" className="text-[clamp(2.5rem,6vw,5rem)] font-black uppercase tracking-widest drop-shadow-glow" style={{ color: activeTeam?.color }}>
                                 {activeTeam?.name}
                             </TvText>
                         </header>
 
                         {/* QUESTION TEXT */}
-                        <main className="flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto text-center gap-24">
+                        <main className="flex-1 flex flex-col items-center justify-center w-full mx-auto text-center gap-[6vh]">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 }}
-                                className="relative py-10 px-20"
+                                className="relative py-2 px-4"
                             >
-                                <TvText variant="h2" className="text-[56px] leading-[1.2] font-semibold text-white/90">
+                                <TvText variant="h2" className="text-[clamp(2.5rem,7vh,5.5rem)] leading-[1.1] font-semibold text-white/90">
                                     {currentQuestion.question}
                                 </TvText>
                             </motion.div>
 
                             {/* OPTION GRID */}
-                            <div className="grid grid-cols-2 gap-10 w-full px-20">
+                            <div className="grid grid-cols-2 gap-[2vh] w-full px-[2vw]">
                                 {(['A', 'B', 'C', 'D'] as const).map((key, idx) => (
                                     <ProjectionOption
                                         key={key}
@@ -210,13 +267,10 @@ export function ProjectionScreen() {
                                     <TvProgressRing
                                         duration={config?.timerSeconds || 30}
                                         remaining={timerRemaining}
-                                        size={120}
-                                        strokeWidth={10}
+                                        size={180}
+                                        strokeWidth={12}
                                         colorOverride={activeTeam?.color}
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <TvText variant="h1" className="text-4xl font-black">{timerRemaining}</TvText>
-                                    </div>
                                 </motion.div>
                             </footer>
                         )}
@@ -331,7 +385,7 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
             }}
             transition={{ delay: 0.5 + (index * 0.1), duration: 0.5 }}
             className={cn(
-                "p-10 rounded-2xl border-4 text-left flex items-center gap-10 transition-all duration-700 backdrop-blur-sm relative overflow-hidden",
+                "p-[1vw] rounded-2xl border-4 text-left flex items-center gap-[0.8vw] transition-all duration-700 backdrop-blur-sm relative overflow-hidden",
                 isRevealed && !isCorrect ? "opacity-10 grayscale" : ""
             )}
         >
@@ -343,13 +397,13 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
             )}
 
             <div className={cn(
-                "w-16 h-16 rounded-xl border flex items-center justify-center shrink-0 transition-colors duration-700",
+                "w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-colors duration-700",
                 isRevealed && isCorrect ? "bg-tv-success text-black border-tv-success" : "bg-black/40 border-white/20 text-white/40"
             )}>
-                <TvText variant="h1" className="text-4xl font-black">{label}</TvText>
+                <TvText variant="h1" className="text-2xl font-black">{label}</TvText>
             </div>
 
-            <TvText variant="h2" className="text-[40px] font-bold text-white uppercase tracking-tight">
+            <TvText variant="h2" className="text-[clamp(1rem,4vh,2.5rem)] font-bold text-white uppercase tracking-tight flex-1">
                 {text}
             </TvText>
         </motion.div>

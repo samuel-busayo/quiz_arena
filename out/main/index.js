@@ -2,6 +2,7 @@
 const electron = require("electron");
 const path = require("path");
 const promises = require("fs/promises");
+const events = require("events");
 const is = {
   dev: !electron.app.isPackaged
 };
@@ -95,13 +96,128 @@ const optimizer = {
     });
   }
 };
+class DisplayManager extends events.EventEmitter {
+  primaryDisplay = null;
+  secondaryDisplay = null;
+  initialized = false;
+  constructor() {
+    super();
+  }
+  initialize() {
+    if (this.initialized) return;
+    this.updateDisplays();
+    electron.screen.on("display-added", () => this.handleDisplayChange());
+    electron.screen.on("display-removed", () => this.handleDisplayChange());
+    electron.screen.on("display-metrics-changed", () => this.handleDisplayChange());
+    this.initialized = true;
+  }
+  updateDisplays() {
+    const displays = electron.screen.getAllDisplays();
+    console.log("[DISPLAY] Detected displays count:", displays.length);
+    this.primaryDisplay = electron.screen.getPrimaryDisplay();
+    this.secondaryDisplay = displays.find((d) => d.id !== this.primaryDisplay?.id) || null;
+    console.log("[DISPLAY] Primary ID:", this.primaryDisplay?.id, "Secondary ID:", this.secondaryDisplay?.id);
+  }
+  handleDisplayChange() {
+    const oldSecondaryId = this.secondaryDisplay?.id;
+    this.updateDisplays();
+    if (this.secondaryDisplay && this.secondaryDisplay.id !== oldSecondaryId) {
+      this.emit("secondary-display-added", this.secondaryDisplay);
+    } else if (!this.secondaryDisplay && oldSecondaryId) {
+      this.emit("secondary-display-removed");
+    } else {
+      this.emit("display-metrics-changed", this.secondaryDisplay);
+    }
+  }
+  getPrimaryDisplay() {
+    return this.primaryDisplay;
+  }
+  getSecondaryDisplay() {
+    return this.secondaryDisplay;
+  }
+  hasSecondaryDisplay() {
+    return this.secondaryDisplay !== null;
+  }
+}
+const displayManager = new DisplayManager();
+class ProjectionWindowManager {
+  window = null;
+  constructor() {
+  }
+  createWindow() {
+    console.log("[PROJECTION] Creating window...");
+    if (this.window) {
+      console.log("[PROJECTION] Window already exists, focusing.");
+      this.window.focus();
+      return;
+    }
+    const secondary = displayManager.getSecondaryDisplay();
+    const bounds = secondary ? secondary.bounds : { x: 0, y: 0, width: 1024, height: 768 };
+    console.log("[PROJECTION] Using display bounds:", bounds, "Secondary exists:", !!secondary);
+    this.window = new electron.BrowserWindow({
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      fullscreen: !!secondary,
+      frame: false,
+      resizable: false,
+      movable: false,
+      alwaysOnTop: !!secondary,
+      backgroundColor: "#050505",
+      autoHideMenuBar: true,
+      webPreferences: {
+        preload: path.join(__dirname, "../preload/index.js"),
+        sandbox: false,
+        contextIsolation: true
+      }
+    });
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      this.window.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}#projector`);
+      this.window.webContents.openDevTools({ mode: "detach" });
+    } else {
+      this.window.loadFile(path.join(__dirname, "../renderer/index.html"), { hash: "projector" });
+    }
+    this.window.on("closed", () => {
+      this.window = null;
+    });
+    this.window.on("close", (e) => {
+      if (displayManager.hasSecondaryDisplay()) ;
+    });
+  }
+  destroyWindow() {
+    if (this.window) {
+      this.window.close();
+      this.window = null;
+    }
+  }
+  sendState(state) {
+    if (this.window) {
+      this.window.webContents.send("quiz-state-update", state);
+    }
+  }
+  isAlive() {
+    return this.window !== null;
+  }
+  handleDisplayChange() {
+    if (displayManager.hasSecondaryDisplay()) {
+      if (!this.window) {
+        this.createWindow();
+      } else {
+        const secondary = displayManager.getSecondaryDisplay();
+        if (secondary) {
+          this.window.setBounds(secondary.bounds);
+          this.window.setFullScreen(true);
+        }
+      }
+    } else {
+      this.destroyWindow();
+    }
+  }
+}
+const projectionWindowManager = new ProjectionWindowManager();
 let adminWindow = null;
-let projectorWindow = null;
-function createWindows() {
-  const displays = electron.screen.getAllDisplays();
-  const externalDisplay = displays.find((display) => {
-    return display.bounds.x !== 0 || display.bounds.y !== 0;
-  });
+function createAdminWindow() {
   adminWindow = new electron.BrowserWindow({
     width: 1200,
     height: 800,
@@ -112,7 +228,6 @@ function createWindows() {
       sandbox: false
     }
   });
-  if (!adminWindow) return;
   adminWindow.on("ready-to-show", () => {
     adminWindow?.show();
   });
@@ -125,109 +240,122 @@ function createWindows() {
   } else {
     adminWindow.loadFile(path.join(__dirname, "../renderer/index.html"), { hash: "admin" });
   }
-  if (externalDisplay) {
-    projectorWindow = new electron.BrowserWindow({
-      x: externalDisplay.bounds.x,
-      y: externalDisplay.bounds.y,
-      fullscreen: true,
-      autoHideMenuBar: true,
-      webPreferences: {
-        preload: path.join(__dirname, "../preload/index.js"),
-        sandbox: false
-      }
-    });
-    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-      projectorWindow.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}#projector`);
-    } else {
-      projectorWindow.loadFile(path.join(__dirname, "../renderer/index.html"), { hash: "projector" });
-    }
-    projectorWindow.on("closed", () => {
-      projectorWindow = null;
-    });
-  }
 }
 electron.app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.techverse.quizarena");
   electron.app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
+  displayManager.initialize();
+  displayManager.on("secondary-display-added", () => {
+    projectionWindowManager.createWindow();
+  });
+  displayManager.on("secondary-display-removed", () => {
+    projectionWindowManager.destroyWindow();
+  });
+  displayManager.on("display-metrics-changed", () => {
+    projectionWindowManager.handleDisplayChange();
+  });
   electron.ipcMain.handle("get-version", () => electron.app.getVersion());
+  electron.ipcMain.handle("get-display-info", () => {
+    const displays = electron.screen.getAllDisplays();
+    const primary = electron.screen.getPrimaryDisplay();
+    const secondary = displays.find((d) => d.id !== primary.id);
+    return {
+      count: displays.length,
+      primaryRes: `${primary.bounds.width}x${primary.bounds.height}`,
+      secondaryRes: secondary ? `${secondary.bounds.width}x${secondary.bounds.height}` : "N/A",
+      isProjectorAlive: projectionWindowManager.isAlive()
+    };
+  });
+  const collectionsPath = path.join(electron.app.getAppPath(), "data/collections");
   electron.ipcMain.handle("get-collections", async () => {
-    const collectionsPath = path.join(electron.app.getAppPath(), "data/collections");
     try {
       const files = await promises.readdir(collectionsPath);
       return files.filter((f) => f.endsWith(".json")).map((f) => f.replace(".json", ""));
     } catch (err) {
-      console.error("Failed to read collections:", err);
       return [];
     }
   });
   electron.ipcMain.handle("get-collection", async (_, name) => {
-    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
     try {
-      const content = await promises.readFile(filePath, "utf-8");
+      const content = await promises.readFile(path.join(collectionsPath, `${name}.json`), "utf-8");
       return JSON.parse(content);
     } catch (err) {
-      console.error(`Failed to read collection ${name}:`, err);
       return null;
     }
   });
   electron.ipcMain.handle("save-collection", async (_, name, questions) => {
-    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
     try {
-      await promises.writeFile(filePath, JSON.stringify(questions, null, 2));
+      await promises.writeFile(path.join(collectionsPath, `${name}.json`), JSON.stringify(questions, null, 2));
       return true;
     } catch (err) {
-      console.error(`Failed to save collection ${name}:`, err);
       return false;
     }
   });
   electron.ipcMain.handle("create-collection", async (_, name) => {
-    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
     try {
-      if (path.join(electron.app.getAppPath(), "data/collections", `${name}.json`).includes("..")) return false;
-      await promises.writeFile(filePath, JSON.stringify([], null, 2));
+      await promises.writeFile(path.join(collectionsPath, `${name}.json`), JSON.stringify([], null, 2));
       return true;
     } catch (err) {
-      console.error(`Failed to create collection ${name}:`, err);
       return false;
     }
   });
   electron.ipcMain.handle("delete-collection", async (_, name) => {
-    const filePath = path.join(electron.app.getAppPath(), "data/collections", `${name}.json`);
     try {
       const { unlink } = require("fs/promises");
-      await unlink(filePath);
+      await unlink(path.join(collectionsPath, `${name}.json`));
       return true;
     } catch (err) {
-      console.error(`Failed to delete collection ${name}:`, err);
       return false;
     }
   });
   electron.ipcMain.handle("rename-collection", async (_, oldName, newName) => {
-    const oldPath = path.join(electron.app.getAppPath(), "data/collections", `${oldName}.json`);
-    const newPath = path.join(electron.app.getAppPath(), "data/collections", `${newName}.json`);
     try {
-      await promises.rename(oldPath, newPath);
+      await promises.rename(path.join(collectionsPath, `${oldName}.json`), path.join(collectionsPath, `${newName}.json`));
       return true;
     } catch (err) {
-      console.error(`Failed to rename collection from ${oldName} to ${newName}:`, err);
       return false;
     }
   });
-  electron.ipcMain.on("update-quiz-state", (_, state) => {
-    if (projectorWindow) {
-      projectorWindow.webContents.send("quiz-state-update", state);
+  const resultsPath = path.join(electron.app.getAppPath(), "data/results");
+  require("fs/promises").mkdir(resultsPath, { recursive: true }).catch(console.error);
+  electron.ipcMain.handle("save-quiz-result", async (_, result) => {
+    try {
+      await promises.writeFile(path.join(resultsPath, `result_${result.id || Date.now()}.json`), JSON.stringify(result, null, 2));
+      return true;
+    } catch (err) {
+      return false;
     }
   });
-  electron.ipcMain.on("ping", () => console.log("pong"));
-  createWindows();
-  electron.app.on("activate", function() {
-    if (electron.BrowserWindow.getAllWindows().length === 0) createWindows();
+  electron.ipcMain.handle("get-quiz-results", async () => {
+    try {
+      const files = await promises.readdir(resultsPath);
+      const results = await Promise.all(
+        files.filter((f) => f.endsWith(".json")).map(async (file) => {
+          const content = await promises.readFile(path.join(resultsPath, file), "utf-8");
+          return JSON.parse(content);
+        })
+      );
+      return results.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    } catch (err) {
+      return [];
+    }
+  });
+  electron.ipcMain.on("update-quiz-state", (_, state) => {
+    projectionWindowManager.sendState(state);
+  });
+  electron.ipcMain.on("open-projector", () => {
+    projectionWindowManager.createWindow();
+  });
+  createAdminWindow();
+  if (displayManager.hasSecondaryDisplay() || is.dev) {
+    projectionWindowManager.createWindow();
+  }
+  electron.app.on("activate", () => {
+    if (electron.BrowserWindow.getAllWindows().length === 0) createAdminWindow();
   });
 });
 electron.app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    electron.app.quit();
-  }
+  if (process.platform !== "darwin") electron.app.quit();
 });

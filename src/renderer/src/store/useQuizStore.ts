@@ -97,6 +97,14 @@ interface QuizStore {
     questionQueue: Question[]
     systemSettings: SystemSettings
 
+    // Dynamic Setup State (for Projection UI before simulation)
+    setupDraft: {
+        step: number
+        teams: Partial<Team>[]
+        collectionName: string | null
+        config: Partial<QuizConfig>
+    }
+
     // Pick-A-Number State
     gridColumns: number
     gridNumbers: GridNumber[]
@@ -126,6 +134,7 @@ interface QuizStore {
     tickTimer: () => void
     setPaused: (paused: boolean) => void
     updateSystemSettings: (settings: Partial<SystemSettings>) => void
+    updateSetupDraft: (draft: Partial<QuizStore['setupDraft']>) => void
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -161,6 +170,26 @@ export const useQuizStore = create<QuizStore>()(
                 particleDensity: 'balanced'
             },
 
+            // Draft setup
+            setupDraft: {
+                step: 1,
+                teams: [
+                    { id: '1', name: 'TEAM ALPHA', color: '#00D1FF', score: 0, isEliminated: false },
+                    { id: '2', name: 'TEAM BETA', color: '#FF3D00', score: 0, isEliminated: false }
+                ],
+                collectionName: null,
+                config: {
+                    rounds: 3,
+                    takesPerRound: 2,
+                    timerSeconds: 30,
+                    extraTimerSeconds: 15,
+                    scorePerCorrect: 10,
+                    deductionPerWrong: 5,
+                    showLeaderboardAfterRound: true,
+                    mode: 'RANDOM'
+                }
+            },
+
             // Pick-A-Number Initial State
             gridColumns: 0,
             gridNumbers: [],
@@ -191,6 +220,7 @@ export const useQuizStore = create<QuizStore>()(
                 const state = get()
                 window.api.updateQuizState({
                     currentState: state.currentState,
+                    uiScreen: state.uiScreen,
                     teams: state.teams,
                     config: state.config,
                     questions: state.questions,
@@ -202,6 +232,7 @@ export const useQuizStore = create<QuizStore>()(
                     isPaused: state.isPaused,
                     questionQueue: state.questionQueue,
                     systemSettings: state.systemSettings,
+                    setupDraft: state.setupDraft,
                     gridColumns: state.gridColumns,
                     gridNumbers: state.gridNumbers,
                     currentPickerTeamId: state.currentPickerTeamId,
@@ -221,8 +252,16 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            updateSetupDraft: (draft) => {
+                set((state) => ({
+                    setupDraft: { ...state.setupDraft, ...draft }
+                }))
+                get().syncState()
+            },
+
             setUiScreen: (screen) => {
                 set({ uiScreen: screen })
+                get().syncState()
             },
 
             setTeams: (teams) => {

@@ -12,26 +12,9 @@ const TEAM_COLORS = [
 ]
 
 export function QuizSetupScreen() {
-    const { setUiScreen, setConfig, setTeams, setQuestions, setCurrentState } = useQuizStore()
-    const [step, setStep] = useState(1)
-
-    // Setup State
-    const [setupTeams, setSetupTeams] = useState<Partial<Team>[]>([
-        { id: '1', name: 'TEAM ALPHA', color: '#00D1FF', score: 0, isEliminated: false },
-        { id: '2', name: 'TEAM BETA', color: '#FF3D00', score: 0, isEliminated: false }
-    ])
+    const { setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore()
+    const { step, teams: setupTeams, collectionName: selectedCollection, config: setupConfig } = setupDraft
     const [collections, setCollections] = useState<string[]>([])
-    const [selectedCollection, setSelectedCollection] = useState<string | null>(null)
-    const [setupConfig, setSetupConfig] = useState<QuizConfig>({
-        rounds: 3,
-        takesPerRound: 2,
-        timerSeconds: 30,
-        extraTimerSeconds: 15,
-        scorePerCorrect: 10,
-        deductionPerWrong: 5,
-        showLeaderboardAfterRound: true,
-        mode: 'RANDOM'
-    })
 
     useEffect(() => {
         window.api.getCollections().then(setCollections)
@@ -45,7 +28,7 @@ export function QuizSetupScreen() {
             return
         }
 
-        setConfig({ ...setupConfig, collectionName: selectedCollection })
+        setConfig({ ...setupConfig, collectionName: selectedCollection } as QuizConfig)
         setTeams(setupTeams as Team[])
         setQuestions(questions)
         setCurrentState('ARMING')
@@ -62,10 +45,10 @@ export function QuizSetupScreen() {
                     </div>
 
                     <div className="space-y-4">
-                        <StepItem num={1} label="Teams" active={step === 1} done={step > 1} onClick={() => setStep(1)} icon={<Users size={16} />} />
-                        <StepItem num={2} label="Source" active={step === 2} done={step > 2} onClick={() => setStep(2)} icon={<Database size={16} />} />
-                        <StepItem num={3} label="Rules" active={step === 3} done={step > 3} onClick={() => setStep(3)} icon={<Settings size={16} />} />
-                        <StepItem num={4} label="Mode" active={step === 4} done={step > 4} onClick={() => setStep(4)} icon={<Target size={16} />} />
+                        <StepItem num={1} label="Teams" active={step === 1} done={step > 1} onClick={() => updateSetupDraft({ step: 1 })} icon={<Users size={16} />} />
+                        <StepItem num={2} label="Source" active={step === 2} done={step > 2} onClick={() => updateSetupDraft({ step: 2 })} icon={<Database size={16} />} />
+                        <StepItem num={3} label="Rules" active={step === 3} done={step > 3} onClick={() => updateSetupDraft({ step: 3 })} icon={<Settings size={16} />} />
+                        <StepItem num={4} label="Mode" active={step === 4} done={step > 4} onClick={() => updateSetupDraft({ step: 4 })} icon={<Target size={16} />} />
                     </div>
 
                     <div className="mt-auto p-4 rounded-lg bg-tv-panel border border-tv-border">
@@ -86,9 +69,9 @@ export function QuizSetupScreen() {
                         <TvText variant="h2">{step === 1 ? 'TEAM REGISTRATION' : step === 2 ? 'QUESTION SOURCE' : step === 3 ? 'COMPETITION RULES' : 'ENGAGEMENT MODE'}</TvText>
                     </div>
                     <div className="flex gap-2">
-                        {step > 1 && <TvButton variant="secondary" onClick={() => setStep(step - 1)}>PREVIOUS</TvButton>}
+                        {step > 1 && <TvButton variant="secondary" onClick={() => updateSetupDraft({ step: step - 1 })}>PREVIOUS</TvButton>}
                         {step < 4 ? (
-                            <TvButton variant="primary" onClick={() => setStep(step + 1)}>NEXT PHASE</TvButton>
+                            <TvButton variant="primary" onClick={() => updateSetupDraft({ step: step + 1 })}>NEXT PHASE</TvButton>
                         ) : (
                             <TvButton variant="primary" glow onClick={startSimulation} disabled={!selectedCollection || setupTeams.length < 2}>INITIATE SIMULATION</TvButton>
                         )}
@@ -103,7 +86,7 @@ export function QuizSetupScreen() {
                                 <TvCard key={team.id} className="p-6 space-y-4 group">
                                     <div className="flex justify-between items-start">
                                         <TvText variant="label">Unit 0{idx + 1}</TvText>
-                                        <button className="text-tv-textMuted hover:text-tv-danger transition-colors p-1" onClick={() => setSetupTeams(setupTeams.filter(t => t.id !== team.id))}>
+                                        <button className="text-tv-textMuted hover:text-tv-danger transition-colors p-1" onClick={() => updateSetupDraft({ teams: setupTeams.filter(t => t.id !== team.id) })}>
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -113,7 +96,7 @@ export function QuizSetupScreen() {
                                         onChange={(e) => {
                                             const next = [...setupTeams]
                                             next[idx].name = e.target.value.toUpperCase()
-                                            setSetupTeams(next)
+                                            updateSetupDraft({ teams: next })
                                         }}
                                     />
                                     <div className="flex gap-3">
@@ -129,7 +112,7 @@ export function QuizSetupScreen() {
                                                     onClick={() => {
                                                         const next = [...setupTeams]
                                                         next[idx].color = c
-                                                        setSetupTeams(next)
+                                                        updateSetupDraft({ teams: next })
                                                     }}
                                                 />
                                             )
@@ -140,7 +123,7 @@ export function QuizSetupScreen() {
                             <TvCard
                                 hoverable
                                 className="p-6 border-dashed flex flex-col items-center justify-center gap-4 text-tv-textMuted group hover:text-tv-accent"
-                                onClick={() => setSetupTeams([...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: '#FFFFFF', score: 0, isEliminated: false }])}
+                                onClick={() => updateSetupDraft({ teams: [...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: '#FFFFFF', score: 0, isEliminated: false }] })}
                             >
                                 <div className="p-4 rounded-full bg-tv-panel border border-tv-border group-hover:border-tv-accent transition-colors">
                                     <Plus size={32} />
@@ -158,7 +141,7 @@ export function QuizSetupScreen() {
                                     hoverable
                                     selected={selectedCollection === name}
                                     className="px-8 py-6 min-w-[200px] flex flex-col items-center gap-3 animate-rise"
-                                    onClick={() => setSelectedCollection(name)}
+                                    onClick={() => updateSetupDraft({ collectionName: name })}
                                 >
                                     <Database size={24} className={selectedCollection === name ? 'text-tv-accent' : 'text-tv-textMuted'} />
                                     <TvText variant="h3" className="text-sm">{name}</TvText>
@@ -183,7 +166,7 @@ export function QuizSetupScreen() {
                                     placeholder="ENTER EVENT NAME (E.G. INTER-HOUSE QUIZ)"
                                     className="w-full bg-transparent border-b border-tv-border py-3 font-display text-2xl text-white outline-none focus:border-tv-accent transition-colors placeholder:opacity-20 uppercase"
                                     value={setupConfig.eventName || ''}
-                                    onChange={(e) => setSetupConfig({ ...setupConfig, eventName: e.target.value.toUpperCase() })}
+                                    onChange={(e) => updateSetupDraft({ config: { ...setupConfig, eventName: e.target.value.toUpperCase() } })}
                                 />
                                 <TvText variant="muted" className="text-[10px]">Title will be displayed prominently on the Projection Standby screen.</TvText>
                             </div>
@@ -191,26 +174,26 @@ export function QuizSetupScreen() {
                             <div className="grid grid-cols-2 gap-10">
                                 <ConfigField
                                     label="Number of Rounds"
-                                    value={setupConfig.rounds}
-                                    onChange={(val) => setSetupConfig({ ...setupConfig, rounds: val })}
+                                    value={setupConfig.rounds || 3}
+                                    onChange={(val) => updateSetupDraft({ config: { ...setupConfig, rounds: val } })}
                                     icon={<Zap size={16} />}
                                 />
                                 <ConfigField
                                     label="Takes Per Round"
-                                    value={setupConfig.takesPerRound}
-                                    onChange={(val) => setSetupConfig({ ...setupConfig, takesPerRound: val })}
+                                    value={setupConfig.takesPerRound || 2}
+                                    onChange={(val) => updateSetupDraft({ config: { ...setupConfig, takesPerRound: val } })}
                                     icon={<Zap size={16} />}
                                 />
                                 <ConfigField
                                     label="Timer Seconds"
-                                    value={setupConfig.timerSeconds}
-                                    onChange={(val) => setSetupConfig({ ...setupConfig, timerSeconds: val })}
+                                    value={setupConfig.timerSeconds || 30}
+                                    onChange={(val) => updateSetupDraft({ config: { ...setupConfig, timerSeconds: val } })}
                                     icon={<Zap size={16} />}
                                 />
                                 <ConfigField
                                     label="Points Per Correct"
-                                    value={setupConfig.scorePerCorrect}
-                                    onChange={(val) => setSetupConfig({ ...setupConfig, scorePerCorrect: val })}
+                                    value={setupConfig.scorePerCorrect || 10}
+                                    onChange={(val) => updateSetupDraft({ config: { ...setupConfig, scorePerCorrect: val } })}
                                     icon={<Zap size={16} />}
                                 />
                             </div>
@@ -223,7 +206,7 @@ export function QuizSetupScreen() {
                                 hoverable
                                 selected={setupConfig.mode === 'RANDOM'}
                                 className="p-10 flex flex-col items-center gap-6 text-center"
-                                onClick={() => setSetupConfig({ ...setupConfig, mode: 'RANDOM' })}
+                                onClick={() => updateSetupDraft({ config: { ...setupConfig, mode: 'RANDOM' } })}
                             >
                                 <Zap size={48} className={setupConfig.mode === 'RANDOM' ? 'text-tv-accent' : 'text-tv-textMuted'} />
                                 <div>
@@ -236,7 +219,7 @@ export function QuizSetupScreen() {
                                 hoverable
                                 selected={setupConfig.mode === 'PICK_NUMBER'}
                                 className="p-10 flex flex-col items-center gap-6 text-center"
-                                onClick={() => setSetupConfig({ ...setupConfig, mode: 'PICK_NUMBER' })}
+                                onClick={() => updateSetupDraft({ config: { ...setupConfig, mode: 'PICK_NUMBER' } })}
                             >
                                 <Target size={48} className={setupConfig.mode === 'PICK_NUMBER' ? 'text-tv-accent' : 'text-tv-textMuted'} />
                                 <div>

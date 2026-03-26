@@ -91,7 +91,11 @@ const api = {
     const listener = (_event, state) => callback(state);
     electron.ipcRenderer.on("quiz-state-update", listener);
     return () => electron.ipcRenderer.removeListener("quiz-state-update", listener);
-  }
+  },
+  saveQuizResult: (result) => electron.ipcRenderer.invoke("save-quiz-result", result),
+  getQuizResults: () => electron.ipcRenderer.invoke("get-quiz-results"),
+  openProjector: () => electron.ipcRenderer.send("open-projector"),
+  getDisplayInfo: () => electron.ipcRenderer.invoke("get-display-info")
 };
 if (process.contextIsolated) {
   try {

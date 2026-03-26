@@ -43,6 +43,8 @@ app.whenReady().then(() => {
     })
 
     // Initialize Services
+    displayManager.initialize()
+
     displayManager.on('secondary-display-added', () => {
         projectionWindowManager.createWindow()
     })

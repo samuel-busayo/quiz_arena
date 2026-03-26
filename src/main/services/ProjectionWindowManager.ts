@@ -9,13 +9,16 @@ export class ProjectionWindowManager {
     constructor() { }
 
     createWindow() {
+        console.log('[PROJECTION] Creating window...')
         if (this.window) {
+            console.log('[PROJECTION] Window already exists, focusing.')
             this.window.focus()
             return
         }
 
         const secondary = displayManager.getSecondaryDisplay()
         const bounds = secondary ? secondary.bounds : { x: 0, y: 0, width: 1024, height: 768 }
+        console.log('[PROJECTION] Using display bounds:', bounds, 'Secondary exists:', !!secondary)
 
         this.window = new BrowserWindow({
             x: bounds.x,
@@ -38,6 +41,7 @@ export class ProjectionWindowManager {
 
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
             this.window.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#projector`)
+            this.window.webContents.openDevTools({ mode: 'detach' })
         } else {
             this.window.loadFile(join(__dirname, '../renderer/index.html'), { hash: 'projector' })
         }
@@ -84,8 +88,7 @@ export class ProjectionWindowManager {
                 }
             }
         } else {
-            // No secondary display, usually we close the projector unless we want a windowed mode
-            // For production quiz, we destroy to avoid confusion
+            // If no secondary display, we keep it closed to prevent overlapping the primary screen.
             this.destroyWindow()
         }
     }

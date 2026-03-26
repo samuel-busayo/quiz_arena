@@ -66,7 +66,7 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
     }, [isAdmin, selectionCursor, gridNumbers.length, gridColumns, currentState])
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-10 bg-tv-background/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden relative">
+        <div className="w-full h-full flex flex-col items-center justify-center p-[4vh] bg-tv-background/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden relative">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -90,7 +90,7 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
                 className="grid gap-4 perspective-1000"
                 style={{
                     gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))`,
-                    width: 'min(90%, 1000px)'
+                    width: 'min(95%, 1400px)'
                 }}
             >
                 {gridNumbers.map((num, idx) => {
@@ -112,7 +112,7 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
                             )}
                         >
                             <TvText variant="h2" className={cn(
-                                "font-orbitron font-black",
+                                "font-orbitron font-black text-[clamp(1.2rem,5vmin,3.5rem)]",
                                 isSelected ? "text-white" : "text-tv-textMuted"
                             )}>
                                 {num.value}

@@ -111,7 +111,7 @@ export function AdminConsoleScreen() {
                 </div>
             </header>
 
-            <main className="flex-1 grid grid-cols-[300px_1fr_250px] gap-8 p-8 min-h-0 overflow-hidden relative">
+            <main className="flex-1 grid grid-cols-[max(250px,20vw)_1fr_max(220px,18vw)] gap-[2vw] p-[2vw] min-h-0 overflow-hidden relative">
                 {/* DOCKED SCOREBOARD (LEFT) */}
                 <aside className="flex flex-col gap-4 h-full overflow-hidden">
                     <div className="flex items-center gap-2 mb-2">
@@ -132,7 +132,7 @@ export function AdminConsoleScreen() {
                                         boxShadow: currentTeamId === team.id ? `0 0 20px -5px ${team.color}66` : 'none'
                                     }}
                                     className={cn(
-                                        "p-4 rounded border-l-4 transition-all flex justify-between items-center relative overflow-hidden",
+                                        "p-[1vw] rounded border-l-4 transition-all flex justify-between items-center relative overflow-hidden",
                                         currentTeamId === team.id ? 'bg-tv-accentSoft border-white/20' : 'bg-tv-panel/40 border-white/5',
                                         team.isEliminated && "opacity-30 grayscale"
                                     )}
@@ -165,18 +165,18 @@ export function AdminConsoleScreen() {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 1.1 }}
-                                className="flex flex-col items-center gap-10"
+                                className="flex flex-col items-center gap-[4vh]"
                             >
-                                <div className="p-12 rounded-full border border-tv-accent/20 bg-tv-accentSoft relative">
+                                <div className="p-[2vw] rounded-full border border-tv-accent/20 bg-tv-accentSoft relative">
                                     <div className="absolute inset-0 border border-tv-accent animate-ping rounded-full opacity-20" />
-                                    <Zap size={64} className="text-tv-accent animate-pulse" />
+                                    <Zap size={48} className="text-tv-accent animate-pulse" />
                                 </div>
-                                <div className="text-center space-y-2">
-                                    <TvText variant="h1" className="text-6xl tracking-[0.2em] font-black italic">ARMING SYSTEM</TvText>
-                                    <TvText variant="muted" className="uppercase tracking-[0.4em] opacity-40">Synchronizing Neural Vectors...</TvText>
+                                <div className="text-center space-y-1">
+                                    <TvText align="center" variant="h1" className="text-[clamp(2rem,8vh,5rem)] tracking-[0.2em] font-black italic leading-none">ARMING SYSTEM</TvText>
+                                    <TvText align="center" variant="muted" className="uppercase tracking-[0.4em] opacity-40 text-xs">Synchronizing Neural Vectors...</TvText>
                                 </div>
-                                <TvButton variant="primary" size="xl" glow onClick={() => simulationEngine.startSimulation()}>
-                                    INITIATE SIMULATION
+                                <TvButton variant="primary" size="lg" glow onClick={() => simulationEngine.startSimulation()}>
+                                    INITIATE NEURAL LINK
                                 </TvButton>
                             </motion.div>
                         )}
@@ -193,17 +193,17 @@ export function AdminConsoleScreen() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
-                                className="w-full flex flex-col gap-12"
+                                className="w-full flex flex-col gap-[3vh]"
                             >
                                 <div className="p-1 bg-white/5 border border-white/10 rounded-2xl shadow-2xl">
-                                    <div className="bg-tv-panel p-10 rounded-xl border border-white/10">
-                                        <TvText variant="h2" align="center" className="text-4xl lg:text-5xl leading-tight font-bold text-tv-accent">
+                                    <div className="bg-tv-panel p-[2vw] rounded-xl border border-white/10">
+                                        <TvText variant="h2" align="center" className="text-[clamp(1.5rem,4.5vh,3.5rem)] leading-[1.1] font-bold text-tv-accent">
                                             {currentQuestion.question}
                                         </TvText>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6 w-full">
+                                <div className="grid grid-cols-2 gap-[2vh] w-full">
                                     {(['A', 'B', 'C', 'D'] as const).map(key => (
                                         <OptionControl
                                             key={key}
@@ -219,24 +219,24 @@ export function AdminConsoleScreen() {
                         )}
 
                         {currentState === 'WINNER' && (
-                            <motion.div key="winner" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-10">
-                                <Trophy size={120} className="text-tv-accent drop-shadow-glow animate-bounce" />
-                                <TvText variant="h1" className="text-6xl font-black italic">MISSION COMPLETE</TvText>
-                                <TvButton variant="ghost" onClick={() => useQuizStore.getState().resetQuiz()}>CLOSE SESSION</TvButton>
+                            <motion.div key="winner" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-[4vh]">
+                                <Trophy size={80} className="text-tv-accent drop-shadow-glow animate-bounce" />
+                                <TvText variant="h1" className="text-[clamp(2rem,6vh,4rem)] font-black italic leading-none">MISSION COMPLETE</TvText>
+                                <TvButton variant="ghost" size="sm" onClick={() => useQuizStore.getState().resetQuiz()}>CLOSE SESSION</TvButton>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
 
                 {/* DOCKED TIMER (RIGHT) */}
-                <aside className="flex flex-col items-center gap-6 h-full border-l border-white/5 pl-8">
+                <aside className="flex flex-col items-center gap-[3vh] h-full border-l border-white/5 pl-[2vw]">
                     <TvText variant="label" className="text-xs uppercase tracking-[0.2em] opacity-60">System Clock</TvText>
                     <div className="relative group mt-4">
                         <TvProgressRing
                             duration={config?.timerSeconds || 30}
                             remaining={timerRemaining}
-                            size={180}
-                            strokeWidth={10}
+                            size={150}
+                            strokeWidth={8}
                             colorOverride={timerRemaining < 5 ? '#FF3D00' : undefined}
                         />
                     </div>
@@ -250,7 +250,7 @@ export function AdminConsoleScreen() {
                         </div>
 
                         {/* Projection Debug Panel */}
-                        <div className="p-4 bg-black/40 border border-tv-accent/20 rounded shadow-glow-soft">
+                        <div className="p-[1vw] bg-black/40 border border-tv-accent/20 rounded shadow-glow-soft">
                             <TvText variant="label" className="text-[8px] text-tv-accent tracking-[0.2em] mb-3 block">DISPLAY DIAGNOSTICS</TvText>
                             <div className="space-y-2">
                                 <DebugInfo label="Displays" value={displayInfo.count} />
@@ -332,20 +332,20 @@ function OptionControl({ label, text, isCorrect, isRevealed, onClick }: { label:
         <button
             onClick={onClick}
             className={cn(
-                "p-6 rounded border-l-4 text-left flex items-start gap-6 transition-all relative overflow-hidden group",
+                "p-[1vw] rounded border-l-4 text-left flex items-start gap-[1vw] transition-all relative overflow-hidden group",
                 isRevealed && isCorrect ? 'bg-tv-success/20 border-tv-success shadow-glow scale-[1.02]' : 'bg-tv-panel border-white/10 hover:border-tv-accent/50',
                 isRevealed && !isCorrect ? 'opacity-40 grayscale-[0.5]' : ''
             )}
             style={{ borderLeftColor: isRevealed && isCorrect ? '#00E676' : 'rgba(255,255,255,0.1)' }}
         >
             <TvText variant="h2" className={cn(
-                "font-black opacity-30 group-hover:opacity-100 transition-opacity",
+                "font-black opacity-30 group-hover:opacity-100 transition-opacity text-xl",
                 isRevealed && isCorrect ? 'text-tv-success opacity-100' : 'text-white'
             )}>
                 {label}
             </TvText>
-            <div>
-                <TvText variant="body" className="text-xl font-bold uppercase tracking-tight">{text}</TvText>
+            <div className="flex-1">
+                <TvText variant="body" className="text-[clamp(0.9rem,2.2vh,1.6rem)] font-bold uppercase tracking-tight">{text}</TvText>
                 {isRevealed && isCorrect && (
                     <TvText variant="label" className="text-[10px] text-tv-success tracking-widest mt-1 block">SYSTEM VERIFIED</TvText>
                 )}
