@@ -423,6 +423,7 @@ class QuizSimulationEngine {
 
                 if (winners.length === 1) {
                     console.log(`Tie Breaker (Winner) Resolved: ${winners[0].name} wins.`)
+                    useQuizStore.setState({ tieBreakerPurpose: null })
                     this.transitionTo('WINNER')
                 } else {
                     // Still tied for win, repeat loop with remaining tied teams
@@ -437,6 +438,7 @@ class QuizSimulationEngine {
                 if (candidates.length === 1) {
                     console.log(`Tie Breaker (Elimination) Resolved: ${candidates[0].name} eliminated.`)
                     const target = candidates[0]
+                    useQuizStore.setState({ tieBreakerPurpose: null })
                     useQuizStore.getState().eliminateTeam(target.id)
                     useQuizStore.setState({ currentTeamId: target.id })
                     this.transitionTo('ELIMINATION')
@@ -640,7 +642,7 @@ class QuizSimulationEngine {
     }
 
     private pickNextRandomQuestion() {
-        const { questionQueue, currentStats, currentState } = useQuizStore.getState()
+        const { questionQueue, currentStats, tieBreakerPurpose } = useQuizStore.getState()
         const nextIndex = currentStats.length
 
         if (nextIndex < questionQueue.length) {
@@ -648,10 +650,16 @@ class QuizSimulationEngine {
         }
 
         // Exhaustion!
-        if (currentState === 'TIE_BREAKER') {
+        // Only load failsafe if we are currently in any part of a tie-breaker resolution
+        if (tieBreakerPurpose !== null) {
+            console.warn('System: Question pool exhausted during TIE_BREAKER. loading failsafe bank.')
             const failsafe = (failsafeBank as Question[]).sort(() => Math.random() - 0.5)
             const newQueue = [...questionQueue, ...failsafe]
+
+            // Update store AND sync immediately
             useQuizStore.setState({ questionQueue: newQueue })
+            useQuizStore.getState().syncState()
+
             return newQueue[nextIndex]
         }
 
