@@ -191,18 +191,26 @@ class QuizSimulationEngine {
         const numObj = gridNumbers[index]
         if (!numObj || numObj.used || !currentTeamId) return
 
-        confirmPick(index, currentTeamId)
+        // Set picking index to trigger animation
+        useQuizStore.setState({ pickingIndex: index })
 
-        // Find the actual question
-        const question = questions[numObj.questionIndex]
-        useQuizStore.setState({ currentQuestion: question, revealStatus: null, selectedOption: null })
+        // Play shot SFX
+        audioEngine.playSfx('correct') // Update to a shot SFX later if available
 
-        audioEngine.playSfx('correct')
-
-        // Short delay for animation before question starts
+        // Delay for the bull-eye gunshot animation
         setTimeout(() => {
+            confirmPick(index, currentTeamId)
+
+            const question = questions[numObj.questionIndex]
+            useQuizStore.setState({
+                currentQuestion: question,
+                revealStatus: null,
+                selectedOption: null,
+                pickingIndex: null
+            })
+
             this.transitionTo('QUESTION')
-        }, 800)
+        }, 1500)
     }
 
     // Timer Logic
@@ -432,25 +440,38 @@ class QuizSimulationEngine {
 
         const activeTeams = teams.filter(t => !t.isEliminated)
 
-        // Check if round is complete
+        // Check if tie-breaker is active
         if (currentState === 'TIE_BREAKER') {
             this.handleTieBreakerProgress()
             return
         }
 
-        if (currentTake >= config.takesPerRound * activeTeams.length) {
-            this.eliminateLowestTeam()
-        } else {
-            nextTake()
-            nextTeam()
+        const { currentTeamId, currentRound } = useQuizStore.getState()
+        const oldTake = currentTake
 
-            // Trigger the cinematic transition phase
+        if (currentTake % activeTeams.length === 0) {
+            // Balanced round cycle completed - trigger 5s leaderboard
+            useQuizStore.getState().setUiOverlay('leaderboard')
+
+            setTimeout(() => {
+                useQuizStore.getState().setUiOverlay(null)
+                if (currentTake >= config.takesPerRound * activeTeams.length) {
+                    this.eliminateLowestTeam()
+                } else {
+                    useQuizStore.getState().nextTake()
+                    useQuizStore.getState().nextTeam()
+                    this.transitionTo('TURN_INTRO')
+                }
+            }, 5000)
+        } else {
+            useQuizStore.getState().nextTake()
+            useQuizStore.getState().nextTeam()
             this.transitionTo('TURN_INTRO')
         }
     }
 
     private handleTieBreakerProgress() {
-        const { currentTake, tieBreakerTeams, tieBreakerPurpose, teams, setTieBreakerTeams } = useQuizStore.getState()
+        const { currentTake, tieBreakerTeams, tieBreakerPurpose, teams, setTieBreakerTeams, currentTeamId, currentRound } = useQuizStore.getState()
 
         // Tie breaker is 1 take per team (currentTake is 1-indexed)
         if (currentTake >= tieBreakerTeams.length) {
@@ -462,28 +483,29 @@ class QuizSimulationEngine {
                 const winners = tiedTeamsData.filter(t => t.score === maxScore)
 
                 if (winners.length === 1) {
-                    console.log(`Tie Breaker (Winner) Resolved: ${winners[0].name} wins.`)
                     useQuizStore.setState({ tieBreakerPurpose: null })
                     this.transitionTo('WINNER')
                 } else {
-                    // Still tied for win, repeat loop with remaining tied teams
-                    setTieBreakerTeams(winners.map(w => w.id))
-                    useQuizStore.setState({ currentTake: 1, currentTeamId: winners[0].id })
-                    this.transitionTo('TIE_BREAKER')
+                    // Still tied - show leaderboard then repeat
+                    useQuizStore.getState().setUiOverlay('leaderboard')
+                    setTimeout(() => {
+                        useQuizStore.getState().setUiOverlay(null)
+                        setTieBreakerTeams(winners.map(w => w.id))
+                        useQuizStore.setState({ currentTake: 1, currentTeamId: winners[0].id, currentRound: currentRound + 1 })
+                        this.transitionTo('TIE_BREAKER')
+                    }, 5000)
                 }
             } else if (tieBreakerPurpose === 'elimination') {
                 const minScore = Math.min(...tiedTeamsData.map(t => t.score))
                 const candidates = tiedTeamsData.filter(t => t.score === minScore)
 
                 if (candidates.length === 1) {
-                    console.log(`Tie Breaker (Elimination) Resolved: ${candidates[0].name} eliminated.`)
                     const target = candidates[0]
                     useQuizStore.setState({ tieBreakerPurpose: null })
                     useQuizStore.getState().eliminateTeam(target.id)
                     useQuizStore.setState({ currentTeamId: target.id })
                     this.transitionTo('ELIMINATION')
 
-                    // Proceed to next phase after elimination delay
                     setTimeout(() => {
                         const { config } = useQuizStore.getState()
                         if (config?.showLeaderboardAfterRound) {
@@ -493,34 +515,25 @@ class QuizSimulationEngine {
                         }
                     }, 5000)
                 } else {
-                    // Still tied for lowest, repeat loop with remaining candidates
-                    setTieBreakerTeams(candidates.map(c => c.id))
-                    useQuizStore.setState({ currentTake: 1, currentTeamId: candidates[0].id })
-                    this.transitionTo('TIE_BREAKER')
+                    // Still tied - show leaderboard then repeat
+                    useQuizStore.getState().setUiOverlay('leaderboard')
+                    setTimeout(() => {
+                        useQuizStore.getState().setUiOverlay(null)
+                        setTieBreakerTeams(candidates.map(c => c.id))
+                        useQuizStore.setState({ currentTake: 1, currentTeamId: candidates[0].id, currentRound: currentRound + 1 })
+                        this.transitionTo('TIE_BREAKER')
+                    }, 5000)
                 }
             }
         } else {
-            // Next take in current tie breaker set
-            const nextIdx = currentTake // currentTake is 1, index 1 is the 2nd team
+            const nextIdx = currentTake
             const nextTeamId = tieBreakerTeams[nextIdx]
 
             useQuizStore.setState({
                 currentTeamId: nextTeamId,
                 currentTake: currentTake + 1
             })
-            // Auto-Reveal Leaderboard if round/take balanced (every team has had their turn)
-            const { teams, currentTake: oldTake, tieBreakerPurpose } = useQuizStore.getState()
-            const activeTeamsCount = teams.filter(t => !t.isEliminated).length
-
-            // Increment happened before this check, but the oldTake was the one that just finished
-            if (activeTeamsCount > 0 && oldTake % activeTeamsCount === 0) {
-                // Only auto-show if not in middle of a rapid tie-breaker
-                if (tieBreakerPurpose === null) {
-                    useQuizStore.getState().setUiOverlay('leaderboard')
-                }
-            }
-
-            setTimeout(() => this.transitionTo('TURN_INTRO'), 5000)
+            setTimeout(() => this.transitionTo('TURN_INTRO'), 2000)
         }
     }
 

@@ -119,6 +119,7 @@ interface QuizStore {
     selectedOption: 'A' | 'B' | 'C' | 'D' | null
     isConfirming: boolean
     isLocked: boolean
+    pickingIndex: number | null
     eliminatedOptions: ('A' | 'B' | 'C' | 'D')[]
 
     // Dynamic Setup State (for Projection UI before simulation)
@@ -208,6 +209,7 @@ export const useQuizStore = create<QuizStore>()(
             selectedOption: null,
             isConfirming: false,
             isLocked: false,
+            pickingIndex: null,
             uiOverlay: null,
             currentSessionId: null,
             hasSavedSession: false,

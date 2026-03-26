@@ -1,0 +1,99 @@
+{
+  "id": "1774549958728",
+  "date": "2026-03-26T18:32:38.728Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 2,
+    "timerSeconds": 30,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 10,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "",
+    "eventTheme": "",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "100_general_knowledge_mcq"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 40,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 30,
+      "isEliminated": true,
+      "lifelineRemaining": 1
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 2,
+  "finalScores": {
+    "1": 40,
+    "2": 30
+  },
+  "eliminationOrder": [
+    "2"
+  ],
+  "winner": "1",
+  "questionStats": [
+    {
+      "questionId": "q1774512529115_4",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774512529115_5",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 7
+    },
+    {
+      "questionId": "q1774512529115_7",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774545574485_0",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774545574485_1",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 7
+    },
+    {
+      "questionId": "q1774545582055_0",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 2
+    },
+    {
+      "questionId": "q1774512529115_11",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774512529115_10",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 2
+    }
+  ]
+}
