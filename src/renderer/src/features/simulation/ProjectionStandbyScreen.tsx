@@ -17,7 +17,6 @@ export function ProjectionStandbyScreen() {
     const pairs = React.useMemo(() => {
         if (!activeTeams || activeTeams.length < 2) return []
         const result: any[][] = []
-        // Create 1v1 pairings for all teams (A vs B, B vs C, etc.)
         for (let i = 0; i < activeTeams.length; i++) {
             const t1 = activeTeams[i]
             const t2 = activeTeams[(i + 1) % activeTeams.length]
@@ -48,6 +47,40 @@ export function ProjectionStandbyScreen() {
 
     const currentPair = pairs[pairIndex] || (activeTeams?.length >= 2 ? [activeTeams[0], activeTeams[1]] : null)
 
+    // Component to render a team name with the "Team" label above it
+    const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
+        const hasTeamPrefix = team.name.toUpperCase().startsWith('TEAM ')
+        const displayName = hasTeamPrefix ? team.name.substring(5).trim() : team.name
+        const align = isLeft ? "right" : "left"
+
+        return (
+            <motion.div
+                initial={{ x: isLeft ? -100 : 100, opacity: 0, skewX: isLeft ? -10 : 10 }}
+                animate={{ x: 0, opacity: 1, skewX: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className={`flex-1 flex flex-col ${isLeft ? 'items-end pr-8 border-r-4' : 'items-start pl-8 border-l-4'} min-w-0`}
+                style={{ borderColor: team.color }}
+            >
+                <TvText
+                    variant="label"
+                    align={align}
+                    className="text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60"
+                    style={{ color: team.color }}
+                >
+                    TEAM
+                </TvText>
+
+                <TvText
+                    variant="h1"
+                    align={align}
+                    className="text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full"
+                >
+                    {displayName}
+                </TvText>
+            </motion.div>
+        )
+    }
+
     return (
         <motion.div
             className="absolute inset-0 bg-[#02040a] flex flex-col justify-between items-center overflow-hidden py-[8vh]"
@@ -55,7 +88,7 @@ export function ProjectionStandbyScreen() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.8 } }}
         >
-            {/* BACKGROUND MOTION SYSTEM */}
+            {/* BACKGROUND SYSTEM */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:100px_100px] opacity-[0.03]" />
                 <motion.div
@@ -65,15 +98,15 @@ export function ProjectionStandbyScreen() {
                 />
             </div>
 
-            {/* CENTER HERO: BRANDING */}
+            {/* TOP HERO: BRANDING */}
             <motion.div
                 className="z-10 text-center flex-1 flex flex-col justify-center items-center"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
             >
-                <TvText variant="label" className="text-[clamp(1rem,1.5vw,2rem)] tracking-[1em] text-tv-accent mb-[2vh] uppercase opacity-70">
-                    TECHVERSE ARENA PRESENTS
+                <TvText variant="label" className="text-[clamp(1rem,1.5vw,2rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70">
+                    TECHVERSE QUIZ ARENA PRESENTS...
                 </TvText>
 
                 <TvText variant="h1" className="text-[clamp(3.5rem,8vw,10rem)] font-black uppercase text-white drop-shadow-glow leading-none mb-[2vh]">
@@ -90,7 +123,7 @@ export function ProjectionStandbyScreen() {
             </motion.div>
 
             {/* CYCLING 'VS' ANIMATION */}
-            <div className="z-10 w-full max-w-[95vw] h-[30vh] relative flex items-center justify-center mb-[10vh]">
+            <div className="z-10 w-full max-w-[95vw] h-[35vh] relative flex items-center justify-center mb-[10vh]">
                 <AnimatePresence mode="wait">
                     {currentPair && (
                         <motion.div
@@ -101,21 +134,9 @@ export function ProjectionStandbyScreen() {
                             exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
                             transition={{ duration: 0.8, ease: "anticipate" }}
                         >
-                            {/* TEAM 1 */}
-                            <motion.div
-                                initial={{ x: -150, opacity: 0, skewX: -15 }}
-                                animate={{ x: 0, opacity: 1, skewX: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
-                                className="flex-1 flex flex-col items-end text-right pr-6 border-r-4"
-                                style={{ borderColor: currentPair[0].color }}
-                            >
-                                <TvText variant="label" className="text-[1.2vw] opacity-40 mb-1" style={{ color: currentPair[0].color }}>CHALLENGER</TvText>
-                                <TvText variant="h1" className="text-[clamp(2rem,5vw,7.5rem)] font-black italic leading-none text-white uppercase truncate w-full">
-                                    {currentPair[0].name}
-                                </TvText>
-                            </motion.div>
+                            <TeamDisplay team={currentPair[0]} isLeft={true} />
 
-                            {/* VS */}
+                            {/* VS CENTERPIECE */}
                             <motion.div
                                 initial={{ scale: 0, rotate: -90 }}
                                 animate={{ scale: 1, rotate: 0 }}
@@ -123,24 +144,12 @@ export function ProjectionStandbyScreen() {
                                 className="relative flex items-center justify-center z-20 shrink-0"
                             >
                                 <div className="absolute inset-0 bg-tv-accent blur-[40px] opacity-20 animate-pulse" />
-                                <div className="bg-white text-black font-black text-[clamp(2.5rem,4.5vw,7rem)] italic px-8 py-3 skew-x-[-15deg] shadow-glow">
+                                <div className="bg-white text-black font-black text-[clamp(2.5rem,4.5vw,7rem)] italic px-10 py-4 skew-x-[-15deg] shadow-glow border-4 border-black">
                                     VS
                                 </div>
                             </motion.div>
 
-                            {/* TEAM 2 */}
-                            <motion.div
-                                initial={{ x: 150, opacity: 0, skewX: 15 }}
-                                animate={{ x: 0, opacity: 1, skewX: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-                                className="flex-1 flex flex-col items-start text-left pl-6 border-l-4"
-                                style={{ borderColor: currentPair[1].color }}
-                            >
-                                <TvText variant="label" className="text-[1.2vw] opacity-40 mb-1" style={{ color: currentPair[1].color }}>CONTENDER</TvText>
-                                <TvText variant="h1" className="text-[clamp(2rem,5vw,7.5rem)] font-black italic leading-none text-white uppercase truncate w-full">
-                                    {currentPair[1].name}
-                                </TvText>
-                            </motion.div>
+                            <TeamDisplay team={currentPair[1]} isLeft={false} />
                         </motion.div>
                     )}
                 </AnimatePresence>
