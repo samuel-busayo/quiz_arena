@@ -18,6 +18,7 @@ function createAdminWindow(): void {
         height: 800,
         show: false,
         autoHideMenuBar: true,
+        icon: join(__dirname, '../../src/renderer/src/assets/tvi-logo.png'),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false,

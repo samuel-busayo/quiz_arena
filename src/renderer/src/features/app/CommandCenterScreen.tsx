@@ -5,6 +5,7 @@ import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
 import { Database, Play, Settings, History, HelpCircle, Volume2 } from 'lucide-react'
 import { useQuizStore } from '../../store/useQuizStore'
+import logo from '../../assets/tvi-logo.png'
 
 export function CommandCenterScreen() {
     const { setUiScreen, loadSession, hasSavedSession } = useQuizStore()
@@ -14,11 +15,13 @@ export function CommandCenterScreen() {
             {/* Header */}
             <div className="w-full relative flex items-center justify-center max-w-6xl">
                 <div className="absolute left-0">
-                    {/* Placeholder for any left-side elements if needed, or just leave empty for centering */}
+                    <img src={logo} alt="TV Logo" className="w-12 h-12 object-contain" />
                 </div>
 
                 <div className="text-center">
-                    <TvText variant="h1" className="text-3xl lg:text-4xl tracking-[0.2em]">TechVerse Quiz Arena</TvText>
+                    <TvText variant="h1" className="text-3xl lg:text-4xl tracking-[0.2em] uppercase font-black italic">
+                        TechVerse Quiz Arena
+                    </TvText>
                 </div>
 
                 <div className="absolute right-0 flex gap-4">

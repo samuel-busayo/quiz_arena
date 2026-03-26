@@ -32,6 +32,7 @@ export class ProjectionWindowManager {
             alwaysOnTop: !!secondary,
             backgroundColor: '#050505',
             autoHideMenuBar: true,
+            icon: join(__dirname, '../../src/renderer/src/assets/tvi-logo.png'),
             webPreferences: {
                 preload: join(__dirname, '../preload/index.js'),
                 sandbox: false,

@@ -166,6 +166,7 @@ class ProjectionWindowManager {
       alwaysOnTop: !!secondary,
       backgroundColor: "#050505",
       autoHideMenuBar: true,
+      icon: path.join(__dirname, "../../src/renderer/src/assets/tvi-logo.png"),
       webPreferences: {
         preload: path.join(__dirname, "../preload/index.js"),
         sandbox: false,
@@ -226,6 +227,7 @@ function createAdminWindow() {
     height: 800,
     show: false,
     autoHideMenuBar: true,
+    icon: path.join(__dirname, "../../src/renderer/src/assets/tvi-logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -355,12 +357,9 @@ electron.app.whenReady().then(() => {
   electron.ipcMain.handle("save-session", async (_, session) => {
     saveQueue = saveQueue.then(async () => {
       try {
-        const fileName = `active_session.json`;
-        const tempPath = path.join(sessionsPath, `${fileName}.tmp`);
-        const finalPath = path.join(sessionsPath, fileName);
+        const finalPath = path.join(sessionsPath, "active_session.json");
         await require("fs/promises").mkdir(sessionsPath, { recursive: true });
-        await promises.writeFile(tempPath, JSON.stringify(session, null, 2));
-        await promises.rename(tempPath, finalPath);
+        await promises.writeFile(finalPath, JSON.stringify(session, null, 2), "utf-8");
         return true;
       } catch (err) {
         console.error("Save Session Error:", err);

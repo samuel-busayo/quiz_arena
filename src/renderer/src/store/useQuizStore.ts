@@ -106,6 +106,7 @@ interface QuizStore {
     uiOverlay: 'leaderboard' | null
     currentSessionId: string | null
     hasSavedSession: boolean
+    isInitialized: boolean
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
@@ -200,6 +201,7 @@ export const useQuizStore = create<QuizStore>()(
             uiOverlay: null,
             currentSessionId: null,
             hasSavedSession: false,
+            isInitialized: false,
             eliminatedOptions: [],
 
             // Draft setup
@@ -266,10 +268,14 @@ export const useQuizStore = create<QuizStore>()(
                         }, 400)
                     })
 
+                    set({ isInitialized: true })
                     return () => {
                         unsubscribeSync()
                         unsubscribeAutoSave()
                     }
+                } else {
+                    // Projector Initialization
+                    setTimeout(() => set({ isInitialized: true }), 1500) // Brief flash for branding
                 }
             },
 

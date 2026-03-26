@@ -13,9 +13,11 @@ import { ProjectionScreen } from './features/simulation/ProjectionScreen'
 import { HelpAboutScreen } from './features/app/HelpAboutScreen'
 import { SettingsScreen } from './features/app/SettingsScreen'
 import { ResultsHistoryScreen } from './screens/ResultsHistoryScreen'
+import { ProjectionSplash } from './components/screens/ProjectionSplash'
+import { AnimatePresence } from 'framer-motion'
 
 function App() {
-    const { initialize, uiScreen } = useQuizStore()
+    const { initialize, uiScreen, isInitialized } = useQuizStore()
 
     // Detect View Role
     const isProjector = window.location.hash.includes('projector')
@@ -31,6 +33,9 @@ function App() {
     if (isProjector) {
         return (
             <MainShell>
+                <AnimatePresence>
+                    {!useQuizStore.getState().isInitialized && <ProjectionSplash key="pj-splash" />}
+                </AnimatePresence>
                 <ProjectionScreen />
             </MainShell>
         )
