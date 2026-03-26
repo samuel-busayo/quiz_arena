@@ -176,17 +176,30 @@ class QuizSimulationEngine {
                     currentTake: 1
                 })
 
-                // Cinematic Intro for Tie Breaker
+                // Cinematic Intro for Tie Breaker (5s)
+                setTimeout(() => {
+                    const nextQ = this.pickNextRandomQuestion()
+                    if (nextQ) {
+                        useQuizStore.setState({ currentQuestion: nextQ })
+                        this.transitionTo('QUESTION')
+                    } else if (useQuizStore.getState().currentState !== 'FAILSAFE_INTRO') {
+                        // If no question and not already transitioning to failsafe, end it
+                        this.transitionTo('WINNER')
+                    }
+                }, 5000)
+                break
+            case 'FAILSAFE_INTRO':
+                useQuizStore.getState().setUiOverlay(null)
+                audioEngine.playBgm('leaderboard', false) // Using high-energy for transition
                 setTimeout(() => {
                     const nextQ = this.pickNextRandomQuestion()
                     if (nextQ) {
                         useQuizStore.setState({ currentQuestion: nextQ })
                         this.transitionTo('QUESTION')
                     } else {
-                        // Total exhaustion during tie breaker? (Emergency exit)
                         this.transitionTo('WINNER')
                     }
-                }, 5000)
+                }, 7000)
                 break
         }
     }
@@ -360,14 +373,30 @@ class QuizSimulationEngine {
             updateScore(currentTeamId, config.scorePerCorrect)
             await new Promise(resolve => setTimeout(resolve, 1000))
         } else {
-            // Impact Shock (0.4s)
+            // STAGE 2: STAGED REVEAL (5 seconds total)
+            const options: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D']
+            const wrongUnselected = options.filter(opt => opt !== currentQuestion.answer && opt !== selection)
+
+            // 2.1 Reveal first wrong unselected (1s)
+            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0]] })
             audioEngine.playSfx('wrong')
-            await new Promise(resolve => setTimeout(resolve, 400))
+            await new Promise(resolve => setTimeout(resolve, 1000))
 
-            // Failure Fade (0.9s)
-            await new Promise(resolve => setTimeout(resolve, 900))
+            // 2.2 Reveal second wrong unselected (1s)
+            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0], wrongUnselected[1]] })
+            audioEngine.playSfx('wrong')
+            await new Promise(resolve => setTimeout(resolve, 1000))
 
-            // Score Deduction (0.8s) - if config allows
+            // 2.3 Reveal selected wrong (1s)
+            useQuizStore.setState({ eliminatedOptions: [wrongUnselected[0], wrongUnselected[1], selection!] })
+            audioEngine.playSfx('bassHit')
+            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            // 2.4 Highlighting Correct (2s)
+            // Projection UI handles the "Correct Highlight/Enlarge" via revealStatus='wrong'
+            await new Promise(resolve => setTimeout(resolve, 2000))
+
+            // Score Deduction - if config allows
             if (config.deductionPerWrong > 0) {
                 updateScore(currentTeamId, -config.deductionPerWrong)
                 await new Promise(resolve => setTimeout(resolve, 800))
@@ -642,7 +671,7 @@ class QuizSimulationEngine {
     }
 
     private pickNextRandomQuestion() {
-        const { questionQueue, currentStats, tieBreakerPurpose } = useQuizStore.getState()
+        const { questionQueue, currentStats, tieBreakerPurpose, isFailsafeActive } = useQuizStore.getState()
         const nextIndex = currentStats.length
 
         if (nextIndex < questionQueue.length) {
@@ -650,17 +679,21 @@ class QuizSimulationEngine {
         }
 
         // Exhaustion!
-        // Only load failsafe if we are currently in any part of a tie-breaker resolution
         if (tieBreakerPurpose !== null) {
-            console.warn('System: Question pool exhausted during TIE_BREAKER. loading failsafe bank.')
-            const failsafe = (failsafeBank as Question[]).sort(() => Math.random() - 0.5)
-            const newQueue = [...questionQueue, ...failsafe]
+            if (!isFailsafeActive) {
+                // Trigger the cinematic transition
+                setTimeout(() => {
+                    useQuizStore.getState().setFailsafeActive(true)
+                    const currentQueue = useQuizStore.getState().questionQueue
+                    const failsafe = (failsafeBank as Question[]).sort(() => Math.random() - 0.5)
+                    useQuizStore.setState({ questionQueue: [...currentQueue, ...failsafe] })
+                    this.transitionTo('FAILSAFE_INTRO')
+                }, 10)
+                return null
+            }
 
-            // Update store AND sync immediately
-            useQuizStore.setState({ questionQueue: newQueue })
-            useQuizStore.getState().syncState()
-
-            return newQueue[nextIndex]
+            // If somehow exhausted even after failsafe? (Edge case)
+            return null
         }
 
         console.warn('QuizSimulationEngine: Question pool exhausted.')

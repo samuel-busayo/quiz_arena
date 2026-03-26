@@ -13,6 +13,7 @@ export type QuizState =
     | 'ELIMINATION'
     | 'TURN_INTRO'
     | 'TIE_BREAKER'
+    | 'FAILSAFE_INTRO'
     | 'WINNER'
     | 'SESSION_END'
 
@@ -109,6 +110,7 @@ interface QuizStore {
     currentSessionId: string | null
     hasSavedSession: boolean
     isInitialized: boolean
+    isFailsafeActive: boolean // Added
     tieBreakerTeams: string[]
     tieBreakerPurpose: 'elimination' | 'winner' | null
 
@@ -161,6 +163,7 @@ interface QuizStore {
     useLifeline: (teamId: string) => void
     setTieBreakerTeams: (teamIds: string[]) => void
     setTieBreakerPurpose: (purpose: 'elimination' | 'winner' | null) => void
+    setFailsafeActive: (active: boolean) => void // Added
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -209,6 +212,7 @@ export const useQuizStore = create<QuizStore>()(
             currentSessionId: null,
             hasSavedSession: false,
             isInitialized: false,
+            isFailsafeActive: false, // Initialized here
             eliminatedOptions: [],
 
             // Draft setup
@@ -300,6 +304,7 @@ export const useQuizStore = create<QuizStore>()(
                     currentQuestion: state.currentQuestion,
                     timerRemaining: state.timerRemaining,
                     isPaused: state.isPaused,
+                    isFailsafeActive: state.isFailsafeActive, // Added
                     questionQueue: state.questionQueue,
                     systemSettings: state.systemSettings,
                     revealStatus: state.revealStatus,
@@ -400,6 +405,11 @@ export const useQuizStore = create<QuizStore>()(
 
             setTieBreakerPurpose: (purpose) => {
                 set({ tieBreakerPurpose: purpose })
+                get().syncState()
+            },
+
+            setFailsafeActive: (active) => {
+                set({ isFailsafeActive: active })
                 get().syncState()
             },
 

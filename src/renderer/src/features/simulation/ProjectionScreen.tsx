@@ -27,7 +27,11 @@ export function ProjectionScreen() {
         isConfirming,
         isLocked,
         uiOverlay,
-        tieBreakerTeams
+        tieBreakerTeams,
+        tieBreakerPurpose,
+        isFailsafeActive,
+        currentTake,
+        eliminatedOptions
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
@@ -83,13 +87,18 @@ export function ProjectionScreen() {
                         transition={{ duration: 1, ease: 'easeOut' }}
                         className="text-center relative z-20"
                     >
-                        <TvText variant="label" className="text-tv-warning text-2xl tracking-[2em] uppercase mb-12 block">
+                        <TvText variant="label" align="center" className="text-tv-warning text-2xl tracking-[2em] uppercase mb-12 block">
                             STALEMATE DETECTED
                         </TvText>
 
-                        <TvText variant="h1" className="text-[12vw] font-black italic uppercase leading-none text-white drop-shadow-[0_0_50px_rgba(255,61,0,0.5)] mb-12">
+                        <TvText variant="h1" align="center" className="text-[10vw] font-black italic uppercase leading-none text-white drop-shadow-[0_0_50px_rgba(255,61,0,0.5)] mb-8">
                             TIE BREAKER
                         </TvText>
+
+                        <div className="mb-12">
+                            <TvText variant="h2" align="center" className="text-4xl text-tv-warning/70 uppercase tracking-[1em] mb-2">SUDDEN DEATH</TvText>
+                            <TvText variant="h1" align="center" className="text-6xl font-black text-white">ROUND {currentRound} • TAKE {currentTake}</TvText>
+                        </div>
 
                         <div className="flex gap-16 justify-center items-center">
                             {tiedTeamsData.map((team, idx) => (
@@ -115,6 +124,78 @@ export function ProjectionScreen() {
 
                     {/* Dramatic Warning Borders */}
                     <div className="absolute inset-0 border-[20px] border-tv-warning/5 animate-pulse" />
+                </motion.div>
+            )
+        }
+
+        if (currentState === 'FAILSAFE_INTRO') {
+            return (
+                <motion.div
+                    key="failsafe-universe"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[200] bg-[#050005] flex flex-col items-center justify-center overflow-hidden"
+                >
+                    {/* Hyperspeed Starfield Drive */}
+                    {[...Array(60)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ z: -500, x: `${Math.random() * 100 - 50}%`, y: `${Math.random() * 100 - 50}%`, opacity: 0 }}
+                            animate={{
+                                z: [0, 1000],
+                                opacity: [0, 1, 0]
+                            }}
+                            transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: Math.random() * 2,
+                                ease: "easeIn"
+                            }}
+                            className="absolute w-1 h-32 bg-tv-accent/60 blur-[1px] origin-top"
+                            style={{
+                                perspective: '500px',
+                                boxShadow: `0 0 20px #00E5FF`
+                            }}
+                        />
+                    ))}
+
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-center relative z-20"
+                    >
+                        <TvText variant="label" align="center" className="text-[#BF00FF] text-3xl tracking-[1.5em] uppercase mb-12 block animate-pulse font-black">
+                            SYSTEM OVERRIDE
+                        </TvText>
+
+                        <TvText variant="h1" align="center" className="text-[12vw] font-black italic uppercase leading-none text-white drop-shadow-[0_0_80px_rgba(191,0,255,0.6)] mb-8">
+                            FAILSAFE
+                        </TvText>
+
+                        <div className="h-2 w-96 bg-gradient-to-r from-transparent via-[#BF00FF] to-transparent mx-auto mb-12 shadow-[0_0_30px_#BF00FF]" />
+
+                        <TvText variant="h2" align="center" className="text-4xl text-white/50 uppercase tracking-[1em] mb-4">ENTERING UNIVERSE</TvText>
+                        <TvText variant="h1" align="center" className="text-6xl font-black text-white tracking-widest">DRIVE CORE 02</TvText>
+
+                        <div className="flex gap-6 justify-center mt-16 scale-150">
+                            {[...Array(7)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    animate={{
+                                        height: [10, 40, 10],
+                                        opacity: [0.3, 1, 0.3],
+                                        backgroundColor: ['#00E5FF', '#BF00FF', '#00E5FF']
+                                    }}
+                                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
+                                    className="w-2 h-10 rounded-full"
+                                />
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Cosmic Distortion Borders */}
+                    <div className="absolute inset-0 border-[30px] border-[#BF00FF]/10 mix-blend-screen" />
                 </motion.div>
             )
         }
@@ -473,6 +554,18 @@ export function ProjectionScreen() {
                             <TvText variant="h1" className="text-[clamp(2.5rem,6vw,5rem)] font-black uppercase tracking-widest drop-shadow-glow" style={{ color: activeTeam?.color }}>
                                 {activeTeam?.name}
                             </TvText>
+
+                            {isFailsafeActive && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-4 px-6 py-1 bg-[#BF00FF]/20 border border-[#BF00FF] rounded-full backdrop-blur-md"
+                                >
+                                    <TvText variant="label" className="text-[#BF00FF] text-sm tracking-[0.5em] uppercase font-bold animate-pulse">
+                                        FAILSAFE UNIVERSE ACTIVE • DRIVE CORE 02
+                                    </TvText>
+                                </motion.div>
+                            )}
                         </header>
 
                         {/* QUESTION TEXT */}
@@ -501,7 +594,7 @@ export function ProjectionScreen() {
                                         revealStatus={revealStatus}
                                         index={idx}
                                         teamColor={activeTeam?.color}
-                                        isEliminated={useQuizStore.getState().eliminatedOptions.includes(key)}
+                                        isEliminated={eliminatedOptions.includes(key)}
                                     />
                                 ))}
                             </div>
@@ -616,7 +709,12 @@ export function ProjectionScreen() {
         >
             {/* Cinematic Background */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.08)_0%,transparent_70%)]" />
+                <div className={cn(
+                    "absolute inset-0 transition-colors duration-1000",
+                    isFailsafeActive
+                        ? "bg-[radial-gradient(circle_at_center,rgba(191,0,255,0.1)_0%,transparent_70%)]"
+                        : "bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.08)_0%,transparent_70%)]"
+                )} />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#02040a] via-transparent to-[#02040a] opacity-80" />
             </div>
 
@@ -899,23 +997,23 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
         <motion.div
             initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
             animate={isEliminated ? {
-                opacity: [1, 0, 1, 0, 0],
-                scale: [1, 1.1, 0.8, 0],
-                filter: ["grayscale(0%)", "grayscale(100%)", "blur(4px)"],
+                opacity: 0,
+                scale: [1, 1.2, 0],
+                rotateZ: [0, 10, -10, 0],
+                filter: ["blur(0px)", "blur(20px)"],
             } : {
-                opacity: (isRevealed && !isCorrect && !isSelected) ? 0.3 : 1,
-                x: isThisWrong ? [0, -15, 15, -15, 15, 0] : 0,
-                scale: isThisCorrect ? [1, 1.1, 1] : (isSelected && !isRevealed) ? 1.05 : 1,
+                opacity: (isRevealed && !isCorrect && !isSelected) ? 0.2 : 1,
+                x: isThisWrong ? [0, -10, 10, -10, 10, 0] : 0,
+                scale: isThisCorrect ? 1.15 : (isSelected && !isRevealed) ? 1.05 : 1,
                 borderColor: isThisCorrect ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.05)',
-                backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.2)' : isThisWrong ? 'rgba(255, 61, 0, 0.15)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.05)' : 'rgba(255,255,255,0.02)'
+                backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.25)' : isThisWrong ? 'rgba(255, 61, 0, 0.15)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255,255,255,0.02)'
             }}
             transition={isEliminated ? {
-                duration: 1.5,
-                times: [0, 0.2, 0.5, 0.8, 1],
-                ease: "easeInOut"
+                duration: 0.8,
+                ease: "easeIn"
             } : {
                 x: { duration: 0.4 },
-                scale: { duration: 0.6 },
+                scale: { duration: 0.8, type: "spring", stiffness: 100 },
                 default: { delay: isRevealed ? 0 : 0.4 + (index * 0.1), duration: 0.5 }
             }}
             className={cn(

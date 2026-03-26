@@ -1,0 +1,133 @@
+{
+  "id": "1774548131603",
+  "date": "2026-03-26T18:02:11.603Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 2,
+    "timerSeconds": 30,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 10,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "HONEYLAND COLLEGE, IPAJA",
+    "eventTheme": "CLASH OF TITANS",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "100_general_knowledge_mcq"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 70,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 70,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 2,
+  "finalScores": {
+    "1": 70,
+    "2": 70
+  },
+  "eliminationOrder": [],
+  "winner": "1",
+  "questionStats": [
+    {
+      "questionId": "q1774512529115_5",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774512529115_7",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 2
+    },
+    {
+      "questionId": "q1774545574485_2",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774545574485_0",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774545582055_1",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774545574485_1",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 13
+    },
+    {
+      "questionId": "q1774512529115_8",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774545582055_2",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774512529115_6",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 8
+    },
+    {
+      "questionId": "q1774512529115_10",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774512529115_4",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 6
+    },
+    {
+      "questionId": "q1774512529115_11",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774512529115_9",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 4
+    },
+    {
+      "questionId": "q1774545582055_0",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 2
+    }
+  ]
+}
