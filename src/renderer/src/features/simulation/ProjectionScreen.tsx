@@ -9,6 +9,7 @@ import { cn } from '../../utils/cn'
 import { ProjectionStandbyScreen } from './ProjectionStandbyScreen'
 import { ProjectionHoldingScreen } from './ProjectionHoldingScreen'
 import { ProjectionArmingScreen } from './ProjectionArmingScreen'
+import { LeaderboardOverlay } from './LeaderboardOverlay'
 import { audioEngine } from './AudioEngine'
 
 export function ProjectionScreen() {
@@ -24,7 +25,8 @@ export function ProjectionScreen() {
         revealStatus,
         selectedOption,
         isConfirming,
-        isLocked
+        isLocked,
+        uiOverlay
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
@@ -411,6 +413,7 @@ export function ProjectionScreen() {
                                         revealStatus={revealStatus}
                                         index={idx}
                                         teamColor={activeTeam?.color}
+                                        isEliminated={useQuizStore.getState().eliminatedOptions.includes(key)}
                                     />
                                 ))}
                             </div>
@@ -467,12 +470,12 @@ export function ProjectionScreen() {
                             </AnimatePresence>
                         </main>
 
-                        {/* TIMER RING */}
+                        {/* TOP-RIGHT TIMER RING */}
                         {currentState === 'QUESTION' && (
-                            <footer className="flex flex-col items-center mt-12">
+                            <div className="absolute top-12 right-12 z-50">
                                 <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
+                                    initial={{ scale: 0, rotate: -20 }}
+                                    animate={{ scale: 1, rotate: 0 }}
                                     className="relative"
                                 >
                                     <TvProgressRing
@@ -483,7 +486,7 @@ export function ProjectionScreen() {
                                         colorOverride={activeTeam?.color}
                                     />
                                 </motion.div>
-                            </footer>
+                            </div>
                         )}
                     </motion.div>
                 )
@@ -526,11 +529,13 @@ export function ProjectionScreen() {
             <AnimatePresence mode="wait">
                 {renderScreen()}
             </AnimatePresence>
+
+            <LeaderboardOverlay />
         </div>
     )
 }
 
-function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor, isSelected, revealStatus }: {
+function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor, isSelected, revealStatus, isEliminated }: {
     label: string,
     text: string,
     isCorrect: boolean,
@@ -538,7 +543,8 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
     index: number,
     teamColor?: string,
     isSelected?: boolean,
-    revealStatus?: 'correct' | 'wrong' | 'timeout' | null
+    revealStatus?: 'correct' | 'wrong' | 'timeout' | null,
+    isEliminated?: boolean
 }) {
     const isThisCorrect = isRevealed && isCorrect
     const isThisWrong = isRevealed && isSelected && !isCorrect
@@ -546,14 +552,22 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
     return (
         <motion.div
             initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-            animate={{
+            animate={isEliminated ? {
+                opacity: [1, 0, 1, 0, 0],
+                scale: [1, 1.1, 0.8, 0],
+                filter: ["grayscale(0%)", "grayscale(100%)", "blur(4px)"],
+            } : {
                 opacity: (isRevealed && !isCorrect && !isSelected) ? 0.2 : 1,
                 x: (isRevealed && isSelected && !isCorrect) ? [0, -10, 10, -10, 10, 0] : 0,
                 scale: isThisCorrect ? 1.05 : (isSelected && !isRevealed) ? 1.02 : 1,
                 borderColor: isThisCorrect ? '#00E676' : isThisWrong ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.1)',
                 backgroundColor: isThisCorrect ? 'rgba(0, 230, 118, 0.4)' : isThisWrong ? 'rgba(255, 61, 0, 0.2)' : (isSelected && !isRevealed) ? 'rgba(0, 229, 255, 0.1)' : 'rgba(255,255,255,0.03)'
             }}
-            transition={{
+            transition={isEliminated ? {
+                duration: 1.5,
+                times: [0, 0.2, 0.5, 0.8, 1],
+                ease: "easeInOut"
+            } : {
                 x: { duration: 0.4, repeat: isThisWrong ? 1 : 0 },
                 default: { delay: isRevealed ? 0 : 0.5 + (index * 0.1), duration: 0.5 }
             }}

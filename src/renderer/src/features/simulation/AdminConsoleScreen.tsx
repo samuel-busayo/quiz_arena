@@ -7,7 +7,7 @@ import { TvProgressRing } from '../../components/ui/TvProgressRing'
 import {
     Play, Pause, RotateCcw, Volume2, Trophy,
     ArrowRight, ShieldAlert, Zap, CheckCircle2,
-    XCircle, Music, Power
+    XCircle, Music, Power, ArrowLeft, ShieldCheck
 } from 'lucide-react'
 import { useQuizStore, Question } from '../../store/useQuizStore'
 import { simulationEngine } from './QuizSimulationEngine'
@@ -30,7 +30,10 @@ export function AdminConsoleScreen() {
         setPaused,
         selectedOption,
         isConfirming,
-        isLocked
+        isLocked,
+        setCurrentState,
+        uiOverlay,
+        eliminatedOptions
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
@@ -104,8 +107,21 @@ export function AdminConsoleScreen() {
                         <TvButton
                             variant="secondary"
                             size="sm"
+                            className={cn(
+                                "border-white/10 px-4",
+                                uiOverlay === 'leaderboard' ? "bg-tv-accent text-black" : "bg-tv-panel text-tv-accent"
+                            )}
+                            onClick={() => uiOverlay === 'leaderboard' ? simulationEngine.hideLeaderboard() : simulationEngine.showLeaderboard()}
+                        >
+                            {uiOverlay === 'leaderboard' ? 'HIDE STANDINGS' : 'VIEW STANDINGS'}
+                        </TvButton>
+
+                        <TvButton
+                            variant="secondary"
+                            size="sm"
                             className="bg-tv-panel border-white/10"
-                            onClick={() => setPaused(!isPaused)}
+                            disabled={uiOverlay === 'leaderboard'}
+                            onClick={() => isPaused ? simulationEngine.resumeTimer() : simulationEngine.pauseTimer()}
                         >
                             {isPaused ? <Play size={16} /> : <Pause size={16} />}
                         </TvButton>
@@ -189,9 +205,17 @@ export function AdminConsoleScreen() {
                                     <TvText align="center" variant="h1" className="text-[clamp(2rem,8vh,5rem)] tracking-[0.2em] font-black italic leading-none">ARMING SYSTEM</TvText>
                                     <TvText align="center" variant="muted" className="uppercase tracking-[0.4em] opacity-40 text-xs">Synchronizing Neural Vectors...</TvText>
                                 </div>
-                                <TvButton variant="primary" size="lg" glow onClick={() => simulationEngine.startSimulation()}>
-                                    INITIATE NEURAL LINK
-                                </TvButton>
+                                <div className="flex gap-4">
+                                    <TvButton variant="ghost" iconLeft={<ArrowLeft size={18} />} onClick={() => {
+                                        setUiScreen('QUIZ_SETUP')
+                                        setCurrentState('STANDBY')
+                                    }}>
+                                        BACK TO SETUP
+                                    </TvButton>
+                                    <TvButton variant="primary" size="lg" glow onClick={() => simulationEngine.startSimulation()}>
+                                        INITIATE NEURAL LINK
+                                    </TvButton>
+                                </div>
                             </motion.div>
                         )}
 
@@ -217,6 +241,26 @@ export function AdminConsoleScreen() {
                                     </div>
                                 </div>
 
+                                {config?.lifelineConfig.enabled && currentState === 'QUESTION' && (
+                                    <div className="flex justify-center -mt-2">
+                                        <TvButton
+                                            variant="secondary"
+                                            size="sm"
+                                            className={cn(
+                                                "border-tv-accent/20 px-6 py-2 bg-tv-accentSoft text-tv-accent font-bold tracking-widest",
+                                                (eliminatedOptions.length > 0 || (activeTeam?.lifelineRemaining || 0) <= 0 || isLocked) && "opacity-40 grayscale pointer-events-none"
+                                            )}
+                                            glow={eliminatedOptions.length === 0 && (activeTeam?.lifelineRemaining || 0) > 0 && !isLocked}
+                                            iconLeft={<ShieldCheck size={16} />}
+                                            onClick={() => simulationEngine.activate5050()}
+                                        >
+                                            {eliminatedOptions.length > 0 ? '50/50 ACTIVE' :
+                                                (activeTeam?.lifelineRemaining || 0) > 0 ? `ACTIVATE 50/50 (${activeTeam?.lifelineRemaining} LEFT)` :
+                                                    'NO LIFELINE REMAINING'}
+                                        </TvButton>
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-2 gap-[2vh] w-full">
                                     {(['A', 'B', 'C', 'D'] as const).map(key => (
                                         <OptionControl
@@ -227,10 +271,29 @@ export function AdminConsoleScreen() {
                                             isRevealed={currentState === 'ANSWER_REVEAL'}
                                             onClick={() => simulationEngine.selectAnswer(key)}
                                             isSelected={selectedOption === key}
-                                            disabled={isLocked}
+                                            disabled={isLocked || uiOverlay === 'leaderboard'}
                                         />
                                     ))}
                                 </div>
+                            </motion.div>
+                        )}
+
+                        {currentState === 'LEADERBOARD' && (
+                            <motion.div key="leaderboard" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-[4vh]">
+                                <Trophy size={80} className="text-tv-accent drop-shadow-glow animate-pulse" />
+                                <div className="text-center space-y-2">
+                                    <TvText variant="h1" className="text-5xl font-black italic">ROUND COMPLETE</TvText>
+                                    <TvText variant="muted" className="uppercase tracking-[0.4em] opacity-40 text-xs text-center block">Standings Synchronized with Projector</TvText>
+                                </div>
+                                <TvButton
+                                    variant="primary"
+                                    size="lg"
+                                    glow
+                                    iconRight={<ArrowRight size={20} />}
+                                    onClick={() => simulationEngine.startNextRound()}
+                                >
+                                    START NEXT ROUND
+                                </TvButton>
                             </motion.div>
                         )}
 
@@ -355,14 +418,6 @@ export function AdminConsoleScreen() {
                             }}
                         />
                     </div>
-                    <TvButton
-                        variant="secondary"
-                        className="border-white/20 px-6"
-                        iconRight={<ArrowRight size={16} />}
-                        onClick={() => simulationEngine.transitionTo('LEADERBOARD')}
-                    >
-                        FORCE LEADERBOARD
-                    </TvButton>
                 </div>
             </footer>
         </div>

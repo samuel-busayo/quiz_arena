@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { CommandCenterLayout } from '../../layouts/CommandCenterLayout'
 import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
-import { Users, Database, Settings, Play, ArrowLeft, Plus, Trash2, Check, Info, Shield, Zap, Target } from 'lucide-react'
+import { Users, Database, Settings, Play, ArrowLeft, Plus, Trash2, Check, Info, Shield, Zap, Target, ShieldCheck } from 'lucide-react'
 import { useQuizStore, Team, QuizConfig } from '../../store/useQuizStore'
+import { cn } from '../../utils/cn'
 
 const TEAM_COLORS = [
     '#00D1FF', '#FF3D00', '#22C55E', '#EAB308', '#A855F7', '#F97316', '#FFFFFF'
@@ -210,6 +212,73 @@ export function QuizSetupScreen() {
                                     onChange={(val) => updateSetupDraft({ config: { ...setupConfig, scorePerCorrect: val } })}
                                     icon={<Zap size={16} />}
                                 />
+                            </div>
+
+                            {/* LIFELINE SETTINGS */}
+                            <div className="p-8 bg-tv-panel/40 border border-white/5 rounded-xl space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-tv-accentSoft">
+                                            <ShieldCheck size={20} className="text-tv-accent" />
+                                        </div>
+                                        <div>
+                                            <TvText variant="h3" className="text-lg">50/50 LIFELINE</TvText>
+                                            <TvText variant="muted" className="text-xs">Automatically remove two wrong choices</TvText>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => updateSetupDraft({
+                                            config: {
+                                                ...setupConfig,
+                                                lifelineConfig: {
+                                                    enabled: !setupConfig.lifelineConfig?.enabled,
+                                                    usesPerTeam: setupConfig.lifelineConfig?.usesPerTeam || 2
+                                                }
+                                            }
+                                        })}
+                                        className={cn(
+                                            "w-12 h-6 rounded-full relative transition-colors duration-300",
+                                            setupConfig.lifelineConfig?.enabled ? "bg-tv-accent" : "bg-white/10"
+                                        )}
+                                    >
+                                        <motion.div
+                                            animate={{ x: setupConfig.lifelineConfig?.enabled ? 24 : 4 }}
+                                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-lg"
+                                        />
+                                    </button>
+                                </div>
+
+                                {setupConfig.lifelineConfig?.enabled && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        className="pt-4 border-t border-white/5 flex items-center justify-between"
+                                    >
+                                        <TvText variant="body" className="text-sm opacity-60">Uses per team (MAX 3)</TvText>
+                                        <div className="flex items-center gap-4 bg-black/20 rounded-lg p-1 border border-white/5">
+                                            {[1, 2, 3].map(val => (
+                                                <button
+                                                    key={val}
+                                                    onClick={() => updateSetupDraft({
+                                                        config: {
+                                                            ...setupConfig,
+                                                            lifelineConfig: {
+                                                                enabled: true,
+                                                                usesPerTeam: val
+                                                            }
+                                                        }
+                                                    })}
+                                                    className={cn(
+                                                        "w-8 h-8 rounded-md flex items-center justify-center font-bold text-sm transition-all",
+                                                        setupConfig.lifelineConfig?.usesPerTeam === val ? "bg-tv-accent text-black" : "text-white/40 hover:text-white"
+                                                    )}
+                                                >
+                                                    {val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
                         </div>
                     )}

@@ -45,6 +45,7 @@ export interface Team {
     color: string
     score: number
     isEliminated: boolean
+    lifelineRemaining: number
 }
 
 export interface Question {
@@ -74,6 +75,10 @@ export interface QuizConfig {
     showLeaderboardAfterRound: boolean
     mode: 'RANDOM' | 'PICK_NUMBER'
     collectionName?: string
+    lifelineConfig: {
+        enabled: boolean
+        usesPerTeam: number
+    }
 }
 
 export interface SystemSettings {
@@ -98,12 +103,14 @@ interface QuizStore {
     isPaused: boolean
     questionQueue: Question[]
     systemSettings: SystemSettings
+    uiOverlay: 'leaderboard' | null
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
     selectedOption: 'A' | 'B' | 'C' | 'D' | null
     isConfirming: boolean
     isLocked: boolean
+    eliminatedOptions: ('A' | 'B' | 'C' | 'D')[]
 
     // Dynamic Setup State (for Projection UI before simulation)
     setupDraft: {
@@ -143,6 +150,8 @@ interface QuizStore {
     setPaused: (paused: boolean) => void
     updateSystemSettings: (settings: Partial<SystemSettings>) => void
     updateSetupDraft: (draft: Partial<QuizStore['setupDraft']>) => void
+    setUiOverlay: (overlay: 'leaderboard' | null) => void
+    useLifeline: (teamId: string) => void
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -181,6 +190,8 @@ export const useQuizStore = create<QuizStore>()(
             selectedOption: null,
             isConfirming: false,
             isLocked: false,
+            uiOverlay: null,
+            eliminatedOptions: [],
 
             // Draft setup
             setupDraft: {
@@ -196,11 +207,15 @@ export const useQuizStore = create<QuizStore>()(
                     timerSeconds: 30,
                     extraTimerSeconds: 15,
                     scorePerCorrect: 10,
-                    deductionPerWrong: 5,
+                    deductionPerWrong: 0,
                     showLeaderboardAfterRound: true,
                     eventName: '',
                     eventTheme: '',
-                    mode: 'RANDOM'
+                    mode: 'RANDOM',
+                    lifelineConfig: {
+                        enabled: true,
+                        usesPerTeam: 2
+                    }
                 }
             },
 
@@ -226,6 +241,10 @@ export const useQuizStore = create<QuizStore>()(
                 // Initial broadcast if admin
                 if (view === 'admin') {
                     get().syncState()
+                    // Automate synchronization for all store changes
+                    useQuizStore.subscribe(() => {
+                        get().syncState()
+                    })
                 }
             },
 
@@ -255,6 +274,8 @@ export const useQuizStore = create<QuizStore>()(
                     gridNumbers: state.gridNumbers,
                     currentPickerTeamId: state.currentPickerTeamId,
                     selectionCursor: state.selectionCursor,
+                    uiOverlay: state.uiOverlay,
+                    eliminatedOptions: state.eliminatedOptions
                 })
             },
 
@@ -326,6 +347,13 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            useLifeline: (teamId: string) => {
+                set((state) => ({
+                    teams: state.teams.map(t => t.id === teamId ? { ...t, lifelineRemaining: Math.max(0, t.lifelineRemaining - 1) } : t)
+                }))
+                get().syncState()
+            },
+
             eliminateTeam: (teamId) => {
                 set((state) => ({
                     teams: state.teams.map(t => t.id === teamId ? { ...t, isEliminated: true } : t)
@@ -387,6 +415,11 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            setUiOverlay: (overlay) => {
+                set({ uiOverlay: overlay })
+                get().syncState()
+            },
+
             // Pick-A-Number Actions
             setGrid: (cols, numbers) => {
                 set({ gridColumns: cols, gridNumbers: numbers })
@@ -439,7 +472,9 @@ export const useQuizStore = create<QuizStore>()(
                 revealStatus: state.revealStatus,
                 selectedOption: state.selectedOption,
                 isConfirming: state.isConfirming,
-                isLocked: state.isLocked
+                isLocked: state.isLocked,
+                uiOverlay: state.uiOverlay,
+                eliminatedOptions: state.eliminatedOptions
             })
         }
     )

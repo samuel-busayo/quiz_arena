@@ -11,7 +11,12 @@ class QuizSimulationEngine {
         if (!config || teams.length === 0) return
 
         // 1. Lock/Initialize teams
-        const initialTeams = teams.map(t => ({ ...t, score: 0, isEliminated: false }))
+        const initialTeams = teams.map(t => ({
+            ...t,
+            score: 0,
+            isEliminated: false,
+            lifelineRemaining: config.lifelineConfig.enabled ? config.lifelineConfig.usesPerTeam : 0
+        }))
         useQuizStore.setState({ teams: initialTeams })
 
         // 2. Initial State Setup
@@ -85,7 +90,12 @@ class QuizSimulationEngine {
                 audioEngine.playBgm('leaderboard')
                 break
             case 'QUESTION':
-                useQuizStore.setState({ revealStatus: null, selectedOption: null })
+                useQuizStore.setState({
+                    revealStatus: null,
+                    selectedOption: null,
+                    eliminatedOptions: [],
+                    isPaused: false
+                })
                 audioEngine.playBgm('countdown', false)
                 this.startTimer()
                 break
@@ -194,7 +204,7 @@ class QuizSimulationEngine {
 
         if (currentTeamId && config) {
             audioEngine.playSfx('wrong')
-            updateScore(currentTeamId, -config.deductionPerWrong)
+            updateScore(currentTeamId, 0)
         }
 
         if (currentQuestion && currentTeamId && config) {
@@ -272,13 +282,13 @@ class QuizSimulationEngine {
 
         if (revealStatus === 'timeout') {
             audioEngine.playSfx('wrong')
-            updateScore(currentTeamId, -config.deductionPerWrong)
+            updateScore(currentTeamId, 0)
         } else if (isCorrect) {
             audioEngine.playSfx('correct')
             updateScore(currentTeamId, config.scorePerCorrect)
         } else {
             audioEngine.playSfx('wrong')
-            updateScore(currentTeamId, -config.deductionPerWrong)
+            updateScore(currentTeamId, 0)
         }
 
         // Add Stat
@@ -312,12 +322,9 @@ class QuizSimulationEngine {
             if (config.mode === 'PICK_NUMBER') {
                 this.transitionTo('PICKER_PHASE')
             } else {
-                // Auto pop from queue for Random Mode
-                const { questionQueue } = useQuizStore.getState()
-                const nextQ = questionQueue[currentTake] // currentTake is 1-indexed for logic, but queue is 0-indexed. Actually wait... nextTake() was just called.
-                // It's safer to pop
-                const nextQSafe = questionQueue[currentTake] || questionQueue[0]
-                useQuizStore.setState({ currentQuestion: nextQSafe })
+                const { questionQueue, currentStats } = useQuizStore.getState()
+                const nextQ = questionQueue[currentStats.length] || questionQueue[0]
+                useQuizStore.setState({ currentQuestion: nextQ })
                 this.transitionTo('QUESTION')
             }
         }
@@ -405,6 +412,57 @@ class QuizSimulationEngine {
         }
 
         saveResult(result)
+    }
+
+    showLeaderboard() {
+        const { currentState, uiOverlay } = useQuizStore.getState()
+        if (uiOverlay === 'leaderboard') return
+
+        // 1. Pause visual timer
+        this.pauseTimer()
+
+        // 2. Set overlay state
+        useQuizStore.getState().setUiOverlay('leaderboard')
+    }
+
+    activate5050() {
+        const { currentQuestion, currentTeamId, config, eliminatedOptions, currentState, isLocked, timerRemaining } = useQuizStore.getState()
+        if (!currentQuestion || !currentTeamId || !config || !config.lifelineConfig.enabled) return
+        if (currentState !== 'QUESTION' || isLocked || timerRemaining <= 0) return
+
+        const team = useQuizStore.getState().teams.find(t => t.id === currentTeamId)
+        if (!team || team.lifelineRemaining <= 0) return
+        if (eliminatedOptions.length > 0) return // Already used on this question
+
+        // LOGIC: Remove two wrong options
+        const options: ('A' | 'B' | 'C' | 'D')[] = ['A', 'B', 'C', 'D']
+        const wrongOptions = options.filter(opt => opt !== currentQuestion.answer)
+
+        // Shuffle and pick 2
+        const toEliminate = wrongOptions
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 2)
+
+        // Update Store
+        useQuizStore.setState({ eliminatedOptions: toEliminate })
+        useQuizStore.getState().useLifeline(currentTeamId)
+        useQuizStore.getState().syncState()
+
+        // Audio Surge
+        audioEngine.playSfx('click') // Placeholder for surge if needed
+    }
+
+    hideLeaderboard() {
+        const { uiOverlay, currentState } = useQuizStore.getState()
+        if (uiOverlay !== 'leaderboard') return
+
+        // 1. Clear overlay
+        useQuizStore.getState().setUiOverlay(null)
+
+        // 2. Resume timer ONLY if we are in a phase that requires it
+        if (currentState === 'QUESTION') {
+            this.resumeTimer()
+        }
     }
 
     initializeSimulation() {
