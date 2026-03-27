@@ -353,9 +353,9 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                                     transition={{ duration: 4, ease: "easeOut" }}
                                     className="text-center"
                                 >
-                                    <TvText variant="h1" className="text-white text-[6vw] font-light tracking-[0.2em] leading-[1.8]">
+                                    <TvText variant="h1" className="text-white text-center text-[6vw] font-light tracking-[0.2em] leading-[1.8]">
                                         And the Undefeated....<br />
-                                        <span className="font-black italic drop-shadow-glow">The Champion is.....</span>
+                                        <span className="font-black italic drop-shadow-glow">Champion is.....</span>
                                     </TvText>
                                 </motion.div>
                             )}
@@ -372,7 +372,7 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                                     animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     transition={{ duration: 1, type: 'spring', damping: 12, stiffness: 40 }}
-                                    className="text-center w-full z-10"
+                                    className=" w-full z-10"
                                 >
                                     <TvText variant="h1" className="text-[14vw] font-black italic tracking-tighter text-white drop-shadow-[0_0_120px_rgba(255,255,255,1)] leading-none uppercase break-words px-8">
                                         {winner.name}
@@ -397,38 +397,42 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                             <TrophyStage3D />
                         </div>
 
-                        <div className="relative z-20 flex-1 flex flex-col p-[4vw] pointer-events-none pb-[8vw]">
-                            <motion.div
-                                initial={{ y: -50, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 1, duration: 2 }}
-                                className="text-center"
-                            >
-                                <TvText variant="h2" className="text-[#FFD700] tracking-[1.5em] mb-8 text-3xl font-black uppercase drop-shadow-[0_0_30px_#ccaa00]">SUPREME CHAMPION</TvText>
-                                <TvText variant="h1" className="text-[12vw] font-black italic drop-shadow-[0_0_60px_rgba(255,215,0,0.6)] leading-none text-white border-white">
-                                    {winner.name}
-                                </TvText>
-                            </motion.div>
+                        {/* Winner name badge — top-right corner */}
+                        <div className="relative z-20 flex flex-col pointer-events-none h-full">
+                            <div className="flex justify-end p-8">
+                                <motion.div
+                                    initial={{ x: 80, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 1, duration: 1.5, ease: 'easeOut' }}
+                                    className="text-right"
+                                >
+                                    <TvText variant="label" className="text-[#FFD700] tracking-[0.5em] text-sm font-black uppercase drop-shadow-[0_0_12px_#ccaa00] block mb-1">SUPREME CHAMPION</TvText>
+                                    <TvText variant="h1" className="text-[clamp(2rem,5vw,4.5rem)] font-black italic drop-shadow-[0_0_40px_rgba(255,215,0,0.8)] leading-none text-white">
+                                        {winner.name}
+                                    </TvText>
+                                </motion.div>
+                            </div>
 
-                            <div className="flex-1 flex items-end justify-between w-full max-w-[90vw] mx-auto opacity-90">
+                            {/* Score (bottom-left) + Rank (bottom-right) tiles */}
+                            <div className="flex-1 flex items-end justify-between px-10 pb-10">
                                 <motion.div
                                     initial={{ x: -100, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 2, duration: 1.5 }}
-                                    className="bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-10 shadow-[0_0_40px_rgba(255,215,0,0.1)]"
+                                    className="bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(255,215,0,0.1)]"
                                 >
                                     <TvText variant="label" className="text-[#FFD700] uppercase tracking-widest text-sm mb-2 block">Accumulated Intel</TvText>
-                                    <TvText variant="h1" className="text-7xl font-bold text-white">{winner.score} <span className="text-3xl text-tv-accent">PTS</span></TvText>
+                                    <TvText variant="h1" className="text-6xl font-bold text-white">{winner.score} <span className="text-2xl text-tv-accent">PTS</span></TvText>
                                 </motion.div>
 
                                 <motion.div
                                     initial={{ x: 100, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 2, duration: 1.5 }}
-                                    className="bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-10 text-right shadow-[0_0_40px_rgba(255,215,0,0.1)]"
+                                    className="bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 text-right shadow-[0_0_40px_rgba(255,215,0,0.1)]"
                                 >
                                     <TvText variant="label" className="text-[#FFD700] uppercase tracking-widest text-sm mb-2 block">Global Ranking</TvText>
-                                    <TvText variant="h1" className="text-8xl font-black text-[#FFD700] drop-shadow-[0_0_30px_#FFD700]">#1</TvText>
+                                    <TvText variant="h1" className="text-7xl font-black text-[#FFD700] drop-shadow-[0_0_30px_#FFD700]">#1</TvText>
                                 </motion.div>
                             </div>
                         </div>

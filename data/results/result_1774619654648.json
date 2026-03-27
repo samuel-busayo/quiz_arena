@@ -1,0 +1,75 @@
+{
+  "id": "1774619654648",
+  "date": "2026-03-27T13:54:14.648Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 2,
+    "timerSeconds": 30,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 10,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "",
+    "eventTheme": "",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "100_general_knowledge_mcq"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "DAMIPE",
+      "color": "#00D1FF",
+      "score": 10,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "DAMIDAYO",
+      "color": "#FF3D00",
+      "score": 20,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 2,
+  "finalScores": {
+    "1": 10,
+    "2": 20
+  },
+  "eliminationOrder": [
+    "1"
+  ],
+  "winner": "2",
+  "questionStats": [
+    {
+      "questionId": "q1774545582055_2",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 9
+    },
+    {
+      "questionId": "q1774512529115_11",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774512529115_5",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774512529115_8",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    }
+  ]
+}

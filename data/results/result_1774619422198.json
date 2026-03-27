@@ -1,0 +1,99 @@
+{
+  "id": "1774619422198",
+  "date": "2026-03-27T13:50:22.198Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 2,
+    "timerSeconds": 30,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 10,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "",
+    "eventTheme": "",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "100_general_knowledge_mcq"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "DAMIPE",
+      "color": "#00D1FF",
+      "score": 10,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "DAMIDAYO",
+      "color": "#FF3D00",
+      "score": 30,
+      "isEliminated": false,
+      "lifelineRemaining": 1
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 2,
+  "finalScores": {
+    "1": 10,
+    "2": 30
+  },
+  "eliminationOrder": [
+    "1"
+  ],
+  "winner": "2",
+  "questionStats": [
+    {
+      "questionId": "q1774512529115_8",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 19
+    },
+    {
+      "questionId": "q1774512529115_11",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 23
+    },
+    {
+      "questionId": "q1774545582055_1",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 2
+    },
+    {
+      "questionId": "q1774545582055_2",
+      "teamId": "2",
+      "correct": false,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774545574485_2",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774512529115_4",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 2
+    },
+    {
+      "questionId": "q1774512529115_7",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 30
+    },
+    {
+      "questionId": "q1774512529115_9",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 23
+    }
+  ]
+}
