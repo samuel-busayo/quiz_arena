@@ -465,18 +465,16 @@ export function AdminConsoleScreen() {
                         {currentState === 'WINNER' && (
                             <motion.div key="winner" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-2 w-full max-w-lg text-center h-full max-h-full">
                                 <Trophy className="text-tv-accent drop-shadow-glow animate-bounce w-12 h-12" />
-                                <TvText variant="h1" className="text-2xl font-black italic leading-none">
+                                <TvText variant="h1" className="text-xl font-black italic leading-none text-center">
                                     CINEMATIC SEQUENCE
                                 </TvText>
 
-                                <div className="grid grid-cols-2 gap-3 w-full mt-2">
-                                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex flex-col items-center justify-center">
-                                        <TvText variant="label" className="text-tv-accent text-[10px] mb-1">PROJECTION STAGE</TvText>
-                                        <TvText variant="h2" className="text-xl text-white">{cinematicStage || 1} / 5</TvText>
-                                    </div>
-                                    <div className="p-3 bg-white/5 border border-tv-success/50 bg-tv-success/10 rounded-xl shadow-[0_0_20px_rgba(0,255,100,0.1)] flex flex-col items-center justify-center">
-                                        <TvText variant="label" className="text-tv-success text-[10px] mb-1">MISSION OVERVIEW</TvText>
-                                        <TvText variant="h2" className="text-xl text-tv-success tracking-tight">COMPLETED</TvText>
+                                <div className="w-full mt-2 px-4">
+                                    <div className="p-3 bg-tv-success/5 border border-tv-success/40 rounded-xl flex flex-col items-center justify-center transition-all duration-500 shadow-[0_0_30px_rgba(0,255,100,0.1)]">
+                                        <TvText variant="label" className="text-tv-success text-[10px] mb-0.5 tracking-widest">MISSION STATUS</TvText>
+                                        <TvText variant="h2" className="text-xl text-tv-success font-bold tracking-tight">
+                                            {cinematicStage >= 5 ? "COMPLETED" : "IN PROGRESS"}
+                                        </TvText>
                                     </div>
                                 </div>
 
@@ -496,8 +494,9 @@ export function AdminConsoleScreen() {
                                         variant="secondary"
                                         className="opacity-50 hover:opacity-100 py-2 w-full flex items-center justify-center shrink-0"
                                         onClick={() => {
-                                            useQuizStore.setState({ cinematicStage: 0 })
-                                            setTimeout(() => useQuizStore.setState({ cinematicStage: 1 }), 100)
+                                            if (confirm("RESTART FULL WINNER SIMULATION?")) {
+                                                useQuizStore.getState().restartCinematic()
+                                            }
                                         }}
                                         iconLeft={<RotateCcw size={16} />}
                                     >

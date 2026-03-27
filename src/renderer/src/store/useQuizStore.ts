@@ -169,7 +169,8 @@ interface QuizStore {
     setCinematicStage: (stage: number) => void
     setTieBreakerTeams: (teamIds: string[]) => void
     setTieBreakerPurpose: (purpose: 'elimination' | 'winner' | null) => void
-    setFailsafeActive: (active: boolean) => void // Added
+    setFailsafeActive: (active: boolean) => void
+    restartCinematic: () => void
 
     // Pick-A-Number Actions
     setGrid: (cols: number, numbers: GridNumber[]) => void
@@ -451,6 +452,14 @@ export const useQuizStore = create<QuizStore>()(
 
             setFailsafeActive: (active) => {
                 set({ isFailsafeActive: active })
+                get().syncState()
+            },
+
+            restartCinematic: () => {
+                set((state) => ({
+                    cinematicStage: 1,
+                    cinematicRestartKey: state.cinematicRestartKey + 1
+                }))
                 get().syncState()
             },
 

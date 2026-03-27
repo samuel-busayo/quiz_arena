@@ -78,36 +78,36 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
     const eliminatedTeams = useMemo(() => teams.filter(t => t.isEliminated), [teams])
     const top3 = useMemo(() => sortedTeams.slice(0, 3), [sortedTeams])
 
-    const [runId, setRunId] = useState(Date.now())
+    const cinematicRestartKey = useQuizStore(s => s.cinematicRestartKey)
 
+    // Sequence Controller: Handles the multi-stage timing and state transitions
     useEffect(() => {
-        if (cinematicStage === 1 && localStage !== 1) {
-            setRunId(Date.now())
-        }
-    }, [cinematicStage, localStage])
-
-    useEffect(() => {
-        if (cinematicStage === 0) setCinematicStage(1)
         let isMounted = true
 
-        const runSequence = async () => {
-            setLocalStage(1)
-            setTop3RevealStage(0)
-            setChampionRevealState('text')
+        // Immediate Reset for rapid restarts
+        setLocalStage(1)
+        setCinematicStage(1)
+        setTop3RevealStage(0)
+        setChampionRevealState('text')
+        setEliminatedSpotlight(null)
 
-            // Stage 1 (0-5s)
+        const runSequence = async () => {
+            // Stage 1: Initial Reveal (0-5s)
+            // Already set by immediate reset above
+
             await new Promise(r => setTimeout(r, 5000))
             if (!isMounted) return
+
+            // Stage 2: Contest History (5-35s)
             setLocalStage(2)
             setCinematicStage(2)
 
-            // Stage 2: Contextualizing from 5s to 35s (30 seconds count-up)
             await new Promise(r => setTimeout(r, 30000))
             if (!isMounted) return
+
+            // Stage 3: Elimination Memories (35-45s)
             setLocalStage(3)
             setCinematicStage(3)
-
-            // Stage 3: Eliminations Memories 35s-45s (10s)
             if (eliminatedTeams.length > 0) {
                 const spotlightTime = 10000 / eliminatedTeams.length
                 for (let i = 0; i < eliminatedTeams.length; i++) {
@@ -121,10 +121,9 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
 
             if (!isMounted) return
 
-            // Stage 3.5: Pre-Stage 4 Announcing Runners Up (45-60s)
+            // Stage 3.5: Runners Up Reveal (Extra phase within stage 3/4 transition)
             if (teams.length >= 3 && top3.length >= 3) {
                 setLocalStage(3.5)
-                setCinematicStage(3)
                 await new Promise(r => setTimeout(r, 5000))
                 if (!isMounted) return
                 setTop3RevealStage(1)
@@ -137,7 +136,7 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                 if (!isMounted) return
             }
 
-            // Stage 4: Pitch Black Screen
+            // Stage 4: Champion Coronation (Pitch Black -> Name Reveal)
             setLocalStage(4)
             setCinematicStage(4)
             setChampionRevealState('text')
@@ -153,16 +152,19 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
             await new Promise(r => setTimeout(r, 7000))
             if (!isMounted) return
 
-            // Stage 5: Massive Golden 3D Trophy
+            // Stage 5: 3D Trophy Cinematic
             setLocalStage(5)
             setCinematicStage(5)
         }
 
         runSequence()
 
-        return () => { isMounted = false }
-    }, [runId, teams.length, eliminatedTeams.length, top3.length])
+        return () => {
+            isMounted = false
+        }
+    }, [cinematicRestartKey, setCinematicStage, eliminatedTeams.length, teams.length, top3.length])
 
+    // Cleanup redundant effects
     useEffect(() => {
         if (localStage === 5) {
             const interval = setInterval(() => {
@@ -374,7 +376,7 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                                     transition={{ duration: 1, type: 'spring', damping: 12, stiffness: 40 }}
                                     className=" w-full z-10"
                                 >
-                                    <TvText variant="h1" className="text-[14vw] font-black italic tracking-tighter text-white drop-shadow-[0_0_120px_rgba(255,255,255,1)] leading-none uppercase break-words px-8">
+                                    <TvText variant="h1" className="text-[14vw] text-center font-black italic tracking-tighter text-white drop-shadow-[0_0_120px_rgba(255,255,255,1)] leading-none uppercase break-words px-8">
                                         {winner.name}
                                     </TvText>
                                 </motion.div>
