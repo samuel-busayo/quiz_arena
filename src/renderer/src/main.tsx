@@ -14,8 +14,31 @@ import '@fontsource/rajdhani/700.css'
 
 import './index.css'
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error?: Error }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props)
+        this.state = { hasError: false }
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error }
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div style={{ color: 'red', padding: '20px', background: 'white', height: '100vh', width: '100vw', zIndex: 99999, overflow: 'auto' }}>
+                    <h1>UI Rendering Crash</h1>
+                    <pre>{this.state.error?.stack || this.state.error?.message}</pre>
+                </div>
+            )
+        }
+        return this.props.children
+    }
+}
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <App />
+        <ErrorBoundary>
+            <App />
+        </ErrorBoundary>
     </React.StrictMode>
 )

@@ -1,0 +1,111 @@
+{
+  "id": "1774606994710",
+  "date": "2026-03-27T10:23:14.710Z",
+  "setupSnapshot": {
+    "rounds": 2,
+    "takesPerRound": 5,
+    "timerSeconds": 10,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 50,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "MR. PETER ENTERPRISE",
+    "eventTheme": "CLASH OF ROBOTS",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "General_Knowledge"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM AJ",
+      "color": "#22C55E",
+      "score": 50,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM ROBOT",
+      "color": "#FF3D00",
+      "score": 250,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 5,
+  "finalScores": {
+    "1": 50,
+    "2": 250
+  },
+  "eliminationOrder": [
+    "1"
+  ],
+  "winner": "2",
+  "questionStats": [
+    {
+      "questionId": "q1774447330950_2",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 10
+    },
+    {
+      "questionId": "q1774447330950_7",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_19",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 8
+    },
+    {
+      "questionId": "q1774447330950_16",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_13",
+      "teamId": "1",
+      "correct": true,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774447330950_14",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 3
+    },
+    {
+      "questionId": "q1774447330950_1",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 6
+    },
+    {
+      "questionId": "q1774447330950_4",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 5
+    },
+    {
+      "questionId": "q1774447330950_9",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 10
+    },
+    {
+      "questionId": "q1774447330950_26",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 6
+    }
+  ]
+}

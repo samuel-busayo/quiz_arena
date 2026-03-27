@@ -113,6 +113,7 @@ interface QuizStore {
     isFailsafeActive: boolean // Added
     tieBreakerTeams: string[]
     tieBreakerPurpose: 'elimination' | 'winner' | null
+    tieBreakerRound: number
 
     // Automated Runtime State
     revealStatus: 'correct' | 'wrong' | 'timeout' | null
@@ -139,6 +140,9 @@ interface QuizStore {
     // Analytics State
     results: QuizResult[]
     currentStats: QuizResult['questionStats']
+    scoreHistory: { roundOrQuestionId: string, scores: Record<string, number>, eliminations: string[] }[]
+    cinematicStage: number
+    cinematicRestartKey: number
 
     // Helpers
     initialize: (view: 'admin' | 'projector') => void
@@ -162,6 +166,7 @@ interface QuizStore {
     updateSetupDraft: (draft: Partial<QuizStore['setupDraft']>) => void
     setUiOverlay: (overlay: 'leaderboard' | null) => void
     useLifeline: (teamId: string) => void
+    setCinematicStage: (stage: number) => void
     setTieBreakerTeams: (teamIds: string[]) => void
     setTieBreakerPurpose: (purpose: 'elimination' | 'winner' | null) => void
     setFailsafeActive: (active: boolean) => void // Added
@@ -173,13 +178,16 @@ interface QuizStore {
 
     // Analytics Actions
     addQuestionStat: (stat: QuizResult['questionStats'][0]) => void
+    recordHistorySnapshot: (checkpointId: string) => void
     saveResult: (result: QuizResult) => void
+    clearResults: () => void
 
     // Session Actions
     saveSession: () => Promise<void>
     loadSession: () => Promise<void>
     checkSavedSession: () => Promise<void>
     deleteSession: () => Promise<void>
+    restoreSession: (timestamp: string) => void
 }
 
 let isProjectorUpdate = false
@@ -187,6 +195,7 @@ let isProjectorUpdate = false
 export const useQuizStore = create<QuizStore>()(
     persist(
         (set, get) => ({
+            tieBreakerRound: 1,
             currentState: 'IDLE',
             uiScreen: 'COMMAND_CENTER',
             teams: [],
@@ -252,6 +261,9 @@ export const useQuizStore = create<QuizStore>()(
             // Analytics Initial State
             results: [],
             currentStats: [],
+            scoreHistory: [],
+            cinematicStage: 0,
+            cinematicRestartKey: 0,
             tieBreakerTeams: [],
             tieBreakerPurpose: null,
 
@@ -321,7 +333,10 @@ export const useQuizStore = create<QuizStore>()(
                     uiOverlay: state.uiOverlay,
                     eliminatedOptions: state.eliminatedOptions,
                     tieBreakerTeams: state.tieBreakerTeams,
-                    tieBreakerPurpose: state.tieBreakerPurpose
+                    tieBreakerPurpose: state.tieBreakerPurpose,
+                    tieBreakerRound: state.tieBreakerRound,
+                    cinematicStage: state.cinematicStage,
+                    cinematicRestartKey: state.cinematicRestartKey
                 })
             },
 
@@ -400,6 +415,30 @@ export const useQuizStore = create<QuizStore>()(
                 get().syncState()
             },
 
+            setCinematicStage: (stage) => {
+                set({ cinematicStage: stage })
+                get().syncState()
+            },
+
+            recordHistorySnapshot: (checkpointId) => {
+                const { teams, currentRound } = get()
+                const scores: Record<string, number> = {}
+                teams.forEach(t => { scores[t.id] = t.score })
+                const eliminations = teams.filter(t => t.isEliminated).map(t => t.id)
+                set((state) => ({
+                    scoreHistory: [...state.scoreHistory, { roundOrQuestionId: checkpointId, scores, eliminations }]
+                }))
+            },
+
+            clearResults: () => {
+                set({ results: [] })
+            },
+
+            restoreSession: (_timestamp) => {
+                // Placeholder: trigger loadSession for now
+                get().loadSession()
+            },
+
             setTieBreakerTeams: (teamIds) => {
                 set({ tieBreakerTeams: teamIds })
                 get().syncState()
@@ -449,6 +488,10 @@ export const useQuizStore = create<QuizStore>()(
                     eliminatedOptions: [],
                     tieBreakerTeams: [],
                     tieBreakerPurpose: null,
+                    tieBreakerRound: 1,
+                    cinematicStage: 0,
+                    cinematicRestartKey: 0,
+                    scoreHistory: [],
                     hasSavedSession: currentHasSave // Persist the fact that a save exists on disk
                 })
                 get().syncState()

@@ -37,7 +37,8 @@ export function AdminConsoleScreen() {
         resetQuiz,
         saveSession,
         deleteSession,
-        tieBreakerTeams
+        tieBreakerTeams,
+        cinematicStage
     } = useQuizStore()
 
     const [isSaving, setIsSaving] = React.useState(false)
@@ -462,10 +463,47 @@ export function AdminConsoleScreen() {
                         )}
 
                         {currentState === 'WINNER' && (
-                            <motion.div key="winner" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-[4vh]">
-                                <Trophy size={80} className="text-tv-accent drop-shadow-glow animate-bounce" />
-                                <TvText variant="h1" className="text-[clamp(2rem,6vh,4rem)] font-black italic leading-none">MISSION COMPLETE</TvText>
-                                <TvButton variant="ghost" size="sm" onClick={() => useQuizStore.getState().resetQuiz()}>CLOSE SESSION</TvButton>
+                            <motion.div key="winner" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-2 w-full max-w-lg text-center h-full max-h-full">
+                                <Trophy className="text-tv-accent drop-shadow-glow animate-bounce w-12 h-12" />
+                                <TvText variant="h1" className="text-2xl font-black italic leading-none">
+                                    CINEMATIC SEQUENCE
+                                </TvText>
+
+                                <div className="grid grid-cols-2 gap-3 w-full mt-2">
+                                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex flex-col items-center justify-center">
+                                        <TvText variant="label" className="text-tv-accent text-[10px] mb-1">PROJECTION STAGE</TvText>
+                                        <TvText variant="h2" className="text-xl text-white">{cinematicStage || 1} / 5</TvText>
+                                    </div>
+                                    <div className="p-3 bg-white/5 border border-tv-success/50 bg-tv-success/10 rounded-xl shadow-[0_0_20px_rgba(0,255,100,0.1)] flex flex-col items-center justify-center">
+                                        <TvText variant="label" className="text-tv-success text-[10px] mb-1">MISSION OVERVIEW</TvText>
+                                        <TvText variant="h2" className="text-xl text-tv-success tracking-tight">COMPLETED</TvText>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-3 mt-4 w-full justify-center">
+                                    <TvButton
+                                        variant="danger"
+                                        size="lg"
+                                        glow
+                                        className="py-3 w-full flex items-center justify-center shrink-0"
+                                        iconLeft={<Power size={20} />}
+                                        onClick={() => window.confirm("Terminate cinematic sequence and power down session?") && resetQuiz()}
+                                    >
+                                        <span className="text-base uppercase font-bold tracking-wider">EXIT SEQUENCE</span>
+                                    </TvButton>
+
+                                    <TvButton
+                                        variant="secondary"
+                                        className="opacity-50 hover:opacity-100 py-2 w-full flex items-center justify-center shrink-0"
+                                        onClick={() => {
+                                            useQuizStore.setState({ cinematicStage: 0 })
+                                            setTimeout(() => useQuizStore.setState({ cinematicStage: 1 }), 100)
+                                        }}
+                                        iconLeft={<RotateCcw size={16} />}
+                                    >
+                                        <span className="text-sm uppercase font-bold tracking-wider">FORCE RESTART</span>
+                                    </TvButton>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>

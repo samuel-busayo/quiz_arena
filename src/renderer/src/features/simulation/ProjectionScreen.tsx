@@ -10,6 +10,7 @@ import { ProjectionStandbyScreen } from './ProjectionStandbyScreen'
 import { ProjectionHoldingScreen } from './ProjectionHoldingScreen'
 import { ProjectionArmingScreen } from './ProjectionArmingScreen'
 import { LeaderboardOverlay } from './LeaderboardOverlay'
+import { CinematicWinnerScreen } from './CinematicWinnerScreen'
 import { audioEngine } from './AudioEngine'
 
 export function ProjectionScreen() {
@@ -29,6 +30,7 @@ export function ProjectionScreen() {
         uiOverlay,
         tieBreakerTeams,
         tieBreakerPurpose,
+        tieBreakerRound,
         isFailsafeActive,
         currentTake,
         eliminatedOptions
@@ -97,7 +99,7 @@ export function ProjectionScreen() {
 
                         <div className="mb-12">
                             <TvText variant="h2" align="center" className="text-4xl text-tv-warning/70 uppercase tracking-[1em] mb-2">SUDDEN DEATH</TvText>
-                            <TvText variant="h1" align="center" className="text-6xl font-black text-white">ROUND {currentRound}</TvText>
+                            <TvText variant="h1" align="center" className="text-6xl font-black text-white">ROUND {tieBreakerRound}</TvText>
                         </div>
 
                         <div className="flex gap-16 justify-center items-center">
@@ -511,7 +513,7 @@ export function ProjectionScreen() {
             }
 
             if (currentState === 'WINNER' && winner) {
-                return <WinnerCelebration winner={winner} />
+                return <CinematicWinnerScreen winner={winner} />
             }
 
             if (currentState === 'PICKER_PHASE') {
@@ -777,216 +779,6 @@ function SessionRestorationOverlay() {
     )
 }
 
-function WinnerCelebration({ winner }: { winner: any }) {
-    const [stage, setStage] = React.useState(1)
-
-    React.useEffect(() => {
-        const timers = [
-            setTimeout(() => setStage(2), 1200),  // Mission Complete Banner
-            setTimeout(() => setStage(3), 3200),  // Winner Name + Neon Pulsing Frame
-            setTimeout(() => setStage(4), 5200),  // Stats Panel + Trophy
-            setTimeout(() => setStage(5), 7500),  // Session Finality
-        ]
-        return () => timers.forEach(clearTimeout)
-    }, [])
-
-    return (
-        <motion.div
-            key="winner-mega"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#02040a] flex flex-col items-center justify-center overflow-hidden"
-        >
-            {/* Cinematic Background Layer */}
-            <div className="absolute inset-0 pointer-events-none">
-                <motion.div
-                    animate={{
-                        opacity: [0.1, 0.4, 0.1],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute inset-x-0 bottom-0 h-[70vh]"
-                    style={{ background: `radial-gradient(circle at center, ${winner.color}33 0%, transparent 70%)` }}
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-10" />
-                <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.4)_50%)] bg-[size:100%_4px] pointer-events-none opacity-20" />
-            </div>
-
-            <AnimatePresence mode="wait">
-                {stage === 1 && (
-                    <motion.div
-                        key="s1"
-                        initial={{ opacity: 0, scale: 0.8, letterSpacing: '4em' }}
-                        animate={{ opacity: 1, scale: 1, letterSpacing: '1em' }}
-                        exit={{ opacity: 0, scale: 2, filter: 'blur(60px)' }}
-                        transition={{ duration: 1 }}
-                        className="text-center"
-                    >
-                        <TvText variant="h1" className="text-8xl font-black italic text-tv-accent drop-shadow-glow">MISSION COMPLETE</TvText>
-                    </motion.div>
-                )}
-
-                {stage >= 2 && (
-                    <motion.div
-                        key="winner-main-content"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex flex-col items-center z-20 w-full px-20 max-w-screen-2xl"
-                    >
-                        {/* Winner Reveal Slam */}
-                        <motion.div
-                            initial={{ scale: 1.5, opacity: 0, y: 50 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            transition={{ type: 'spring', damping: 15, delay: 0.2 }}
-                            className="relative mb-16"
-                        >
-                            {/* Neon Boundary Frame */}
-                            <motion.div
-                                animate={{
-                                    opacity: [0.2, 1, 0.2],
-                                    borderColor: [winner.color, '#FFFFFF', winner.color],
-                                    boxShadow: [`0 0 20px ${winner.color}33`, `0 0 60px ${winner.color}66`, `0 0 20px ${winner.color}33`]
-                                }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                                className="absolute -inset-x-24 -inset-y-12 border-2 rounded-[5rem] pointer-events-none hidden lg:block"
-                            />
-
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.6 }}
-                                transition={{ delay: 1 }}
-                                className="text-center"
-                            >
-                                <TvText variant="h2" className="text-2xl tracking-[2.5em] text-tv-accent mb-8 uppercase">DOMINANT OPERATIVE</TvText>
-                            </motion.div>
-
-                            <TvText
-                                variant="h1"
-                                className="text-[14vw] font-black italic text-white leading-none text-center select-none uppercase drop-shadow-[0_0_80px_rgba(255,255,255,0.15)]"
-                                style={{ textShadow: `0 0 40px ${winner.color}99` }}
-                            >
-                                {winner.name}
-                            </TvText>
-                        </motion.div>
-
-                        {/* ANALYTICS DASHBOARD */}
-                        <div className="flex items-center justify-between w-full gap-24 h-[35vh]">
-                            {stage >= 4 && (
-                                <>
-                                    {/* Stats Hologram (Left) */}
-                                    <motion.div
-                                        initial={{ x: -200, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        className="flex-1 bg-white/[0.03] backdrop-blur-2xl border-l-4 border-tv-accent rounded-3xl p-10 relative"
-                                    >
-                                        <div className="space-y-10">
-                                            <div className="flex justify-between items-baseline border-b border-white/10 pb-4">
-                                                <TvText variant="label" className="text-white/30 uppercase tracking-[0.5em] text-xs">Accumulated Intel</TvText>
-                                                <TvText variant="h1" className="text-5xl font-bold text-white italic">{winner.score} <span className="text-base font-light tracking-widest text-[#00E5FF]">PTS</span></TvText>
-                                            </div>
-                                            <div className="flex justify-between items-baseline">
-                                                <TvText variant="label" className="text-white/30 uppercase tracking-[0.5em] text-xs">Sector Status</TvText>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-3 h-3 rounded-full bg-tv-success shadow-[0_0_15px_#00E676] animate-pulse" />
-                                                    <TvText variant="h2" className="text-4xl font-black text-tv-success">SECURED</TvText>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Trophy Core */}
-                                    <motion.div
-                                        initial={{ scale: 0, rotateZ: -180 }}
-                                        animate={{ scale: 1, rotateZ: 0 }}
-                                        transition={{ type: 'spring', damping: 10 }}
-                                        className="relative shrink-0"
-                                    >
-                                        <motion.div
-                                            animate={{ rotateY: 360 }}
-                                            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                                        >
-                                            <Trophy size={260} className="text-[#FFD700] drop-shadow-[0_0_80px_rgba(255,215,0,0.9)]" />
-                                        </motion.div>
-
-                                        <motion.div
-                                            animate={{ rotate: 360, skewX: [5, -5, 5] }}
-                                            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                                            className="absolute inset-0 border-2 border-dashed border-tv-accent/30 rounded-full scale-[1.8]"
-                                        />
-                                    </motion.div>
-
-                                    {/* Ranking Display (Right) */}
-                                    <motion.div
-                                        initial={{ x: 200, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        className="flex-1 bg-white/[0.03] backdrop-blur-2xl border-r-4 border-tv-accent rounded-3xl p-10 flex flex-col justify-center items-center"
-                                    >
-                                        <TvText variant="label" className="text-white/30 uppercase tracking-[1em] text-xs mb-4">Final Protocol</TvText>
-                                        <TvText variant="h1" className="text-8xl font-black text-white italic tracking-tighter drop-shadow-glow">RANK #1</TvText>
-                                        <div className="mt-8 flex gap-2">
-                                            {[...Array(5)].map((_, i) => (
-                                                <div key={i} className="w-4 h-1 bg-tv-accent/40 rounded-full" />
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                </>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* NEON DATA STREAM */}
-            {stage >= 3 && (
-                <div className="absolute inset-0 pointer-events-none z-10">
-                    {[...Array(80)].map((_, i) => (
-                        <motion.div
-                            key={`str-${i}`}
-                            initial={{ y: -100, x: `${Math.random() * 100}%`, opacity: 0 }}
-                            animate={{
-                                y: '120vh',
-                                opacity: [0, 0.8, 0.8, 0],
-                                height: [40, 100, 40]
-                            }}
-                            transition={{
-                                duration: 1.5 + Math.random() * 2,
-                                repeat: Infinity,
-                                ease: 'linear',
-                                delay: Math.random() * 3
-                            }}
-                            className="absolute flex flex-col items-center"
-                        >
-                            <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-current to-transparent"
-                                style={{ color: i % 4 === 0 ? winner.color : '#00E5FF' }} />
-                        </motion.div>
-                    ))}
-                </div>
-            )}
-
-            {stage >= 5 && (
-                <motion.div
-                    initial={{ y: 200, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="absolute bottom-10 z-30 w-full"
-                >
-                    <div className="flex flex-col items-center">
-                        <motion.div
-                            animate={{ opacity: [0.1, 0.6, 0.1] }}
-                            transition={{ duration: 4, repeat: Infinity }}
-                            className="h-[1px] w-[90vw] bg-gradient-to-r from-transparent via-tv-accent to-transparent mb-8"
-                        />
-                        <div className="flex gap-20">
-                            <TvText variant="label" className="tracking-[1.2em] uppercase text-[10px] text-white/20">Neural Handshake Finalized</TvText>
-                            <div className="w-2 h-2 rounded-full bg-tv-accent animate-pulse" />
-                            <TvText variant="label" className="tracking-[1.2em] uppercase text-[10px] text-white/20">Session Narrative Archived</TvText>
-                        </div>
-                    </div>
-                </motion.div>
-            )}
-        </motion.div>
-    )
-}
 
 function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor, isSelected, revealStatus, isEliminated }: {
     label: string,

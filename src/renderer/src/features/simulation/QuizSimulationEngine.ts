@@ -32,8 +32,13 @@ class QuizSimulationEngine {
             eliminatedOptions: [],
             isLocked: false,
             isConfirming: false,
-            currentStats: []
+            currentStats: [],
+            scoreHistory: [],
+            cinematicStage: 0
         })
+
+        // Take initial snapshot
+        useQuizStore.getState().recordHistorySnapshot('INITIAL_START')
 
         // 3. Grid / Queue Generation
         if (config.mode === 'PICK_NUMBER') {
@@ -411,6 +416,9 @@ class QuizSimulationEngine {
             timeUsed: config.timerSeconds - timerRemaining
         })
 
+        // Record snapshot of game state after score update
+        useQuizStore.getState().recordHistorySnapshot(currentQuestion.id)
+
         // Auto advance simulation
         this.advanceSimulation()
     }
@@ -491,7 +499,7 @@ class QuizSimulationEngine {
                     setTimeout(() => {
                         useQuizStore.getState().setUiOverlay(null)
                         setTieBreakerTeams(winners.map(w => w.id))
-                        useQuizStore.setState({ currentTake: 1, currentTeamId: winners[0].id, currentRound: currentRound + 1 })
+                        useQuizStore.setState({ currentTake: 1, currentTeamId: winners[0].id, tieBreakerRound: useQuizStore.getState().tieBreakerRound + 1 })
                         this.transitionTo('TIE_BREAKER')
                     }, 5000)
                 }
@@ -520,7 +528,7 @@ class QuizSimulationEngine {
                     setTimeout(() => {
                         useQuizStore.getState().setUiOverlay(null)
                         setTieBreakerTeams(candidates.map(c => c.id))
-                        useQuizStore.setState({ currentTake: 1, currentTeamId: candidates[0].id, currentRound: currentRound + 1 })
+                        useQuizStore.setState({ currentTake: 1, currentTeamId: candidates[0].id, tieBreakerRound: useQuizStore.getState().tieBreakerRound + 1 })
                         this.transitionTo('TIE_BREAKER')
                     }, 5000)
                 }
@@ -555,7 +563,7 @@ class QuizSimulationEngine {
             // TIE FOR ELIMINATION
             useQuizStore.getState().setTieBreakerTeams(candidates.map(c => c.id))
             useQuizStore.getState().setTieBreakerPurpose('elimination')
-            useQuizStore.setState({ currentTeamId: candidates[0].id })
+            useQuizStore.setState({ currentTeamId: candidates[0].id, tieBreakerRound: 1 })
             this.transitionTo('TIE_BREAKER')
             return
         }
@@ -564,6 +572,7 @@ class QuizSimulationEngine {
 
         // Mark eliminated
         useQuizStore.getState().eliminateTeam(lowest.id)
+        useQuizStore.getState().recordHistorySnapshot(`ELIMINATION_${lowest.id}`)
 
         // Set state to ELIMINATION for UX
         useQuizStore.setState({ currentTeamId: lowest.id }) // Focus on them for UI
@@ -594,7 +603,7 @@ class QuizSimulationEngine {
             if (winners.length > 1) {
                 useQuizStore.getState().setTieBreakerTeams(winners.map(w => w.id))
                 useQuizStore.getState().setTieBreakerPurpose('winner')
-                useQuizStore.setState({ currentTeamId: winners[0].id })
+                useQuizStore.setState({ currentTeamId: winners[0].id, tieBreakerRound: 1 })
                 this.transitionTo('TIE_BREAKER')
             } else {
                 this.transitionTo('WINNER')
