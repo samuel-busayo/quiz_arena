@@ -143,6 +143,7 @@ interface QuizStore {
     scoreHistory: { roundOrQuestionId: string, scores: Record<string, number>, eliminations: string[] }[]
     cinematicStage: number
     cinematicRestartKey: number
+    selectedTrophyIndex: number
 
     // Helpers
     initialize: (view: 'admin' | 'projector') => void
@@ -265,6 +266,7 @@ export const useQuizStore = create<QuizStore>()(
             scoreHistory: [],
             cinematicStage: 0,
             cinematicRestartKey: 0,
+            selectedTrophyIndex: 1, // Default to 1
             tieBreakerTeams: [],
             tieBreakerPurpose: null,
 
@@ -337,12 +339,17 @@ export const useQuizStore = create<QuizStore>()(
                     tieBreakerPurpose: state.tieBreakerPurpose,
                     tieBreakerRound: state.tieBreakerRound,
                     cinematicStage: state.cinematicStage,
-                    cinematicRestartKey: state.cinematicRestartKey
+                    cinematicRestartKey: state.cinematicRestartKey,
+                    selectedTrophyIndex: state.selectedTrophyIndex
                 })
             },
 
             setCurrentState: (state) => {
-                set({ currentState: state })
+                const updates: Partial<QuizStore> = { currentState: state }
+                if (state === 'WINNER') {
+                    updates.selectedTrophyIndex = Math.floor(Math.random() * 7) + 1
+                }
+                set(updates)
                 get().syncState()
             },
 

@@ -15,9 +15,10 @@ import React, { useRef, useEffect, useMemo, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Sparkles, useGLTF, Html, Environment } from '@react-three/drei'
 import * as THREE from 'three'
+import { useQuizStore } from '../../store/useQuizStore'
 
-// ── SAFE ELECTRON-COMPATIBLE ASSET PATH ──────────────────────────────────────
-const TROPHY_URL = new URL('../../assets/trophy.glb', import.meta.url).href
+// ── DYNAMIC ASSET RESOLUTION ──────────────────────────────────────────────
+const getTrophyUrl = (index: number) => new URL(`../../assets/trophy_${index}.glb`, import.meta.url).href
 
 // ── EASING FUNCTIONS ─────────────────────────────────────────────────────────
 const easeOutExpo = (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
@@ -191,7 +192,12 @@ function LightBurst({ timelineRef }: { timelineRef: React.MutableRefObject<Revea
 function ImportedTrophy({ timelineRef }: { timelineRef: React.MutableRefObject<RevealTimeline> }) {
     const groupRef = useRef<THREE.Group>(null)
     const rimLightRef = useRef<THREE.PointLight>(null)
-    const { scene: rawScene } = useGLTF(TROPHY_URL)
+
+    // Get the selected trophy index from the store
+    const selectedTrophyIndex = useQuizStore(s => s.selectedTrophyIndex || 1)
+    const trophyUrl = getTrophyUrl(selectedTrophyIndex)
+
+    const { scene: rawScene } = useGLTF(trophyUrl) as any
 
     const trophyScene = useMemo(() => rawScene.clone(true), [rawScene])
 
@@ -225,7 +231,7 @@ function ImportedTrophy({ timelineRef }: { timelineRef: React.MutableRefObject<R
             trophyScene.position.y += (size.y * scale) / 2  // lift base to y=0
         }
 
-        trophyScene.traverse((child) => {
+        trophyScene.traverse((child: THREE.Object3D) => {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh
                 const name = mesh.name.toLowerCase()
@@ -288,7 +294,12 @@ function ImportedTrophy({ timelineRef }: { timelineRef: React.MutableRefObject<R
     )
 }
 
-useGLTF.preload(TROPHY_URL)
+// ── PRELOAD ALL TROPHIES ─────────────────────────────────────────────────────
+for (let i = 1; i <= 7; i++) {
+    useGLTF.preload(getTrophyUrl(i))
+}
+
+// ── COMPONENT DEFINITIONS ───────────────────────────────────────────────────
 
 // ── HERO CINEMATIC LIGHTING SWEEP (New) ───────────────────────────────────────────
 function HeroSweep({ timelineRef }: { timelineRef: React.MutableRefObject<RevealTimeline> }) {

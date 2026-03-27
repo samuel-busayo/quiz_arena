@@ -356,7 +356,7 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                                     className="text-center"
                                 >
                                     <TvText variant="h1" className="text-white text-center text-[6vw] font-light tracking-[0.2em] leading-[1.8]">
-                                        And the Undefeated....<br />
+                                        And the Undefeated<br />
                                         <span className="font-black italic drop-shadow-glow">Champion is.....</span>
                                     </TvText>
                                 </motion.div>
@@ -373,10 +373,10 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
                                     initial={{ opacity: 0, scale: 3, filter: 'blur(50px)' }}
                                     animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                                     exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 1, type: 'spring', damping: 12, stiffness: 40 }}
+                                    transition={{ duration: 3, type: 'spring', damping: 12, stiffness: 40 }}
                                     className=" w-full z-10"
                                 >
-                                    <TvText variant="h1" className="text-[14vw] text-center font-black italic tracking-tighter text-white drop-shadow-[0_0_120px_rgba(255,255,255,1)] leading-none uppercase break-words px-8">
+                                    <TvText variant="h1" className="text-[17vw] text-center font-black italic tracking-tighter text-white drop-shadow-[0_0_120px_rgba(255,255,255,1)] leading-none uppercase break-words px-8">
                                         {winner.name}
                                     </TvText>
                                 </motion.div>
