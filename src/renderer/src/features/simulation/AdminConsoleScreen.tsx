@@ -330,9 +330,9 @@ export function AdminConsoleScreen() {
                                             align="center"
                                             className={cn(
                                                 "leading-[1.1] font-bold text-tv-accent transition-all duration-300",
-                                                currentQuestion.question.length > 200 ? "text-xl" :
-                                                    currentQuestion.question.length > 120 ? "text-2xl" :
-                                                        "text-[clamp(1.5rem,4.5vh,3.5rem)]"
+                                                currentQuestion.question.length > 200 ? "text-lg" :
+                                                    currentQuestion.question.length > 120 ? "text-xl" :
+                                                        "text-[clamp(1.25rem,3.8vh,3.0rem)]"
                                             )}
                                         >
                                             {currentQuestion.question}
@@ -658,7 +658,7 @@ function OptionControl({ label, text, isCorrect, isRevealed, onClick, isSelected
             style={{ borderLeftColor: isRevealed && isCorrect ? '#00E676' : isRevealed && isSelected && !isCorrect ? '#FF3D00' : (isSelected && !isRevealed) ? '#00E5FF' : 'rgba(255,255,255,0.1)' }}
         >
             <TvText variant="h2" className={cn(
-                "font-black opacity-30 group-hover:opacity-100 transition-opacity text-xl",
+                "font-black opacity-30 group-hover:opacity-100 transition-opacity text-lg",
                 isRevealed && isCorrect ? 'text-tv-success opacity-100' : isRevealed && isSelected && !isCorrect ? 'text-tv-danger opacity-100' : (isSelected && !isRevealed) ? 'text-tv-accent opacity-100' : 'text-white'
             )}>
                 {label}
@@ -668,9 +668,9 @@ function OptionControl({ label, text, isCorrect, isRevealed, onClick, isSelected
                     variant="body"
                     className={cn(
                         "font-bold uppercase tracking-tight transition-all duration-300",
-                        text.length > 100 ? "text-[10px]" :
-                            text.length > 60 ? "text-xs" :
-                                "text-[clamp(0.9rem,2.2vh,1.6rem)]"
+                        text.length > 100 ? "text-[9px]" :
+                            text.length > 60 ? "text-[10px]" :
+                                "text-[clamp(0.8rem,1.85vh,1.35rem)]"
                     )}
                 >
                     {text}

@@ -583,9 +583,9 @@ export function ProjectionScreen() {
                                     align="center"
                                     className={cn(
                                         "leading-[1.1] font-bold text-white/90 drop-shadow-glow transition-all duration-300",
-                                        currentQuestion.question.length > 200 ? "text-[clamp(1.5rem,3.5vh,2.5rem)]" :
-                                            currentQuestion.question.length > 120 ? "text-[clamp(2.5rem,5.5vh,4rem)]" :
-                                                "text-[clamp(2.5rem,7vh,5.5rem)]"
+                                        currentQuestion.question.length > 200 ? "text-[clamp(1.25rem,3vh,2.1rem)]" :
+                                            currentQuestion.question.length > 120 ? "text-[clamp(2.1rem,4.7vh,3.4rem)]" :
+                                                "text-[clamp(2.1rem,6vh,4.7rem)]"
                                     )}
                                 >
                                     {currentQuestion.question}
@@ -833,7 +833,7 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
             )}
 
             <div className={cn(
-                "w-16 h-16 rounded-2xl border-2 flex items-center justify-center shrink-0 transition-all duration-500 z-10 font-black text-3xl",
+                "w-16 h-16 rounded-2xl border-2 flex items-center justify-center shrink-0 transition-all duration-500 z-10 font-black text-2xl",
                 isThisCorrect ? "bg-tv-success border-tv-success text-black shadow-[0_0_30px_rgba(0,230,118,0.5)]" :
                     isThisWrong ? "bg-tv-danger border-tv-danger text-white shadow-[0_0_30px_rgba(255,61,0,0.5)]" :
                         isSelected ? "bg-tv-accent border-tv-accent text-black" : "bg-white/5 border-white/10 text-white/40"
@@ -845,9 +845,9 @@ function ProjectionOption({ label, text, isCorrect, isRevealed, index, teamColor
                 variant="h2"
                 className={cn(
                     "font-bold text-white/90 uppercase tracking-tight flex-1 z-10 group-hover:text-white transition-all duration-300",
-                    text.length > 100 ? "text-[clamp(1rem,2.5vh,1.5rem)]" :
-                        text.length > 60 ? "text-[clamp(1.2rem,3vh,2rem)]" :
-                            "text-[clamp(1.2rem,3.8vh,2.8rem)]"
+                    text.length > 100 ? "text-[clamp(0.85rem,2.1vh,1.3rem)]" :
+                        text.length > 60 ? "text-[clamp(1.0rem,2.5vh,1.7rem)]" :
+                            "text-[clamp(1.0rem,3.2vh,2.4rem)]"
                 )}
             >
                 {text}
