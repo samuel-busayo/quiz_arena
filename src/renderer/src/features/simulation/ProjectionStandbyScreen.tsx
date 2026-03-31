@@ -62,9 +62,11 @@ export function ProjectionStandbyScreen() {
     }, [activeTeams.map((t: any) => t?.id).join(',')])
 
     useEffect(() => {
-        // Start cinematic drone when entering standby
-        if (currentState === 'IDLE' || currentState === 'STANDBY') {
-            audioEngine.playBgm('standbyAmbient', true)
+        // Play "The Wait" BGM directly here — this is the VS animation screen
+        // Using switchBgm ensures clean crossfade from mainBgm and prevents conflict
+        const { systemSettings } = useQuizStore.getState()
+        if (systemSettings.bgmEnabled) {
+            audioEngine.switchBgm('theWait', true)
         }
 
         // Cycle through pairs every 5 seconds
@@ -77,7 +79,6 @@ export function ProjectionStandbyScreen() {
 
         return () => {
             if (timer) clearInterval(timer)
-            audioEngine.stopBgm()
         }
     }, [currentState, pairs.length])
 

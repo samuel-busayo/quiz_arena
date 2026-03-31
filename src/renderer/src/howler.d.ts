@@ -1,9 +1,10 @@
 declare module 'howler' {
     export class Howl {
         constructor(options: any);
-        play(): void;
-        pause(): void;
-        stop(): void;
+        play(): number;
+        play(sprite: string): number;
+        pause(id?: number): void;
+        stop(id?: number): void;
         volume(): number;
         volume(val: number): void;
         on(event: string, callback: () => void): void;

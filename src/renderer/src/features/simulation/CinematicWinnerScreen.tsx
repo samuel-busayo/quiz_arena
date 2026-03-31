@@ -4,6 +4,7 @@ import { useQuizStore, Team } from '../../store/useQuizStore'
 import { TvText } from '../../components/ui/TvText'
 import { TrophyStage3D } from './TrophyStage3D'
 import confetti from 'canvas-confetti'
+import { audioEngine } from './AudioEngine'
 
 interface CinematicWinnerScreenProps {
     winner: Team
@@ -92,8 +93,8 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
         setEliminatedSpotlight(null)
 
         const runSequence = async () => {
-            // Stage 1: Initial Reveal (0-5s)
-            // Already set by immediate reset above
+            // Stage 1: Initial Reveal (0-5s) — win intro music starts immediately
+            audioEngine.playWinIntro()
 
             await new Promise(r => setTimeout(r, 5000))
             if (!isMounted) return
@@ -148,6 +149,8 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
             await new Promise(r => setTimeout(r, 3000))
             if (!isMounted) return
             setChampionRevealState('name')
+            // 🎵 Transition to climax segment when winner name is revealed (0:29–end loops)
+            audioEngine.playWinClimax()
 
             await new Promise(r => setTimeout(r, 7000))
             if (!isMounted) return
@@ -161,6 +164,7 @@ export function CinematicWinnerScreen({ winner }: CinematicWinnerScreenProps) {
 
         return () => {
             isMounted = false
+            audioEngine.stopWinBgm() // Clean up win music on unmount
         }
     }, [cinematicRestartKey, setCinematicStage, eliminatedTeams.length, teams.length, top3.length])
 

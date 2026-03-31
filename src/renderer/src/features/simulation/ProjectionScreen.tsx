@@ -71,21 +71,24 @@ export function ProjectionScreen() {
     }, [systemSettings.sfxEnabled])
 
     React.useEffect(() => {
+        // Determine which BGM should play based on current app state
         const liveQuizStates = ['ARMING', 'QUESTION', 'ANSWER_REVEAL', 'LEADERBOARD', 'ELIMINATION', 'ROUND_INTRO', 'TURN_INTRO', 'PICKER_PHASE', 'TIE_BREAKER', 'FAILSAFE_INTRO', 'WINNER', 'SESSION_END']
-        const isLiveQuiz = uiScreen === 'SIMULATION_CONSOLE' && liveQuizStates.includes(currentState)
-        const isWaitStage = uiScreen === 'SIMULATION_CONSOLE' && currentState === 'STANDBY'
+        const isInSimulation = uiScreen === 'SIMULATION_CONSOLE'
+        const isWaitStage = isInSimulation && currentState === 'STANDBY'
+        const isLiveQuiz = isInSimulation && liveQuizStates.includes(currentState)
 
-        if (isWaitStage && systemSettings.bgmEnabled) {
+        if (!systemSettings.bgmEnabled) {
+            // BGM disabled — stop everything
+            audioEngine.switchBgm(null)
+        } else if (isWaitStage) {
             // "The Wait" — between arming completion and Neural Link initialization
-            audioEngine.pauseMainBgm()
-            audioEngine.playBgm('theWait', true)
-        } else if (!isLiveQuiz && !isWaitStage && systemSettings.bgmEnabled) {
-            // Menu/holding screens — main background music
-            audioEngine.playMainBgm()
+            audioEngine.switchBgm('theWait', true)
+        } else if (isLiveQuiz) {
+            // Live quiz — silence (SFX only)
+            audioEngine.switchBgm(null)
         } else {
-            // Live quiz — silence
-            audioEngine.pauseMainBgm()
-            audioEngine.stopBgm()
+            // Menu/holding screens — main background music
+            audioEngine.switchBgm('mainBgm', true)
         }
     }, [currentState, uiScreen, systemSettings.bgmEnabled])
 

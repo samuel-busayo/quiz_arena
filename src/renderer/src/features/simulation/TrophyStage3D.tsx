@@ -13,7 +13,7 @@
  */
 import React, { useRef, useEffect, useMemo, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, Sparkles, useGLTF, Html, Environment } from '@react-three/drei'
+import { Float, Sparkles, useGLTF, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { useQuizStore } from '../../store/useQuizStore'
 
@@ -29,21 +29,6 @@ const easeOutElastic = (t: number) => {
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v))
 
-// ── ENV MAP INJECTOR ──────────────────────────────────────────────────────────
-function EnvSetup() {
-    const { gl, scene } = useThree()
-    useEffect(() => {
-        const pmrem = new THREE.PMREMGenerator(gl)
-        pmrem.compileEquirectangularShader()
-        const white = new THREE.DataTexture(new Uint8Array([255, 255, 240, 255]), 1, 1)
-        white.needsUpdate = true
-        const envRT = pmrem.fromEquirectangular(white)
-        scene.environment = envRT.texture
-        scene.environmentIntensity = 6.5
-        return () => { pmrem.dispose(); envRT.dispose(); white.dispose() }
-    }, [gl, scene])
-    return null
-}
 
 // ── TIMELINE STATE ─────────────────────────────────────────────────────────────
 interface RevealTimeline {
@@ -236,8 +221,10 @@ function ImportedTrophy({ timelineRef }: { timelineRef: React.MutableRefObject<R
                 const mesh = child as THREE.Mesh
                 const name = mesh.name.toLowerCase()
 
-                // Hide built-in bases/plates from the GLB
-                if (name.includes('base') || name.includes('plate') || name.includes('floor') || name.includes('stage') || name.includes('ground')) {
+                // Only hide meshes whose name is EXACTLY a base/floor keyword
+                // (avoid hiding trophy parts that merely contain those words e.g. 'base_cup')
+                const exactBaseNames = ['base', 'plate', 'floor', 'stage', 'ground', 'pedestal']
+                if (exactBaseNames.includes(name)) {
                     mesh.visible = false
                     return
                 }
@@ -470,9 +457,7 @@ function Scene() {
 
     return (
         <>
-            <EnvSetup />
-            <Environment preset="studio" />
-
+            {/* Local lighting only — no internet-dependent Environment preset */}
             {/* Foundational lighting */}
             <ambientLight intensity={0.6} />
             <directionalLight position={[4, 8, 4]} intensity={6} castShadow shadow-mapSize={[2048, 2048]} />

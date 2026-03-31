@@ -137,7 +137,7 @@ class QuizSimulationEngine {
                 break
             case 'STANDBY':
                 useQuizStore.getState().setUiOverlay(null)
-                audioEngine.playBgm('standbyAmbient')
+                // BGM is handled by the Projection window
                 break
             case 'TURN_INTRO':
                 useQuizStore.getState().setUiOverlay(null)
@@ -712,7 +712,7 @@ class QuizSimulationEngine {
     initializeSimulation() {
         useQuizStore.getState().setCurrentState('STANDBY')
         window.api.openProjector()
-        audioEngine.playBgm('standbyAmbient', true)
+        // BGM is handled by the Projection window
     }
 
     private pickNextRandomQuestion() {

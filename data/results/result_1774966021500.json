@@ -1,0 +1,63 @@
+{
+  "id": "1774966021500",
+  "date": "2026-03-31T14:07:01.500Z",
+  "setupSnapshot": {
+    "rounds": 1,
+    "takesPerRound": 1,
+    "timerSeconds": 30,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 10,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "",
+    "eventTheme": "",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "100_general_knowledge_mcq"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 0,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 10,
+      "isEliminated": false,
+      "lifelineRemaining": 2
+    }
+  ],
+  "roundsPlayed": 1,
+  "takesPerRound": 1,
+  "finalScores": {
+    "1": 0,
+    "2": 10
+  },
+  "eliminationOrder": [
+    "1"
+  ],
+  "winner": "2",
+  "questionStats": [
+    {
+      "questionId": "q1774545574485_2",
+      "teamId": "1",
+      "correct": false,
+      "timeUsed": 6
+    },
+    {
+      "questionId": "q1774545582055_2",
+      "teamId": "2",
+      "correct": true,
+      "timeUsed": 5
+    }
+  ]
+}

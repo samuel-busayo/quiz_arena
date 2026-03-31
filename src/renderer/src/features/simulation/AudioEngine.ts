@@ -3,6 +3,7 @@ import { Howl } from 'howler'
 // Import audio assets as Vite modules for proper URL resolution
 import mainBgmUrl from '../../assets/audio/main_background_music.mp3'
 import theWaitUrl from '../../assets/audio/the_wait.mp3'
+import winUrl from '../../assets/audio/win.mp3'
 
 class AudioEngine {
     private sounds: Record<string, Howl> = {}
@@ -21,16 +22,39 @@ class AudioEngine {
         this.load('leaderboard', 'src/renderer/src/assets/audio/leaderboard.mp3')
         this.load('elimination', 'src/renderer/src/assets/audio/elimination.mp3')
         this.load('winner', 'src/renderer/src/assets/audio/winner.mp3')
-        // BGM tracks use Vite-resolved URLs
-        this.load('mainBgm', mainBgmUrl)
-        this.load('theWait', theWaitUrl)
+        // BGM tracks use WebAudio (html5: false) — bypass Electron autoplay restrictions
+        this.loadBgm('mainBgm', mainBgmUrl)
+        this.loadBgm('theWait', theWaitUrl)
+        // Win cinematic — two looping segments via Howler sprites
+        // Sprite format: [offset_ms, duration_ms, loop]
+        this.sounds['winBgm'] = new Howl({
+            src: [winUrl],
+            html5: false,
+            sprite: {
+                intro: [0, 30000, true],   // Stages 1–3: loop 0:00–0:30
+                climax: [29000, 90000, true]    // Stages 4–5: loop 0:29→end (large dur clips to track end)
+            },
+            volume: this._masterVolume / 100,
+            onloaderror: (_id: any, err: any) => console.error('[AudioEngine] win load error:', err),
+            onplayerror: (_id: any, err: any) => console.error('[AudioEngine] win play error:', err)
+        })
     }
 
     private load(name: string, path: string) {
         this.sounds[name] = new Howl({
             src: [path],
-            html5: true,
+            html5: true,   // HTML5 for SFX — lower memory for short clips
             volume: this._masterVolume / 100
+        })
+    }
+
+    private loadBgm(name: string, path: string) {
+        this.sounds[name] = new Howl({
+            src: [path],
+            html5: false,  // WebAudio for BGM — bypasses Electron autoplay restrictions
+            volume: this._masterVolume / 100,
+            onloaderror: (_id: any, err: any) => console.error(`[AudioEngine] Failed to load BGM "${name}":`, err),
+            onplayerror: (_id: any, err: any) => console.error(`[AudioEngine] Failed to play BGM "${name}":`, err)
         })
     }
 
@@ -58,16 +82,19 @@ class AudioEngine {
     // --- Unified BGM control ---
     // Single entry point for all BGM transitions. Handles:
     //   - Same track already playing → no-op (volume update only)
+    //   - Same track paused → resume with fade-in
     //   - Different track → crossfade old out, new in
-    //   - null → fade out and stop current
+    //   - null → fade out and PAUSE current (keeps it ready for quick resume)
 
     switchBgm(name: string | null, loop: boolean = true) {
-        // Request silence
+        // Request silence — PAUSE (not stop) so track resumes instantly next time
         if (!name) {
-            if (this.currentBgm) {
-                this.currentBgm.fade(this.currentBgm.volume(), 0, 800)
+            if (this.currentBgm && this.currentBgm.playing()) {
                 const oldBgm = this.currentBgm
-                setTimeout(() => oldBgm.stop(), 850)
+                oldBgm.fade(oldBgm.volume(), 0, 800)
+                setTimeout(() => {
+                    if (oldBgm.playing()) oldBgm.pause()
+                }, 850)
                 this.currentBgm = null
                 this.currentBgmName = null
             }
@@ -82,26 +109,35 @@ class AudioEngine {
             if (nextBgm.playing()) {
                 nextBgm.volume(this._masterVolume / 100)
             } else {
-                // Was paused (e.g. by a previous transition) — resume
-                nextBgm.volume(this._masterVolume / 100)
+                // Was paused — resume with fade-in
                 nextBgm.play()
+                nextBgm.fade(nextBgm.volume(), this._masterVolume / 100, 800)
             }
             return
         }
 
-        // Different track — fade out old, start new
+        // Different track — fade out old (pause it, keep position), start new
         if (this.currentBgm) {
-            this.currentBgm.fade(this.currentBgm.volume(), 0, 500)
             const oldBgm = this.currentBgm
-            setTimeout(() => oldBgm.stop(), 550)
+            oldBgm.fade(oldBgm.volume(), 0, 500)
+            setTimeout(() => {
+                if (oldBgm.playing()) oldBgm.pause()
+            }, 550)
         }
 
         this.currentBgm = nextBgm
         this.currentBgmName = name
         nextBgm.loop(loop)
-        nextBgm.volume(0)
-        nextBgm.play()
-        nextBgm.fade(0, this._masterVolume / 100, 1000)
+
+        if (nextBgm.playing()) {
+            // Already playing (e.g. looping) — just fade up
+            nextBgm.fade(nextBgm.volume(), this._masterVolume / 100, 800)
+        } else {
+            // Start or resume from where it was paused
+            nextBgm.volume(0)
+            nextBgm.play()
+            nextBgm.fade(0, this._masterVolume / 100, 1000)
+        }
     }
 
     // --- Convenience aliases ---
@@ -116,6 +152,43 @@ class AudioEngine {
 
     playMainBgm() {
         this.switchBgm('mainBgm', true)
+    }
+
+    // --- Win Cinematic Sprite Methods ---
+
+    playWinIntro() {
+        // Stop any currently playing BGM first
+        this.switchBgm(null)
+        const win = this.sounds['winBgm']
+        if (!win) return
+        if (win.playing()) win.stop()
+        win.volume(this._masterVolume / 100)
+        win.play('intro') // Loops 0:00–0:30
+    }
+
+    playWinClimax() {
+        const win = this.sounds['winBgm']
+        if (!win) return
+        if (win.playing()) {
+            // Already on intro — crossfade into climax
+            win.fade(win.volume(), 0, 400)
+            setTimeout(() => {
+                win.stop()
+                win.volume(this._masterVolume / 100)
+                win.play('climax') // Loops 0:29–end
+            }, 450)
+        } else {
+            win.volume(this._masterVolume / 100)
+            win.play('climax')
+        }
+    }
+
+    stopWinBgm() {
+        const win = this.sounds['winBgm']
+        if (win && win.playing()) {
+            win.fade(win.volume(), 0, 600)
+            setTimeout(() => win.stop(), 650)
+        }
     }
 
     pauseMainBgm() {
