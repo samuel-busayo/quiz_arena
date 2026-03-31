@@ -6,10 +6,10 @@ import { TvPanel } from '../../components/ui/TvPanel'
 import { SoundSettingsModal } from '../../components/ui/SoundSettingsModal'
 import { Database, Play, Settings, History, HelpCircle, Volume2 } from 'lucide-react'
 import { useQuizStore } from '../../store/useQuizStore'
-import logo from '../../assets/tvi-logo.png'
+import logo from '../../assets/ct_logo.png'
 
 export function CommandCenterScreen() {
-    const { setUiScreen, loadSession, hasSavedSession } = useQuizStore()
+    const { setUiScreen, loadSession, hasSavedSession, systemSettings } = useQuizStore()
     const [isSoundSettingsOpen, setIsSoundSettingsOpen] = React.useState(false)
 
     return (
@@ -22,7 +22,10 @@ export function CommandCenterScreen() {
 
                 <div className="text-center">
                     <TvText variant="h1" className="text-3xl lg:text-4xl tracking-[0.2em] uppercase font-black italic">
-                        TechVerse Quiz Arena
+                        {systemSettings?.organizationName || 'Coordi.Tech'} Quiz Arena
+                    </TvText>
+                    <TvText variant="muted" className="text-[10px] mt-2 tracking-widest uppercase opacity-80 block text-tv-accent text-center w-full">
+                        Powered by Coordi.Tech
                     </TvText>
                 </div>
 

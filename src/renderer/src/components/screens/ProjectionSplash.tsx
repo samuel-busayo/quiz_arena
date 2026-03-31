@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { TvText } from '../../components/ui/TvText'
-import logo from '../../assets/tvi-logo.png'
+import logo from '../../assets/ct_logo.png'
 
 import { useQuizStore } from '../../store/useQuizStore'
 

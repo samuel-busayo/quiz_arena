@@ -13,7 +13,7 @@ export function Walkthrough({ onComplete }: WalkthroughProps) {
     const steps = [
         {
             title: "Welcome to the Arena",
-            description: "TechVerse Quiz Arena is a professional-grade competition software designed for high-stakes school events.",
+            description: "Coordi.Tech Quiz Arena is a professional-grade competition software designed for high-stakes school events.",
             icon: <Award className="w-16 h-16 text-primary-accent" />,
             color: "text-primary-accent"
         },

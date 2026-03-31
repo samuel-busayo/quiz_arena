@@ -71,6 +71,10 @@ export function ProjectionScreen() {
     }, [systemSettings.sfxEnabled])
 
     React.useEffect(() => {
+        audioEngine.setSfxVolume(systemSettings.sfxVolume)
+    }, [systemSettings.sfxVolume])
+
+    React.useEffect(() => {
         // Determine which BGM should play based on current app state
         const liveQuizStates = ['ARMING', 'QUESTION', 'ANSWER_REVEAL', 'LEADERBOARD', 'ELIMINATION', 'ROUND_INTRO', 'TURN_INTRO', 'PICKER_PHASE', 'TIE_BREAKER', 'FAILSAFE_INTRO', 'WINNER', 'SESSION_END']
         const isInSimulation = uiScreen === 'SIMULATION_CONSOLE'
@@ -84,8 +88,8 @@ export function ProjectionScreen() {
             // "The Wait" — between arming completion and Neural Link initialization
             audioEngine.switchBgm('theWait', true)
         } else if (isLiveQuiz) {
-            // Live quiz — silence (SFX only)
-            audioEngine.switchBgm(null)
+            // Live quiz — Play the futuristic intro BGM
+            audioEngine.switchBgm('liveQuizBgm', true)
         } else {
             // Menu/holding screens — main background music
             audioEngine.switchBgm('mainBgm', true)
@@ -100,6 +104,73 @@ export function ProjectionScreen() {
             return () => clearTimeout(timer)
         }
     }, [currentState])
+
+    // --- SFX Triggers ---
+
+    // 1. Question Reveal
+    React.useEffect(() => {
+        if (currentState === 'QUESTION' && currentQuestion) {
+            audioEngine.playSfx('questionWhoosh')
+        }
+    }, [currentState, currentQuestion?.id])
+
+    // 2. Timer SFX (Continuous Loop)
+    React.useEffect(() => {
+        if (currentState === 'QUESTION' && timerRemaining > 0) {
+            audioEngine.playTimerLoop()
+        } else if (timerRemaining === 0 || currentState !== 'QUESTION') {
+            audioEngine.stopSfx('countdown16s')
+        }
+    }, [currentState, timerRemaining])
+
+    // 3. Option Section & Question Picker
+    React.useEffect(() => {
+        // We assume "Pick a number mode" matches the 'PICKER_PHASE'
+        if (currentState === 'PICKER_PHASE') {
+            // We could play it on entry, or every time a number is picked.
+            // The user said "Option Section & Question Picker [pick a number mode] - question_select_sfx".
+            // Since this is just Projection, maybe just play it when we enter picker phase,
+            // or when a selection is made? Since projection just shows what admin clicks, 
+            // "question_select_sfx" might be better triggered whenever the admin selects an option or a picker number.
+            // Let's hook into `selectedOption` changes.
+        }
+    }, [currentState])
+
+    // Detect option selection (in QUESTION state) or picker selection (in PICKER_PHASE)
+    React.useEffect(() => {
+        if ((currentState === 'QUESTION' && selectedOption) || currentState === 'PICKER_PHASE') {
+            // Played on option selection in question or on picker phase 
+            // Better to trigger it via admin console, but here we can just play it if selectedOption changes
+            if (selectedOption && !isConfirming && currentState === 'QUESTION') {
+                audioEngine.playSfx('questionSelect')
+            }
+        }
+    }, [selectedOption, currentState, isConfirming])
+
+    // 4. Final Answer? (Heartbeat)
+    React.useEffect(() => {
+        if (isConfirming) {
+            audioEngine.playSfx('heartbeat')
+        } else {
+            audioEngine.stopSfx('heartbeat')
+        }
+    }, [isConfirming])
+
+    // 5 & 6. Answer Reveal (Wrong / Correct)
+    React.useEffect(() => {
+        if (currentState === 'ANSWER_REVEAL' && currentQuestion) {
+            audioEngine.stopSfx('countdown16s')
+            audioEngine.stopSfx('heartbeat')
+
+            // Check if the selected option is correct
+            // If they didn't select an option, maybe it timed out? Play wrong anyway, or nothing?
+            if (selectedOption === currentQuestion.answer) {
+                audioEngine.playSfx('correctAnswer')
+            } else {
+                audioEngine.playSfx('buzzer')
+            }
+        }
+    }, [currentState, currentQuestion?.id, currentQuestion?.answer, selectedOption])
 
     const renderScreen = () => {
         if (currentState === 'TIE_BREAKER') {

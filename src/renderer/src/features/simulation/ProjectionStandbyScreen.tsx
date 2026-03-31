@@ -40,7 +40,7 @@ const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
 }
 
 export function ProjectionStandbyScreen() {
-    const { teams, config, setupDraft, currentState } = useQuizStore()
+    const { teams, config, setupDraft, currentState, systemSettings } = useQuizStore()
 
     // Fallback to setupDraft if config isn't fully locked yet
     const activeConfig = config || setupDraft.config
@@ -110,11 +110,11 @@ export function ProjectionStandbyScreen() {
                 transition={{ duration: 1.5, ease: "easeOut" }}
             >
                 <TvText variant="label" className="text-[clamp(1rem,1.5vw,2rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70">
-                    TECHVERSE QUIZ ARENA PRESENTS...
+                    {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'} QUIZ ARENA PRESENTS...
                 </TvText>
 
                 <TvText variant="h1" className="text-[clamp(3.5rem,8vw,10rem)] font-black uppercase text-white drop-shadow-glow leading-none mb-[2vh]">
-                    {activeConfig?.eventName || 'TECHVERSE BATTLE'}
+                    {activeConfig?.eventName || 'COORDI.TECH BATTLE'}
                 </TvText>
 
                 <div className="h-[2px] bg-tv-accent/50 w-[30vw] mb-[3vh] shadow-glow" />

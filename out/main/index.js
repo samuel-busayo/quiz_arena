@@ -227,7 +227,7 @@ function createAdminWindow() {
     height: 800,
     show: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, "../../src/renderer/src/assets/tvi-logo.png"),
+    icon: path.join(__dirname, "../../src/renderer/src/assets/ct_logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -248,7 +248,7 @@ function createAdminWindow() {
   }
 }
 electron.app.whenReady().then(() => {
-  electronApp.setAppUserModelId("com.techverse.quizarena");
+  electronApp.setAppUserModelId("com.coorditech.quizarena");
   electron.app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
@@ -351,7 +351,7 @@ electron.app.whenReady().then(() => {
   electron.ipcMain.on("update-quiz-state", (_, state) => {
     projectionWindowManager.sendState(state);
   });
-  const sessionsPath = path.join(electron.app.getPath("documents"), "TechVerseQuizArena", "sessions");
+  const sessionsPath = path.join(electron.app.getPath("documents"), "CoordiTechQuizArena", "sessions");
   require("fs/promises").mkdir(sessionsPath, { recursive: true }).catch(console.error);
   let saveQueue = Promise.resolve(true);
   electron.ipcMain.handle("save-session", async (_, session) => {

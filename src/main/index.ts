@@ -18,7 +18,7 @@ function createAdminWindow(): void {
         height: 800,
         show: false,
         autoHideMenuBar: true,
-        icon: join(__dirname, '../../src/renderer/src/assets/tvi-logo.png'),
+        icon: join(__dirname, '../../src/renderer/src/assets/ct_logo.png'),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false,
@@ -43,7 +43,7 @@ function createAdminWindow(): void {
 }
 
 app.whenReady().then(() => {
-    electronApp.setAppUserModelId('com.techverse.quizarena')
+    electronApp.setAppUserModelId('com.coorditech.quizarena')
 
     app.on('browser-window-created', (_, window) => {
         optimizer.watchWindowShortcuts(window)
@@ -167,7 +167,7 @@ app.whenReady().then(() => {
     })
 
     // Offline Session Persistence
-    const sessionsPath = join(app.getPath('documents'), 'TechVerseQuizArena', 'sessions')
+    const sessionsPath = join(app.getPath('documents'), 'CoordiTechQuizArena', 'sessions')
     require('fs/promises').mkdir(sessionsPath, { recursive: true }).catch(console.error)
 
     // Serial Save Queue to prevent IO race conditions

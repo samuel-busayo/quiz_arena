@@ -4,6 +4,7 @@ import { useQuizStore } from '../../store/useQuizStore'
 import { simulationEngine } from './QuizSimulationEngine'
 import { TvText } from '../../components/ui/TvText'
 import { cn } from '../../utils/cn'
+import { audioEngine } from './AudioEngine'
 
 export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => {
     const {
@@ -58,6 +59,7 @@ export const PickNumberGrid: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) => 
             }
 
             if (newCursor !== selectionCursor) {
+                audioEngine.playSfx('questionSelect')
                 setSelectionCursor(newCursor)
             }
         }

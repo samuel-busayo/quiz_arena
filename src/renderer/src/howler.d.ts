@@ -11,6 +11,7 @@ declare module 'howler' {
         fade(from: number, to: number, duration: number): void;
         loop(val?: boolean): void;
         playing(): boolean;
+        seek(seek: number, id?: number): this;
     }
 }
 

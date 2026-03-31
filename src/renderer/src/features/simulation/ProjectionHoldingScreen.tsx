@@ -12,7 +12,7 @@ const STATUS_MESSAGES = [
 ]
 
 export function ProjectionHoldingScreen() {
-    const { config, teams, questions } = useQuizStore()
+    const { config, teams, questions, systemSettings } = useQuizStore()
     const [msgIndex, setMsgIndex] = useState(0)
 
     useEffect(() => {
@@ -74,8 +74,11 @@ export function ProjectionHoldingScreen() {
                         transition={{ duration: 4, repeat: Infinity }}
                         className="font-display font-black tracking-[0.4em] text-[clamp(2.5rem,6vw,5.5rem)] text-white/90 uppercase"
                     >
-                        TECHVERSE<br />QUIZ ARENA
+                        {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'}<br />QUIZ ARENA
                     </motion.div>
+                    <TvText variant="muted" className="text-[clamp(0.6rem,1vw,0.8rem)] mt-2 tracking-widest uppercase opacity-80 block text-tv-accent text-center w-full">
+                        Powered by Coordi.Tech
+                    </TvText>
                 </motion.div>
 
                 {/* ANIMATED STATUS LINE */}

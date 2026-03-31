@@ -2,7 +2,7 @@ import React from 'react'
 import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
-import { ArrowLeft, Volume2, Moon, Sun, Trash2, RotateCcw, Zap } from 'lucide-react'
+import { ArrowLeft, Volume2, Moon, Sun, Trash2, RotateCcw, Zap, Briefcase } from 'lucide-react'
 import { useQuizStore } from '../../store/useQuizStore'
 
 export function SettingsScreen() {
@@ -34,6 +34,30 @@ export function SettingsScreen() {
             </div>
 
             <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar pb-24 space-y-8">
+                {/* Branding Settings */}
+                <section className="space-y-4">
+                    <div className="flex items-center gap-3 text-tv-accent">
+                        <Briefcase size={20} />
+                        <TvText variant="h3">Organization & Branding</TvText>
+                    </div>
+                    <TvCard className="p-6 space-y-6 bg-tv-panel/30">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <TvText variant="body" className="font-bold">Organization Name</TvText>
+                                <TvText variant="muted" className="text-xs">Customize the primary application title</TvText>
+                            </div>
+                            <input
+                                type="text"
+                                maxLength={30}
+                                value={systemSettings?.organizationName || ''}
+                                onChange={(e) => updateSystemSettings({ organizationName: e.target.value })}
+                                className="w-64 bg-tv-bg border border-tv-border text-tv-textPrimary text-sm rounded p-2 focus:border-tv-accent focus:outline-none"
+                                placeholder="Enter organization name"
+                            />
+                        </div>
+                    </TvCard>
+                </section>
+
                 {/* Audio Settings */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-3 text-tv-accent">
@@ -43,7 +67,7 @@ export function SettingsScreen() {
                     <TvCard className="p-6 space-y-6 bg-tv-panel/30">
                         <div className="flex items-center justify-between">
                             <div>
-                                <TvText variant="body" className="font-bold">Master Volume</TvText>
+                                <TvText variant="body" className="font-bold">Master (BGM) Volume</TvText>
                                 <TvText variant="muted" className="text-xs">Adjust the overall sound intensity</TvText>
                             </div>
                             <div className="flex items-center gap-4">
@@ -54,6 +78,24 @@ export function SettingsScreen() {
                                     max="100"
                                     value={systemSettings.volume}
                                     onChange={(e) => updateSystemSettings({ volume: parseInt(e.target.value) })}
+                                    className="w-48 accent-tv-accent cursor-pointer"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <TvText variant="body" className="font-bold">SFX Volume</TvText>
+                                <TvText variant="muted" className="text-xs">Adjust the intensity of sound effects</TvText>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <span className="text-xs font-mono text-tv-accent w-8 text-right">{systemSettings.sfxVolume}%</span>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={systemSettings.sfxVolume}
+                                    onChange={(e) => updateSystemSettings({ sfxVolume: parseInt(e.target.value) })}
                                     className="w-48 accent-tv-accent cursor-pointer"
                                 />
                             </div>

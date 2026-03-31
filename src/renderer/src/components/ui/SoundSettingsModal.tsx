@@ -18,6 +18,10 @@ export function SoundSettingsModal({
         updateSystemSettings({ volume: parseInt(e.target.value) })
     }
 
+    const handleSfxVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateSystemSettings({ sfxVolume: parseInt(e.target.value) })
+    }
+
     const toggleBgm = () => {
         updateSystemSettings({ bgmEnabled: !systemSettings.bgmEnabled })
     }
@@ -58,7 +62,7 @@ export function SoundSettingsModal({
                             <div className="space-y-3">
                                 <div className="flex justify-between">
                                     <TvText variant="label" className="text-xs tracking-widest uppercase text-tv-textMuted">
-                                        Master Volume
+                                        Master (BGM) Volume
                                     </TvText>
                                     <TvText variant="label" className="text-xs text-tv-accent">
                                         {systemSettings.volume}%
@@ -72,6 +76,32 @@ export function SoundSettingsModal({
                                         max="100"
                                         value={systemSettings.volume}
                                         onChange={handleVolumeChange}
+                                        className="w-full h-2 bg-tv-border rounded-lg appearance-none cursor-pointer accent-tv-accent"
+                                    />
+                                    <Volume2 size={18} className="text-tv-textMuted" />
+                                </div>
+                            </div>
+
+                            <div className="h-[1px] w-full bg-tv-border/50" />
+
+                            {/* SFX Volume */}
+                            <div className="space-y-3">
+                                <div className="flex justify-between">
+                                    <TvText variant="label" className="text-xs tracking-widest uppercase text-tv-textMuted">
+                                        SFX Volume
+                                    </TvText>
+                                    <TvText variant="label" className="text-xs text-tv-accent">
+                                        {systemSettings.sfxVolume}%
+                                    </TvText>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <VolumeX size={18} className="text-tv-textMuted" />
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={systemSettings.sfxVolume}
+                                        onChange={handleSfxVolumeChange}
                                         className="w-full h-2 bg-tv-border rounded-lg appearance-none cursor-pointer accent-tv-accent"
                                     />
                                     <Volume2 size={18} className="text-tv-textMuted" />

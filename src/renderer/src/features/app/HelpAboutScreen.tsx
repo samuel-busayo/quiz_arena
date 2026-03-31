@@ -7,7 +7,7 @@ import { ArrowLeft, Book, Keyboard, Cpu, Info, ShieldCheck, Zap, ExternalLink, G
 import { useQuizStore } from '../../store/useQuizStore'
 
 export function HelpAboutScreen() {
-    const { setUiScreen } = useQuizStore()
+    const { setUiScreen, systemSettings } = useQuizStore()
     const [version, setVersion] = useState('v1.0.0')
 
     useEffect(() => {
@@ -54,7 +54,6 @@ export function HelpAboutScreen() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <KeyShortcut k="Space" action="Pause/Resume Simulation" />
-                            <KeyShortcut k="Escape" action="Emergency Reset Sequence" />
                             <KeyShortcut k="Tab" action="Cycle Active Team (Manual Override)" />
                             <KeyShortcut k="M" action="Toggle Audio Engine" />
                             <KeyShortcut k="F11" action="Toggle Fullscreen Immersive Mode" />
@@ -67,7 +66,7 @@ export function HelpAboutScreen() {
                             <TvText variant="h3">System Integrity</TvText>
                         </div>
                         <TvText variant="muted" className="leading-relaxed">
-                            TechVerse Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors.
+                            {systemSettings?.organizationName || 'Coordi.Tech'} Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors.
                             The system uses a 3-layer architecture for 100% logic separation between Host and Participants.
                             Ensure the Projector window is launched second for optimal HDMI synchronization.
                         </TvText>
@@ -99,19 +98,24 @@ export function HelpAboutScreen() {
                         <div className="space-y-6">
                             <DevItem
                                 name="Olatunbosun Samuel Busayo"
-                                role="Fullstack Web Developer & Software Engineer"
+                                role="CTO @ Coordi.Tech"
+                                title="Fullstack Web Developer & Software Engineer"
                                 link="https://www.linkedin.com/in/samuel-busayo-1b5b68237/"
                             />
                             <DevItem
                                 name="Biose Peter John"
-                                role="Fullstack Web-Developer & Software Engineer"
+                                role="CTO @ BioLab"
+                                title="Fullstack Web-Developer & Software Engineer"
                                 link="#"
                             />
                         </div>
 
                         <div className="pt-4 border-t border-tv-border/20">
                             <TvText variant="muted" className="text-[10px] opacity-60 text-center block">
-                                TechVerse Quiz Arena // Futuristic Quiz App
+                                {systemSettings?.organizationName || 'Coordi.Tech'} Quiz Arena // Futuristic Quiz App
+                            </TvText>
+                            <TvText variant="muted" className="text-[10px] opacity-80 text-center block mt-1 uppercase text-tv-accent">
+                                Powered by Coordi.Tech
                             </TvText>
                         </div>
                     </TvPanel>
@@ -155,11 +159,12 @@ function TechItem({ label, val }: { label: string, val: string }) {
     )
 }
 
-function DevItem({ name, role, link }: { name: string, role: string, link: string }) {
+function DevItem({ name, role, title, link }: { name: string, role: string, title?: string, link: string }) {
     return (
         <div className="space-y-1">
             <TvText variant="body" className="font-bold text-sm text-tv-textPrimary">{name}</TvText>
-            <TvText variant="muted" className="text-[10px] block opacity-70 leading-tight">{role}</TvText>
+            <TvText variant="muted" className="text-[12px] block text-tv-accent leading-tight">{role}</TvText>
+            {title && <TvText variant="muted" className="text-[10px] block opacity-70 leading-tight mb-1">{title}</TvText>}
             <a
                 href={link}
                 target="_blank"

@@ -85,8 +85,10 @@ export interface QuizConfig {
 }
 
 export interface SystemSettings {
+    organizationName: string
     theme: 'dark' | 'light' | 'glossy'
     volume: number
+    sfxVolume: number
     sfxEnabled: boolean
     bgmEnabled: boolean
     particleDensity: 'low' | 'balanced' | 'high'
@@ -212,8 +214,10 @@ export const useQuizStore = create<QuizStore>()(
             isPaused: false,
             questionQueue: [],
             systemSettings: {
+                organizationName: 'Coordi.Tech',
                 theme: 'dark',
                 volume: 50,
+                sfxVolume: 100,
                 sfxEnabled: true,
                 bgmEnabled: true,
                 particleDensity: 'balanced'
@@ -637,7 +641,7 @@ export const useQuizStore = create<QuizStore>()(
             }
         }),
         {
-            name: 'techverse-quiz-session',
+            name: 'coorditech-quiz-session', // Rebranded local storage key
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 currentState: state.currentState,

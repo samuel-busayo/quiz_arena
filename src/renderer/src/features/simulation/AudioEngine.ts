@@ -5,26 +5,35 @@ import mainBgmUrl from '../../assets/audio/main_background_music.mp3'
 import theWaitUrl from '../../assets/audio/the_wait.mp3'
 import winUrl from '../../assets/audio/win.mp3'
 
+// New SFX & BGM for live quiz
+import questionWhooshUrl from '../../assets/audio/question_whoosh_sfx.mp3'
+import questionSelectUrl from '../../assets/audio/question_select_sfx.mp3'
+import countdown16sUrl from '../../assets/audio/countdown_sfx_16sec.mp3'
+import heartbeatUrl from '../../assets/audio/heartbeat_sfx.mp3'
+import buzzerUrl from '../../assets/audio/buzzer_sfx.mp3'
+import correctAnswerUrl from '../../assets/audio/correct_answer_sfx.mp3'
+import liveQuizBgmUrl from '../../assets/audio/intro-futuristic.mp3'
+
 class AudioEngine {
     private sounds: Record<string, Howl> = {}
     private currentBgm: Howl | null = null
     private currentBgmName: string | null = null
     private _masterVolume: number = 50
+    private _sfxVolume: number = 100
     private _sfxEnabled: boolean = true
 
     constructor() {
-        // Preload sounds (placeholder paths for SFX - these files may not exist yet)
-        this.load('standbyAmbient', 'src/renderer/src/assets/audio/standbyAmbient.mp3')
-        this.load('bassHit', 'src/renderer/src/assets/audio/bassHit.mp3')
-        this.load('countdown', 'src/renderer/src/assets/audio/countdown.mp3')
-        this.load('correct', 'src/renderer/src/assets/audio/correct.mp3')
-        this.load('wrong', 'src/renderer/src/assets/audio/wrong.mp3')
-        this.load('leaderboard', 'src/renderer/src/assets/audio/leaderboard.mp3')
-        this.load('elimination', 'src/renderer/src/assets/audio/elimination.mp3')
-        this.load('winner', 'src/renderer/src/assets/audio/winner.mp3')
+        // Load new SFX
+        this.load('questionWhoosh', questionWhooshUrl)
+        this.load('questionSelect', questionSelectUrl)
+        this.load('countdown16s', countdown16sUrl)
+        this.load('heartbeat', heartbeatUrl)
+        this.load('buzzer', buzzerUrl)
+        this.load('correctAnswer', correctAnswerUrl)
         // BGM tracks use WebAudio (html5: false) — bypass Electron autoplay restrictions
         this.loadBgm('mainBgm', mainBgmUrl)
         this.loadBgm('theWait', theWaitUrl)
+        this.loadBgm('liveQuizBgm', liveQuizBgmUrl)
         // Win cinematic — two looping segments via Howler sprites
         // Sprite format: [offset_ms, duration_ms, loop]
         this.sounds['winBgm'] = new Howl({
@@ -67,16 +76,46 @@ class AudioEngine {
     setMasterVolume(volume: number) {
         this._masterVolume = volume
         if (this.currentBgm && this.currentBgm.playing()) {
-            this.currentBgm.volume(volume / 100)
+            const targetVol = this.currentBgmName === 'liveQuizBgm' ? (volume / 100) * 0.4 : volume / 100
+            this.currentBgm.volume(targetVol)
+        }
+    }
+
+    setSfxVolume(volume: number) {
+        this._sfxVolume = volume
+        const timerSound = this.sounds['countdown16s']
+        if (timerSound && timerSound.playing()) {
+            timerSound.volume((this._masterVolume / 100) * (this._sfxVolume / 100))
         }
     }
 
     playSfx(name: string) {
         if (!this._sfxEnabled) return
         if (this.sounds[name]) {
-            this.sounds[name].volume(this._masterVolume / 100)
+            this.sounds[name].volume((this._masterVolume / 100) * (this._sfxVolume / 100))
             this.sounds[name].play()
         }
+    }
+
+    stopSfx(name: string) {
+        if (this.sounds[name] && this.sounds[name].playing()) {
+            this.sounds[name].stop()
+        }
+    }
+
+    // --- Continuous Timer Loop Logic ---
+    // Start the timer loop. It will loop indefinitely until stopped.
+    playTimerLoop() {
+        if (!this._sfxEnabled) return
+        const sound = this.sounds['countdown16s']
+        if (!sound) return
+
+        // If already playing, let it continue uninterrupted
+        if (sound.playing()) return
+
+        sound.loop(true)
+        sound.volume((this._masterVolume / 100) * (this._sfxVolume / 100))
+        sound.play()
     }
 
     // --- Unified BGM control ---
@@ -131,12 +170,14 @@ class AudioEngine {
 
         if (nextBgm.playing()) {
             // Already playing (e.g. looping) — just fade up
-            nextBgm.fade(nextBgm.volume(), this._masterVolume / 100, 800)
+            const targetVol = name === 'liveQuizBgm' ? (this._masterVolume / 100) * 0.4 : this._masterVolume / 100
+            nextBgm.fade(nextBgm.volume(), targetVol, 800)
         } else {
             // Start or resume from where it was paused
             nextBgm.volume(0)
             nextBgm.play()
-            nextBgm.fade(0, this._masterVolume / 100, 1000)
+            const targetVol = name === 'liveQuizBgm' ? (this._masterVolume / 100) * 0.4 : this._masterVolume / 100
+            nextBgm.fade(0, targetVol, 1000)
         }
     }
 

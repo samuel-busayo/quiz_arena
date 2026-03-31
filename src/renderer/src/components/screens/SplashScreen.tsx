@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useQuizStore } from '../../store/useQuizStore'
 
 interface SplashScreenProps {
     onFinish: () => void
@@ -8,6 +9,7 @@ interface SplashScreenProps {
 export function SplashScreen({ onFinish }: SplashScreenProps) {
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState('Initializing System...')
+    const { systemSettings } = useQuizStore()
 
     useEffect(() => {
         const statuses = [
@@ -41,8 +43,8 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
         <div className="h-screen w-screen bg-primary-bg flex flex-col items-center justify-center p-8">
             <div className="relative">
                 {/* Animated logo/title */}
-                <h1 className="text-8xl font-orbitron text-primary-accent tracking-[0.3em] font-bold drop-shadow-[0_0_20px_rgba(0,229,255,0.4)]">
-                    TECHVERSE
+                <h1 className="text-8xl font-orbitron text-primary-accent tracking-[0.3em] font-bold drop-shadow-[0_0_20px_rgba(0,229,255,0.4)] uppercase">
+                    {systemSettings?.organizationName || 'COORDI.TECH'}
                 </h1>
                 <div className="flex items-center justify-between mt-2">
                     <span className="h-[1px] bg-primary-accent/30 flex-1 mr-4"></span>

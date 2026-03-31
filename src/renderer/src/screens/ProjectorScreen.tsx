@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 
 export function ProjectorScreen() {
-    const { currentState, currentQuestion, teams, currentTeamId, timerRemaining } = useQuizStore()
+    const { currentState, currentQuestion, teams, currentTeamId, timerRemaining, systemSettings } = useQuizStore()
     const activeTeam = teams.find(t => t.id === currentTeamId)
 
     useEffect(() => {
@@ -37,10 +37,13 @@ export function ProjectorScreen() {
                         key="idle"
                     >
                         <h1 className="text-[12rem] font-orbitron text-[#00E5FF] mb-4 tracking-[0.3em] font-black drop-shadow-[0_0_50px_rgba(0,229,255,0.8)]">
-                            TECHVERSE
+                            {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'}
                         </h1>
                         <p className="text-4xl font-rajdhani text-white/40 tracking-[1.5em] uppercase font-bold">
                             // Neural Simulation Arena //
+                        </p>
+                        <p className="text-xl font-rajdhani text-[#00E5FF]/80 tracking-[0.5em] mt-8 uppercase text-center w-full">
+                            Powered by Coordi.Tech
                         </p>
                     </motion.div>
                 )}
@@ -191,7 +194,7 @@ export function ProjectorScreen() {
                                 >
                                     <TechCard className="p-24 border-8 bg-white/5 backdrop-blur-3xl" style={{ borderColor: winner.color }} glow>
                                         <h3 className="text-9xl font-orbitron mb-8 font-black tracking-widest" style={{ color: winner.color, textShadow: `0 0 50px ${winner.color}88` }}>{winner.name}</h3>
-                                        <p className="text-5xl font-rajdhani text-white/50 tracking-[1.5em] uppercase font-bold">Champion of TechVerse</p>
+                                        <p className="text-5xl font-rajdhani text-white/50 tracking-[1.5em] uppercase font-bold">Champion of {systemSettings?.organizationName || 'Coordi.Tech'}</p>
                                     </TechCard>
                                 </motion.div>
                             )

@@ -1,5 +1,6 @@
 import { TechButton } from '../ui/TechButton'
 import { Volume2, VolumeX, Maximize, Minimize, Settings } from 'lucide-react'
+import { useQuizStore } from '../../store/useQuizStore'
 
 interface TechLayoutProps {
     children: React.ReactNode
@@ -8,6 +9,8 @@ interface TechLayoutProps {
 }
 
 export function TechLayout({ children, title, view }: TechLayoutProps) {
+    const { systemSettings } = useQuizStore()
+
     return (
         <div className="min-h-screen w-full bg-primary-bg flex flex-col overflow-hidden select-none">
             {/* Header */}
@@ -17,7 +20,7 @@ export function TechLayout({ children, title, view }: TechLayoutProps) {
                         <span className="font-orbitron text-primary-bg font-bold">TV</span>
                     </div>
                     <div>
-                        <h1 className="font-orbitron text-lg tracking-widest text-primary-accent leading-none">TECHVERSE</h1>
+                        <h1 className="font-orbitron text-lg tracking-widest text-primary-accent leading-none">{systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'}</h1>
                         <p className="font-rajdhani text-xs text-primary-secondary uppercase tracking-tighter">Quiz Arena v1.0</p>
                     </div>
                 </div>
@@ -61,7 +64,7 @@ export function TechLayout({ children, title, view }: TechLayoutProps) {
                     <span>Screens: 2 Detected</span>
                 </div>
                 <div>
-                    &copy; 2026 TechVerse Education
+                    &copy; 2026 {systemSettings?.organizationName || 'Coordi.Tech'} Education
                 </div>
             </footer>
         </div>

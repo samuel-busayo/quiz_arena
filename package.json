@@ -1,10 +1,10 @@
 {
-    "name": "techverse-quiz-arena",
-    "productName": "TechVerse Quiz Arena",
-    "version": "1.0.31",
+    "name": "coorditech-quiz-arena",
+    "productName": "Coordi.Tech Quiz Arena",
+    "version": "1.0.32",
     "description": "Professional Dual-Screen Quiz Competition Software",
     "main": "out/main/index.js",
-    "author": "Antigravity <support@techverse.com>",
+    "author": "Antigravity <support@coorditech.com>",
     "scripts": {
         "dev": "electron-vite dev",
         "build": "electron-vite build",
@@ -15,8 +15,8 @@
         "version:bump": "node scripts/version-bump.js"
     },
     "build": {
-        "appId": "com.techverse.quizarena",
-        "productName": "TechVerse Quiz Arena",
+        "appId": "com.coorditech.quizarena",
+        "productName": "Coordi.Tech Quiz Arena",
         "directories": {
             "output": "dist"
         },
@@ -24,7 +24,7 @@
             "target": [
                 "nsis"
             ],
-            "icon": "resources/icon.ico"
+            "icon": "build/icon.png"
         },
         "nsis": {
             "oneClick": false,
