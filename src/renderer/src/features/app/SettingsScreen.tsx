@@ -1,26 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
-import { TvPanel } from '../../components/ui/TvPanel'
-import { ArrowLeft, Settings, Volume2, Moon, Sun, Trash2, Save, RotateCcw, CheckCircle2, Zap } from 'lucide-react'
-import { useQuizStore, SystemSettings } from '../../store/useQuizStore'
+import { ArrowLeft, Volume2, Moon, Sun, Trash2, RotateCcw, Zap } from 'lucide-react'
+import { useQuizStore } from '../../store/useQuizStore'
 
 export function SettingsScreen() {
     const { setUiScreen, resetQuiz, systemSettings, updateSystemSettings } = useQuizStore()
-
-    const [localSettings, setLocalSettings] = useState<SystemSettings>(systemSettings)
-    const [showSavedMsg, setShowSavedMsg] = useState(false)
-
-    useEffect(() => {
-        setLocalSettings(systemSettings)
-    }, [systemSettings])
-
-    const handleSave = () => {
-        updateSystemSettings(localSettings)
-        setShowSavedMsg(true)
-        setTimeout(() => setShowSavedMsg(false), 3000)
-    }
 
     const handleReset = () => {
         if (window.confirm('Are you sure you want to reset all quiz data? This action cannot be undone.')) {
@@ -45,23 +31,6 @@ export function SettingsScreen() {
                         <TvText variant="muted">Control Center Configuration</TvText>
                     </div>
                 </div>
-
-                <div className="flex items-center gap-4">
-                    {showSavedMsg && (
-                        <div className="flex items-center gap-2 text-tv-success animate-fadeIn">
-                            <CheckCircle2 size={16} />
-                            <span className="text-xs font-bold uppercase tracking-wider">Changes Saved</span>
-                        </div>
-                    )}
-                    <TvButton
-                        variant="primary"
-                        size="sm"
-                        iconLeft={<Save size={18} />}
-                        onClick={handleSave}
-                    >
-                        Save Changes
-                    </TvButton>
-                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar pb-24 space-y-8">
@@ -78,13 +47,13 @@ export function SettingsScreen() {
                                 <TvText variant="muted" className="text-xs">Adjust the overall sound intensity</TvText>
                             </div>
                             <div className="flex items-center gap-4">
-                                <span className="text-xs font-mono text-tv-accent w-8 text-right">{localSettings.volume}%</span>
+                                <span className="text-xs font-mono text-tv-accent w-8 text-right">{systemSettings.volume}%</span>
                                 <input
                                     type="range"
                                     min="0"
                                     max="100"
-                                    value={localSettings.volume}
-                                    onChange={(e) => setLocalSettings({ ...localSettings, volume: parseInt(e.target.value) })}
+                                    value={systemSettings.volume}
+                                    onChange={(e) => updateSystemSettings({ volume: parseInt(e.target.value) })}
                                     className="w-48 accent-tv-accent cursor-pointer"
                                 />
                             </div>
@@ -95,15 +64,33 @@ export function SettingsScreen() {
                                 <TvText variant="muted" className="text-xs">Enable/disable UI interaction sounds</TvText>
                             </div>
                             <button
-                                onClick={() => setLocalSettings({ ...localSettings, sfxEnabled: !localSettings.sfxEnabled })}
+                                onClick={() => updateSystemSettings({ sfxEnabled: !systemSettings.sfxEnabled })}
                                 className={cn(
                                     "w-12 h-6 rounded-full relative transition-colors duration-300",
-                                    localSettings.sfxEnabled ? "bg-tv-accent" : "bg-tv-panel border border-tv-border"
+                                    systemSettings.sfxEnabled ? "bg-tv-accent" : "bg-tv-panel border border-tv-border"
                                 )}
                             >
                                 <div className={cn(
                                     "absolute top-1 w-4 h-4 rounded-full transition-all duration-300",
-                                    localSettings.sfxEnabled ? "right-1 bg-tv-bg" : "left-1 bg-tv-textMuted"
+                                    systemSettings.sfxEnabled ? "right-1 bg-tv-bg" : "left-1 bg-tv-textMuted"
+                                )} />
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <TvText variant="body" className="font-bold">Background Music</TvText>
+                                <TvText variant="muted" className="text-xs">Toggle ambient background soundtrack</TvText>
+                            </div>
+                            <button
+                                onClick={() => updateSystemSettings({ bgmEnabled: !systemSettings.bgmEnabled })}
+                                className={cn(
+                                    "w-12 h-6 rounded-full relative transition-colors duration-300",
+                                    systemSettings.bgmEnabled ? "bg-tv-accent" : "bg-tv-panel border border-tv-border"
+                                )}
+                            >
+                                <div className={cn(
+                                    "absolute top-1 w-4 h-4 rounded-full transition-all duration-300",
+                                    systemSettings.bgmEnabled ? "right-1 bg-tv-bg" : "left-1 bg-tv-textMuted"
                                 )} />
                             </button>
                         </div>
@@ -124,30 +111,30 @@ export function SettingsScreen() {
                             </div>
                             <div className="flex bg-tv-bg p-1 rounded-md border border-tv-border shadow-inner">
                                 <button
-                                    onClick={() => setLocalSettings({ ...localSettings, theme: 'dark' })}
+                                    onClick={() => updateSystemSettings({ theme: 'dark' })}
                                     className={cn(
                                         "px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-2",
-                                        localSettings.theme === 'dark' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
+                                        systemSettings.theme === 'dark' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
                                     )}
                                 >
                                     <Moon size={14} />
                                     Dark
                                 </button>
                                 <button
-                                    onClick={() => setLocalSettings({ ...localSettings, theme: 'light' })}
+                                    onClick={() => updateSystemSettings({ theme: 'light' })}
                                     className={cn(
                                         "px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-2",
-                                        localSettings.theme === 'light' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
+                                        systemSettings.theme === 'light' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
                                     )}
                                 >
                                     <Sun size={14} />
                                     Light
                                 </button>
                                 <button
-                                    onClick={() => setLocalSettings({ ...localSettings, theme: 'glossy' })}
+                                    onClick={() => updateSystemSettings({ theme: 'glossy' })}
                                     className={cn(
                                         "px-4 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-2",
-                                        localSettings.theme === 'glossy' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
+                                        systemSettings.theme === 'glossy' ? "bg-tv-accent text-tv-bg shadow-sm" : "text-tv-textMuted hover:text-tv-textPrimary"
                                     )}
                                 >
                                     <Zap size={14} />
@@ -161,8 +148,8 @@ export function SettingsScreen() {
                                 <TvText variant="muted" className="text-xs">Dynamic background animation density</TvText>
                             </div>
                             <select
-                                value={localSettings.particleDensity}
-                                onChange={(e) => setLocalSettings({ ...localSettings, particleDensity: e.target.value as any })}
+                                value={systemSettings.particleDensity}
+                                onChange={(e) => updateSystemSettings({ particleDensity: e.target.value as any })}
                                 className="bg-tv-bg border border-tv-border text-tv-textPrimary text-xs rounded p-2 focus:border-tv-accent outline-none cursor-pointer"
                             >
                                 <option value="low">Low Density</option>

@@ -33,7 +33,8 @@ export function ProjectionScreen() {
         tieBreakerRound,
         isFailsafeActive,
         currentTake,
-        eliminatedOptions
+        eliminatedOptions,
+        systemSettings
     } = useQuizStore()
 
     const activeTeam = teams.find(t => t.id === currentTeamId)
@@ -59,6 +60,34 @@ export function ProjectionScreen() {
             clearTimeout(timer)
         }
     }, [])
+
+    // --- Audio Engine sync (BGM plays from Projection window for HDMI output) ---
+    React.useEffect(() => {
+        audioEngine.setMasterVolume(systemSettings.volume)
+    }, [systemSettings.volume])
+
+    React.useEffect(() => {
+        audioEngine.sfxEnabled = systemSettings.sfxEnabled
+    }, [systemSettings.sfxEnabled])
+
+    React.useEffect(() => {
+        const liveQuizStates = ['ARMING', 'QUESTION', 'ANSWER_REVEAL', 'LEADERBOARD', 'ELIMINATION', 'ROUND_INTRO', 'TURN_INTRO', 'PICKER_PHASE', 'TIE_BREAKER', 'FAILSAFE_INTRO', 'WINNER', 'SESSION_END']
+        const isLiveQuiz = uiScreen === 'SIMULATION_CONSOLE' && liveQuizStates.includes(currentState)
+        const isWaitStage = uiScreen === 'SIMULATION_CONSOLE' && currentState === 'STANDBY'
+
+        if (isWaitStage && systemSettings.bgmEnabled) {
+            // "The Wait" — between arming completion and Neural Link initialization
+            audioEngine.pauseMainBgm()
+            audioEngine.playBgm('theWait', true)
+        } else if (!isLiveQuiz && !isWaitStage && systemSettings.bgmEnabled) {
+            // Menu/holding screens — main background music
+            audioEngine.playMainBgm()
+        } else {
+            // Live quiz — silence
+            audioEngine.pauseMainBgm()
+            audioEngine.stopBgm()
+        }
+    }, [currentState, uiScreen, systemSettings.bgmEnabled])
 
     React.useEffect(() => {
         if (currentState === 'ARMING') {

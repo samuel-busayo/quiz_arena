@@ -15,9 +15,10 @@ import { SettingsScreen } from './features/app/SettingsScreen'
 import { ResultsHistoryScreen } from './screens/ResultsHistoryScreen'
 import { ProjectionSplash } from './components/screens/ProjectionSplash'
 import { AnimatePresence } from 'framer-motion'
+import { audioEngine } from './features/simulation/AudioEngine'
 
 function App() {
-    const { initialize, uiScreen, isInitialized } = useQuizStore()
+    const { initialize, uiScreen, isInitialized, systemSettings } = useQuizStore()
 
     // Detect View Role
     const isProjector = window.location.hash.includes('projector')
@@ -29,6 +30,14 @@ function App() {
     useEffect(() => {
         initialize(view)
     }, [initialize, view])
+
+    useEffect(() => {
+        audioEngine.setMasterVolume(systemSettings.volume)
+    }, [systemSettings.volume])
+
+    useEffect(() => {
+        audioEngine.sfxEnabled = systemSettings.sfxEnabled
+    }, [systemSettings.sfxEnabled])
 
     if (isProjector) {
         return (

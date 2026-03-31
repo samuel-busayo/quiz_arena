@@ -3,12 +3,14 @@ import { TvButton } from '../../components/ui/TvButton'
 import { TvCard } from '../../components/ui/TvCard'
 import { TvText } from '../../components/ui/TvText'
 import { TvPanel } from '../../components/ui/TvPanel'
+import { SoundSettingsModal } from '../../components/ui/SoundSettingsModal'
 import { Database, Play, Settings, History, HelpCircle, Volume2 } from 'lucide-react'
 import { useQuizStore } from '../../store/useQuizStore'
 import logo from '../../assets/tvi-logo.png'
 
 export function CommandCenterScreen() {
     const { setUiScreen, loadSession, hasSavedSession } = useQuizStore()
+    const [isSoundSettingsOpen, setIsSoundSettingsOpen] = React.useState(false)
 
     return (
         <div className="h-full w-full flex flex-col items-center justify-between py-12 px-8">
@@ -31,7 +33,12 @@ export function CommandCenterScreen() {
                         iconLeft={<Settings size={18} />}
                         onClick={() => setUiScreen('SETTINGS')}
                     />
-                    <TvButton variant="ghost" size="sm" iconLeft={<Volume2 size={18} />} />
+                    <TvButton
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={<Volume2 size={18} />}
+                        onClick={() => setIsSoundSettingsOpen(true)}
+                    />
                 </div>
             </div>
 
@@ -111,6 +118,11 @@ export function CommandCenterScreen() {
                     </div>
                 </TvCard>
             </div>
+
+            <SoundSettingsModal
+                isOpen={isSoundSettingsOpen}
+                onClose={() => setIsSoundSettingsOpen(false)}
+            />
 
             {/* Subtle Drift / Particle area is handled by MainShell bg */}
         </div>

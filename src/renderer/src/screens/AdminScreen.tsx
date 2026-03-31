@@ -29,7 +29,8 @@ export function AdminScreen() {
         scorePerCorrect: 10,
         deductionPerWrong: 5,
         showLeaderboardAfterRound: true,
-        mode: 'RANDOM'
+        mode: 'RANDOM',
+        lifelineConfig: { enabled: true, usesPerTeam: 2 }
     })
 
     const {
@@ -45,7 +46,7 @@ export function AdminScreen() {
         timerRemaining,
         isPaused,
         setPaused,
-        currentTeamIndex,
+        currentTeamId,
         resetQuiz
     } = useQuizStore()
 
@@ -53,10 +54,9 @@ export function AdminScreen() {
         loadCollections()
     }, [])
 
-    // Timer Effect
     useEffect(() => {
         let interval: NodeJS.Timeout
-        if (currentState === 'QUESTION_DISPLAY' && !isPaused && timerRemaining > 0) {
+        if (currentState === 'QUESTION' && !isPaused && timerRemaining > 0) {
             interval = setInterval(() => {
                 tickTimer()
             }, 1000)
@@ -133,7 +133,7 @@ export function AdminScreen() {
         setConfig(setupConfig)
         setTeams(setupTeams as Team[])
         setQuestions(currentQuestions)
-        setCurrentState('SIMULATION_PREPARATION')
+        setCurrentState('STANDBY')
     }
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,10 +480,10 @@ export function AdminScreen() {
                             {/* Question Card (Admin Reveal) */}
                             <div className="col-span-8 flex flex-col gap-6">
                                 <TechCard className="flex-1 p-8 flex flex-col justify-center items-center text-center gap-8" glow>
-                                    {currentState === 'SIMULATION_PREPARATION' ? (
+                                    {currentState === 'STANDBY' ? (
                                         <div className="space-y-6">
                                             <h2 className="text-4xl font-orbitron text-primary-text">READY TO START?</h2>
-                                            <TechButton variant="primary" size="lg" className="px-12 py-6 text-xl" onClick={() => setCurrentState('QUESTION_DISPLAY')}>
+                                            <TechButton variant="primary" size="lg" className="px-12 py-6 text-xl" onClick={() => setCurrentState('QUESTION')}>
                                                 START ROUND 1
                                             </TechButton>
                                         </div>
@@ -500,16 +500,16 @@ export function AdminScreen() {
                                             </div>
                                             <div className="flex gap-4 w-full max-w-md mt-4">
                                                 <TechButton variant="primary" className="flex-1 bg-team-green hover:bg-team-green/80 border-team-green" onClick={() => {
-                                                    const teamsInStore = useQuizStore.getState().teams
-                                                    updateScore(teamsInStore[currentTeamIndex].id!, setupConfig.scorePerCorrect)
+                                                    const { currentTeamId } = useQuizStore.getState()
+                                                    if (currentTeamId) updateScore(currentTeamId, setupConfig.scorePerCorrect)
                                                     nextTeam()
                                                     useQuizStore.setState({ currentQuestion: null })
                                                 }}>
                                                     CORRECT (+{setupConfig.scorePerCorrect})
                                                 </TechButton>
                                                 <TechButton variant="secondary" className="flex-1 border-team-red text-team-red hover:bg-team-red/10" onClick={() => {
-                                                    const teamsInStore = useQuizStore.getState().teams
-                                                    updateScore(teamsInStore[currentTeamIndex].id!, -setupConfig.deductionPerWrong)
+                                                    const { currentTeamId } = useQuizStore.getState()
+                                                    if (currentTeamId) updateScore(currentTeamId, -setupConfig.deductionPerWrong)
                                                     nextTeam()
                                                     useQuizStore.setState({ currentQuestion: null })
                                                 }}>
@@ -520,7 +520,7 @@ export function AdminScreen() {
                                                 <TechButton variant="secondary" className="flex-1" onClick={() => setCurrentState('LEADERBOARD')}>
                                                     SHOW LEADERBOARD
                                                 </TechButton>
-                                                <TechButton variant="secondary" className="flex-1" onClick={() => setCurrentState('WINNER_FLOW')}>
+                                                <TechButton variant="secondary" className="flex-1" onClick={() => setCurrentState('WINNER')}>
                                                     FINISH QUIZ
                                                 </TechButton>
                                             </div>
@@ -528,11 +528,11 @@ export function AdminScreen() {
                                     ) : currentState === 'LEADERBOARD' ? (
                                         <div className="space-y-6">
                                             <h2 className="text-4xl font-orbitron text-primary-accent">LEADERBOARD ACTIVE</h2>
-                                            <TechButton variant="primary" size="lg" onClick={() => setCurrentState('QUESTION_DISPLAY')}>
+                                            <TechButton variant="primary" size="lg" onClick={() => setCurrentState('QUESTION')}>
                                                 CONTINUE TO QUESTIONS
                                             </TechButton>
                                         </div>
-                                    ) : currentState === 'WINNER_FLOW' ? (
+                                    ) : currentState === 'WINNER' ? (
                                         <div className="space-y-6">
                                             <h2 className="text-4xl font-orbitron text-primary-accent uppercase">Victory Revealed</h2>
                                             <TechButton variant="primary" size="lg" onClick={() => setCurrentState('IDLE')}>
@@ -552,7 +552,7 @@ export function AdminScreen() {
                                                     useQuizStore.setState({
                                                         currentQuestion: nextQ,
                                                         timerRemaining: setupConfig.timerSeconds,
-                                                        currentState: 'QUESTION_DISPLAY'
+                                                        currentState: 'QUESTION'
                                                     })
                                                 }
                                             }}>
@@ -568,7 +568,7 @@ export function AdminScreen() {
                                 <h3 className="font-orbitron text-sm text-primary-secondary tracking-widest uppercase mb-2">Live Standings</h3>
                                 <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                                     {useQuizStore.getState().teams.map((team, index) => (
-                                        <div key={team.id} className={`p-4 rounded-xl border flex items-center justify-between ${currentTeamIndex === index ? 'bg-primary-accent/10 border-primary-accent shadow-[0_0_15px_rgba(0,229,255,0.1)]' : 'bg-primary-surface border-white/5'}`}>
+                                        <div key={team.id} className={`p-4 rounded-xl border flex items-center justify-between ${currentTeamId === team.id ? 'bg-primary-accent/10 border-primary-accent shadow-[0_0_15px_rgba(0,229,255,0.1)]' : 'bg-primary-surface border-white/5'}`}>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: team.color }} />
                                                 <span className="font-rajdhani text-lg uppercase tracking-widest">{team.name}</span>

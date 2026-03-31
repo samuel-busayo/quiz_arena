@@ -88,6 +88,7 @@ export interface SystemSettings {
     theme: 'dark' | 'light' | 'glossy'
     volume: number
     sfxEnabled: boolean
+    bgmEnabled: boolean
     particleDensity: 'low' | 'balanced' | 'high'
 }
 
@@ -214,6 +215,7 @@ export const useQuizStore = create<QuizStore>()(
                 theme: 'dark',
                 volume: 50,
                 sfxEnabled: true,
+                bgmEnabled: true,
                 particleDensity: 'balanced'
             },
             revealStatus: null,
