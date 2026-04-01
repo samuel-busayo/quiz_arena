@@ -1,7 +1,7 @@
 {
     "name": "coorditech-quiz-arena",
     "productName": "Coordi.Tech Quiz Arena",
-    "version": "1.0.35",
+    "version": "1.0.36",
     "description": "Professional Dual-Screen Quiz Competition Software",
     "main": "out/main/index.js",
     "author": "Antigravity <support@coorditech.com>",
@@ -22,7 +22,8 @@
         },
         "win": {
             "target": [
-                "nsis"
+                "nsis",
+                "msi"
             ],
             "icon": "build/icon.png"
         },
