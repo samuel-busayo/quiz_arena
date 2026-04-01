@@ -7515,8 +7515,10 @@ const useQuizStore = create$1()(
       isPaused: false,
       questionQueue: [],
       systemSettings: {
+        organizationName: "Coordi.Tech",
         theme: "dark",
         volume: 50,
+        sfxVolume: 100,
         sfxEnabled: true,
         bgmEnabled: true,
         particleDensity: "balanced"
@@ -7896,7 +7898,8 @@ const useQuizStore = create$1()(
       }
     }),
     {
-      name: "techverse-quiz-session",
+      name: "coorditech-quiz-session",
+      // Rebranded local storage key
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         currentState: state.currentState,
@@ -19133,6 +19136,16 @@ const Book = createLucideIcon("Book", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
+const Briefcase = createLucideIcon("Briefcase", [
+  ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
+  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
+]);
+/**
+ * @license lucide-react v0.363.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
 const Calendar = createLucideIcon("Calendar", [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
@@ -19497,23 +19510,6 @@ const Settings$1 = createLucideIcon("Settings", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ShieldAlert = createLucideIcon("ShieldAlert", [
-  [
-    "path",
-    {
-      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-      key: "oel41y"
-    }
-  ],
-  ["path", { d: "M12 8v4", key: "1got3b" }],
-  ["path", { d: "M12 16h.01", key: "1drbdi" }]
-]);
-/**
- * @license lucide-react v0.363.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
 const ShieldCheck = createLucideIcon("ShieldCheck", [
   [
     "path",
@@ -19692,6 +19688,9 @@ function SoundSettingsModal({
   const handleVolumeChange = (e) => {
     updateSystemSettings({ volume: parseInt(e.target.value) });
   };
+  const handleSfxVolumeChange = (e) => {
+    updateSystemSettings({ sfxVolume: parseInt(e.target.value) });
+  };
   const toggleBgm = () => {
     updateSystemSettings({ bgmEnabled: !systemSettings.bgmEnabled });
   };
@@ -19722,7 +19721,7 @@ function SoundSettingsModal({
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs tracking-widest uppercase text-tv-textMuted", children: "Master Volume" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs tracking-widest uppercase text-tv-textMuted", children: "Master (BGM) Volume" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-xs text-tv-accent", children: [
                       systemSettings.volume,
                       "%"
@@ -19738,6 +19737,31 @@ function SoundSettingsModal({
                         max: "100",
                         value: systemSettings.volume,
                         onChange: handleVolumeChange,
+                        className: "w-full h-2 bg-tv-border rounded-lg appearance-none cursor-pointer accent-tv-accent"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { size: 18, className: "text-tv-textMuted" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[1px] w-full bg-tv-border/50" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs tracking-widest uppercase text-tv-textMuted", children: "SFX Volume" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-xs text-tv-accent", children: [
+                      systemSettings.sfxVolume,
+                      "%"
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(VolumeX, { size: 18, className: "text-tv-textMuted" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "range",
+                        min: "0",
+                        max: "100",
+                        value: systemSettings.sfxVolume,
+                        onChange: handleSfxVolumeChange,
                         className: "w-full h-2 bg-tv-border rounded-lg appearance-none cursor-pointer accent-tv-accent"
                       }
                     ),
@@ -19795,14 +19819,18 @@ function SoundSettingsModal({
     }
   ) });
 }
-const logo = "" + new URL("tvi-logo-BDJO-Bll.png", import.meta.url).href;
 function CommandCenterScreen() {
-  const { setUiScreen, loadSession, hasSavedSession } = useQuizStore();
+  const { setUiScreen, loadSession, hasSavedSession, systemSettings } = useQuizStore();
   const [isSoundSettingsOpen, setIsSoundSettingsOpen] = React$2.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-full w-full flex flex-col items-center justify-between py-12 px-8", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full relative flex items-center justify-center max-w-6xl", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: logo, alt: "TV Logo", className: "w-12 h-12 object-contain" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-3xl lg:text-4xl tracking-[0.2em] uppercase font-black italic", children: "TechVerse Quiz Arena" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-2xl lg:text-3xl tracking-[0.2em] uppercase font-black italic", children: [
+          systemSettings?.organizationName || "Coordi.Tech",
+          " Quiz Arena"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] mt-2 tracking-widest uppercase opacity-80 block text-tv-accent text-center w-full", children: "Powered by Coordi.Tech" })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 flex gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           TvButton,
@@ -34820,13 +34848,23 @@ const TEAM_COLORS = [
   "#FFFFFF"
 ];
 function QuizSetupScreen() {
-  const { setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore();
+  const { systemSettings, setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore();
   const { step, teams: setupTeams, collectionName: selectedCollection, config: setupConfig } = setupDraft;
   const [collections, setCollections] = reactExports.useState([]);
   const [collectionCounts, setCollectionCounts] = reactExports.useState({});
   reactExports.useEffect(() => {
     loadCollections();
   }, []);
+  reactExports.useEffect(() => {
+    if (!setupConfig.eventName && systemSettings.organizationName) {
+      updateSetupDraft({
+        config: {
+          ...setupConfig,
+          eventName: systemSettings.organizationName.toUpperCase()
+        }
+      });
+    }
+  }, [systemSettings.organizationName, setupConfig.eventName]);
   const loadCollections = async () => {
     const list = await window.api.getCollections();
     setCollections(list);
@@ -34972,12 +35010,20 @@ function QuizSetupScreen() {
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               TvCard,
               {
-                hoverable: true,
-                className: "p-6 border-dashed flex flex-col items-center justify-center gap-4 text-tv-textMuted group hover:text-tv-accent",
-                onClick: () => updateSetupDraft({ teams: [...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: "#FFFFFF", score: 0, isEliminated: false }] }),
+                hoverable: setupTeams.length < 4,
+                className: cn$1(
+                  "p-6 border-dashed flex flex-col items-center justify-center gap-4 text-tv-textMuted group",
+                  setupTeams.length < 4 ? "hover:text-tv-accent cursor-pointer" : "opacity-20 cursor-not-allowed"
+                ),
+                onClick: () => {
+                  if (setupTeams.length < 4) {
+                    const nextColor = TEAM_COLORS.find((c) => !setupTeams.some((t2) => t2.color === c)) || "#FFFFFF";
+                    updateSetupDraft({ teams: [...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: nextColor, score: 0, isEliminated: false }] });
+                  }
+                },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 rounded-full bg-tv-panel border border-tv-border group-hover:border-tv-accent transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 32 }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "ADD TEAM" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn$1("p-4 rounded-full bg-tv-panel border border-tv-border transition-colors", setupTeams.length < 4 && "group-hover:border-tv-accent"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 32 }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: setupTeams.length < 4 ? "ADD TEAM" : "QUOTA REACHED" })
                 ]
               }
             )
@@ -37582,6 +37628,7 @@ class AudioEngine {
   currentBgm = null;
   currentBgmName = null;
   _masterVolume = 50;
+  _sfxVolume = 100;
   _sfxEnabled = true;
   constructor() {
     this.load("questionWhoosh", questionWhooshUrl);
@@ -37632,13 +37679,21 @@ class AudioEngine {
   setMasterVolume(volume) {
     this._masterVolume = volume;
     if (this.currentBgm && this.currentBgm.playing()) {
-      this.currentBgm.volume(volume / 100);
+      const targetVol = this.currentBgmName === "liveQuizBgm" ? volume / 100 * 0.4 : volume / 100;
+      this.currentBgm.volume(targetVol);
+    }
+  }
+  setSfxVolume(volume) {
+    this._sfxVolume = volume;
+    const timerSound = this.sounds["countdown16s"];
+    if (timerSound && timerSound.playing()) {
+      timerSound.volume(this._masterVolume / 100 * (this._sfxVolume / 100));
     }
   }
   playSfx(name) {
     if (!this._sfxEnabled) return;
     if (this.sounds[name]) {
-      this.sounds[name].volume(this._masterVolume / 100);
+      this.sounds[name].volume(this._masterVolume / 100 * (this._sfxVolume / 100));
       this.sounds[name].play();
     }
   }
@@ -37647,24 +37702,16 @@ class AudioEngine {
       this.sounds[name].stop();
     }
   }
-  // --- Special Countdown Logic ---
-  // If timer > 16s, delay the play.
-  // If timer < 16s, start playing from (16 - timer) offset.
-  // If timer == 16s, play from start.
-  playCountdown16s(secondsLeft) {
+  // --- Continuous Timer Loop Logic ---
+  // Start the timer loop. It will loop indefinitely until stopped.
+  playTimerLoop() {
     if (!this._sfxEnabled) return;
     const sound = this.sounds["countdown16s"];
     if (!sound) return;
-    if (sound.playing()) sound.stop();
-    sound.volume(this._masterVolume / 100);
-    if (secondsLeft > 16) {
-      return;
-    } else if (secondsLeft === 16) {
-      sound.play();
-    } else if (secondsLeft > 0 && secondsLeft < 16) {
-      const id2 = sound.play();
-      sound.seek(16 - secondsLeft, id2);
-    }
+    if (sound.playing()) return;
+    sound.loop(true);
+    sound.volume(this._masterVolume / 100 * (this._sfxVolume / 100));
+    sound.play();
   }
   // --- Unified BGM control ---
   // Single entry point for all BGM transitions. Handles:
@@ -37707,11 +37754,13 @@ class AudioEngine {
     this.currentBgmName = name;
     nextBgm.loop(loop);
     if (nextBgm.playing()) {
-      nextBgm.fade(nextBgm.volume(), this._masterVolume / 100, 800);
+      const targetVol = name === "liveQuizBgm" ? this._masterVolume / 100 * 0.4 : this._masterVolume / 100;
+      nextBgm.fade(nextBgm.volume(), targetVol, 800);
     } else {
       nextBgm.volume(0);
       nextBgm.play();
-      nextBgm.fade(0, this._masterVolume / 100, 1e3);
+      const targetVol = name === "liveQuizBgm" ? this._masterVolume / 100 * 0.4 : this._masterVolume / 100;
+      nextBgm.fade(0, targetVol, 1e3);
     }
   }
   // --- Convenience aliases ---
@@ -38532,7 +38581,11 @@ class QuizSimulationEngine {
         break;
       case "TURN_INTRO":
         useQuizStore.getState().setUiOverlay(null);
-        audioEngine.playSfx("bassHit");
+        try {
+          audioEngine.playSfx("bassHit");
+        } catch (e) {
+          console.error("Audio Error:", e);
+        }
         useQuizStore.setState({
           eliminatedOptions: [],
           selectedOption: null,
@@ -38740,7 +38793,25 @@ class QuizSimulationEngine {
     useQuizStore.getState().recordHistorySnapshot(currentQuestion.id);
     this.advanceSimulation();
   }
-  // Manual progression from Intro states (Tie Breaker / Failsafe)
+  // Manual proceed from Intro states (Tie Breaker / Failsafe / Transition Screens)
+  proceedFromTransition() {
+    const { currentState, config } = useQuizStore.getState();
+    if (currentState === "TURN_INTRO" || currentState === "ROUND_INTRO") {
+      if (config?.mode === "PICK_NUMBER") {
+        this.transitionTo("PICKER_PHASE");
+      } else {
+        const nextQ = this.pickNextRandomQuestion();
+        if (nextQ) {
+          useQuizStore.setState({ currentQuestion: nextQ });
+          this.transitionTo("QUESTION");
+        } else {
+          this.transitionTo("WINNER");
+        }
+      }
+    } else if (currentState === "TIE_BREAKER" || currentState === "FAILSAFE_INTRO") {
+      this.proceedFromIntro();
+    }
+  }
   proceedFromIntro() {
     const { currentState } = useQuizStore.getState();
     if (currentState !== "TIE_BREAKER" && currentState !== "FAILSAFE_INTRO") return;
@@ -38850,7 +38921,11 @@ class QuizSimulationEngine {
     if (candidates.length > 1) {
       useQuizStore.getState().setTieBreakerTeams(candidates.map((c) => c.id));
       useQuizStore.getState().setTieBreakerPurpose("elimination");
-      useQuizStore.setState({ currentTeamId: candidates[0].id, tieBreakerRound: 1 });
+      useQuizStore.setState({
+        currentTeamId: candidates[0].id,
+        tieBreakerRound: 1,
+        currentTake: 1
+      });
       this.transitionTo("TIE_BREAKER");
       return;
     }
@@ -38878,7 +38953,11 @@ class QuizSimulationEngine {
       if (winners.length > 1) {
         useQuizStore.getState().setTieBreakerTeams(winners.map((w2) => w2.id));
         useQuizStore.getState().setTieBreakerPurpose("winner");
-        useQuizStore.setState({ currentTeamId: winners[0].id, tieBreakerRound: 1 });
+        useQuizStore.setState({
+          currentTeamId: winners[0].id,
+          tieBreakerRound: 1,
+          currentTake: 1
+        });
         this.transitionTo("TIE_BREAKER");
       } else {
         this.transitionTo("WINNER");
@@ -39221,41 +39300,41 @@ function AdminConsoleScreen() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentState, isConfirming, isLocked]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-screen w-screen bg-tv-background overflow-hidden flex flex-col font-rajdhani text-white relative", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-between px-8 z-50", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-10", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] opacity-40", children: "MISSION PHASE" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h3", className: "text-tv-accent tracking-widest uppercase", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-screen w-screen bg-tv-background overflow-hidden flex flex-col font-rajdhani text-white relative text-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-[4.25rem] border-b border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-between px-5 z-50", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-7", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[7px] opacity-40", children: "MISSION PHASE" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h3", className: "text-tv-accent tracking-widest uppercase text-xs text-center", children: [
             "ROUND ",
             currentRound
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] opacity-40", children: "ENGAGEMENT TAKE" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h3", className: "text-tv-accent tracking-widest uppercase", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[7px] opacity-40", children: "ENGAGEMENT TAKE" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h3", className: "text-tv-accent tracking-widest uppercase text-xs text-center", children: [
             "TAKE ",
             currentTake
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-8 w-[1px] bg-white/10" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] opacity-40", children: "ACTIVE OPERATIVE" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-6 w-[1px] bg-white/10" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[7px] opacity-40 mb-0.5", children: "ACTIVE OPERATIVE" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             motion.div,
             {
               animate: { borderColor: activeTeam?.color || "#00E5FF" },
-              className: "px-4 py-1 border-l-2 bg-white/5 flex items-center gap-3",
+              className: "px-3 py-0.5 border-b-2 bg-white/5 flex items-center gap-2",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full animate-pulse", style: { backgroundColor: activeTeam?.color } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1.5 h-1.5 rounded-full animate-pulse", style: { backgroundColor: activeTeam?.color } }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TvText,
                   {
                     variant: "h3",
+                    align: "center",
                     className: cn$1(
-                      "uppercase tracking-tighter truncate max-w-[200px]",
-                      (activeTeam?.name?.length || 0) > 15 ? "text-sm" : (activeTeam?.name?.length || 0) > 12 ? "text-base" : "text-lg"
+                      "uppercase tracking-tighter truncate max-w-[150px] text-center",
+                      (activeTeam?.name?.length || 0) > 15 ? "text-[10px]" : (activeTeam?.name?.length || 0) > 12 ? "text-xs" : "text-base"
                     ),
                     style: { color: activeTeam?.color },
                     children: activeTeam?.name || "AWAITING NEURAL LINK"
@@ -39264,25 +39343,25 @@ function AdminConsoleScreen() {
               ]
             }
           )
-        ] })
+        ] }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-6", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3 py-1 bg-white/5 rounded border border-white/10", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1.5 h-1.5 rounded-full bg-tv-success" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "body", className: "text-[10px] font-bold tracking-widest uppercase", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded border border-white/10", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 h-1 rounded-full bg-tv-success" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "body", className: "text-[7px] font-bold tracking-widest uppercase", children: [
             "LIVE ",
             config?.mode,
             " ENGINE"
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TvButton,
             {
               variant: "secondary",
               size: "sm",
               className: cn$1(
-                "border-white/10 px-4",
+                "border-white/10 px-3 h-7 text-[10px]",
                 uiOverlay === "leaderboard" ? "bg-tv-accent text-black" : "bg-tv-panel text-tv-accent"
               ),
               onClick: () => uiOverlay === "leaderboard" ? simulationEngine.hideLeaderboard() : simulationEngine.showLeaderboard(),
@@ -39294,10 +39373,10 @@ function AdminConsoleScreen() {
             {
               variant: "secondary",
               size: "sm",
-              className: "bg-tv-panel border-white/10",
+              className: "bg-tv-panel border-white/10 h-7 px-2",
               disabled: uiOverlay === "leaderboard",
               onClick: () => isPaused ? simulationEngine.resumeTimer() : simulationEngine.pauseTimer(),
-              children: isPaused ? /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { size: 16 })
+              children: isPaused ? /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 12 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { size: 12 })
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -39305,7 +39384,8 @@ function AdminConsoleScreen() {
             {
               variant: "secondary",
               size: "sm",
-              iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }),
+              className: "h-7 px-2 text-[10px]",
+              iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 12 }),
               onClick: handleSave,
               disabled: isSaving,
               children: isSaving ? "SYNCING..." : "SAVE MISSION"
@@ -39316,6 +39396,7 @@ function AdminConsoleScreen() {
             {
               variant: "danger",
               size: "sm",
+              className: "h-7 px-2 text-[10px]",
               onClick: async () => {
                 if (window.confirm("CRITICAL: This will terminate the current mission and CLEAR all progress (including saved session). Proceed?")) {
                   await deleteSession();
@@ -39328,13 +39409,13 @@ function AdminConsoleScreen() {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "flex-1 grid grid-cols-[max(250px,20vw)_1fr_max(220px,18vw)] gap-[2vw] p-[2vw] min-h-0 overflow-hidden relative", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "flex flex-col gap-4 h-full overflow-hidden", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { size: 14, className: "text-tv-accent" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs uppercase tracking-[0.2em] opacity-60", children: "Operative Standings" })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "flex-1 grid grid-cols-[max(175px,14vw)_1fr_max(154px,12.6vw)] gap-[1.4vw] p-[1.4vw] min-h-0 overflow-hidden relative", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "flex flex-col gap-3 h-full overflow-hidden", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-1 mb-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { size: 10, className: "text-tv-accent" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[8px] uppercase tracking-[0.2em] opacity-60 text-center", children: "Operative Standings" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "popLayout", children: teams.map((team) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto pr-1.5 custom-scrollbar space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "popLayout", children: teams.map((team) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           motion.div,
           {
             layout: true,
@@ -39345,36 +39426,35 @@ function AdminConsoleScreen() {
               scale: currentTeamId === team.id ? 1.04 : 1,
               boxShadow: currentTeamId === team.id ? `0 0 20px -5px ${team.color}66` : "none"
             },
-            className: cn$1(
-              "p-[1vw] rounded border-l-4 transition-all flex justify-between items-center relative overflow-hidden",
-              currentTeamId === team.id ? "bg-tv-accentSoft border-white/20" : "bg-tv-panel/40 border-white/5",
-              team.isEliminated && "opacity-30 grayscale"
-            ),
             style: { borderLeftColor: team.color },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  TvText,
-                  {
-                    variant: "body",
-                    className: cn$1(
-                      "font-black uppercase tracking-wider truncate",
-                      team.name.length > 15 ? "text-[10px]" : team.name.length > 12 ? "text-[11px]" : "text-xs"
-                    ),
-                    children: team.name
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-1 bg-white/5 mt-1 rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  motion.div,
-                  {
-                    initial: { width: 0 },
-                    animate: { width: "100%" },
-                    className: "h-full",
-                    style: { backgroundColor: team.color }
-                  }
-                ) })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn$1("flex flex-1 items-center justify-between min-w-0 transition-opacity", team.isEliminated && "grayscale opacity-30"), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center flex-1 min-w-0", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    TvText,
+                    {
+                      variant: "body",
+                      align: "center",
+                      className: cn$1(
+                        "font-black uppercase tracking-wider truncate w-full text-center",
+                        team.name.length > 15 ? "text-[7px]" : team.name.length > 12 ? "text-[8px]" : "text-[9px]"
+                      ),
+                      children: team.name
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-1 bg-white/5 mt-1 rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    motion.div,
+                    {
+                      initial: { width: 0 },
+                      animate: { width: "100%" },
+                      className: "h-full",
+                      style: { backgroundColor: team.color }
+                    }
+                  ) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-tv-accent", children: team.score })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-tv-accent", children: team.score })
+              team.isEliminated && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "absolute left-1/2 -translate-x-1/2 bottom-1 text-[5px] text-tv-danger font-black tracking-widest uppercase z-10 bg-black/40 px-1 rounded-sm border border-tv-danger/20", children: "ELIMINATED" })
             ]
           },
           team.id
@@ -39389,23 +39469,35 @@ function AdminConsoleScreen() {
               animate: { opacity: 1 },
               exit: { opacity: 0 },
               className: "flex flex-col items-center gap-[4vh]",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-md", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent tracking-[0.2em] mb-4 block animate-pulse", children: "CINEMATIC TRANSITION ACTIVE" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-3xl font-bold uppercase mb-2", children: "PREPARING NEXT TAKE" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "body", className: "opacity-40 text-sm italic", children: [
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-lg", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent tracking-[0.2em] pl-[0.2em] mb-3 block animate-pulse text-[8px] text-center", children: "CINEMATIC TRANSITION ACTIVE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-xl font-bold uppercase mb-1.5 text-center", children: "PREPARING NEXT TAKE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "body", align: "center", className: "opacity-40 text-[10px] italic text-center", children: [
                   "Synchronizing neural link for ",
                   activeTeam?.name,
                   "..."
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-8 overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  motion.div,
-                  {
-                    initial: { width: 0 },
-                    animate: { width: "100%" },
-                    transition: { duration: 5, ease: "linear" },
-                    className: "h-full bg-tv-accent shadow-glow"
-                  }
-                ) })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 flex flex-col items-center gap-4 w-full", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    motion.div,
+                    {
+                      initial: { width: 0 },
+                      animate: { width: "100%" },
+                      transition: { duration: 5, ease: "linear" },
+                      className: "h-full bg-tv-accent shadow-glow"
+                    }
+                  ) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    TvButton,
+                    {
+                      variant: "ghost",
+                      size: "sm",
+                      className: "text-[8px] opacity-20 hover:opacity-100 transition-opacity",
+                      onClick: () => simulationEngine.proceedFromTransition(),
+                      children: "FORCE PROCEED"
+                    }
+                  )
+                ] })
               ] })
             },
             "turn-intro"
@@ -39416,26 +39508,38 @@ function AdminConsoleScreen() {
               initial: { opacity: 0 },
               animate: { opacity: 1 },
               exit: { opacity: 0 },
-              className: "flex flex-col items-center gap-[4vh]",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-md", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent tracking-[0.2em] mb-4 block animate-pulse", children: "STAGE PROGRESSION ACTIVE" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center mb-6", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-5xl font-black italic text-white leading-none", children: [
+              className: "flex flex-col items-center gap-[2.8vh]",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 rounded-2xl border border-tv-accent/10 bg-tv-panel/40 backdrop-blur-md text-center max-w-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent tracking-[0.2em] pl-[0.2em] mb-3 block animate-pulse text-[8px] text-center", children: "STAGE PROGRESSION ACTIVE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center mb-4.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", align: "center", className: "text-4xl font-black italic text-white leading-none text-center", children: [
                     "ROUND ",
                     currentRound
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1 w-20 bg-tv-accent mt-2 shadow-glow" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-0.75 w-14 bg-tv-accent mt-1.5 shadow-glow" })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "opacity-40 text-sm", children: "Synchronizing Mission Environment..." }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-8 overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  motion.div,
-                  {
-                    initial: { width: 0 },
-                    animate: { width: "100%" },
-                    transition: { duration: 5, ease: "linear" },
-                    className: "h-full bg-tv-accent shadow-glow"
-                  }
-                ) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", align: "center", className: "opacity-40 text-sm text-center", children: "Synchronizing Mission Environment..." }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 flex flex-col items-center gap-4 w-full", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-hidden h-1.5 w-full bg-white/5 rounded-full border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    motion.div,
+                    {
+                      initial: { width: 0 },
+                      animate: { width: "100%" },
+                      transition: { duration: 5, ease: "linear" },
+                      className: "h-full bg-tv-accent shadow-glow"
+                    }
+                  ) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    TvButton,
+                    {
+                      variant: "ghost",
+                      size: "sm",
+                      className: "text-[8px] opacity-20 hover:opacity-100 transition-opacity",
+                      onClick: () => simulationEngine.proceedFromTransition(),
+                      children: "FORCE PROCEED"
+                    }
+                  )
+                ] })
               ] })
             },
             "round-intro"
@@ -39446,22 +39550,22 @@ function AdminConsoleScreen() {
               initial: { opacity: 0, scale: 0.9 },
               animate: { opacity: 1, scale: 1 },
               exit: { opacity: 0, scale: 1.1 },
-              className: "flex flex-col items-center gap-[4vh]",
+              className: "flex flex-col items-center gap-[2.8vh]",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-[2vw] rounded-full border border-tv-accent/20 bg-tv-accentSoft relative", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-[1.4vw] rounded-full border border-tv-accent/20 bg-tv-accentSoft relative", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 border border-tv-accent animate-ping rounded-full opacity-20" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 48, className: "text-tv-accent animate-pulse" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 32, className: "text-tv-accent animate-pulse" })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center space-y-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { align: "center", variant: "h1", className: "text-[clamp(2rem,8vh,5rem)] tracking-[0.2em] font-black italic leading-none", children: "ARMING SYSTEM" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { align: "center", variant: "muted", className: "uppercase tracking-[0.4em] opacity-40 text-xs", children: "Synchronizing Neural Vectors..." })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center space-y-0.75", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { align: "center", variant: "h1", className: "text-[clamp(1.4rem,5.6vh,3.5rem)] tracking-[0.2em] font-black italic leading-none", children: "ARMING SYSTEM" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { align: "center", variant: "muted", className: "uppercase tracking-[0.4em] pl-[0.4em] opacity-40 text-[8px] text-center", children: "Synchronizing Neural Vectors..." })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "ghost", iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 }), onClick: () => {
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "ghost", className: "h-8 text-xs", iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 13 }), onClick: () => {
                     setUiScreen("QUIZ_SETUP");
                     setCurrentState("STANDBY");
                   }, children: "BACK TO SETUP" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "primary", size: "lg", glow: true, onClick: () => simulationEngine.startSimulation(), children: "INITIATE NEURAL LINK" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "primary", size: "sm", className: "h-8 px-6 text-xs", glow: true, onClick: () => simulationEngine.startSimulation(), children: "INITIATE NEURAL LINK" })
                 ] })
               ]
             },
@@ -39473,37 +39577,37 @@ function AdminConsoleScreen() {
             {
               initial: { opacity: 0, y: 20 },
               animate: { opacity: 1, y: 0 },
-              exit: { opacity: 0, y: -20 },
-              className: "w-full flex flex-col gap-[3vh]",
+              exit: { opacity: 0, y: -15 },
+              className: "w-full flex flex-col gap-[2.1vh]",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-1 bg-white/5 border border-white/10 rounded-2xl shadow-2xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-tv-panel p-[2vw] rounded-xl border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-0.75 bg-white/5 border border-white/10 rounded-xl shadow-2xl", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-tv-panel p-[1.4vw] rounded-lg border border-white/10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TvText,
                   {
                     variant: "h2",
                     align: "center",
                     className: cn$1(
                       "leading-[1.1] font-bold text-tv-accent transition-all duration-300",
-                      currentQuestion.question.length > 200 ? "text-lg" : currentQuestion.question.length > 120 ? "text-xl" : "text-[clamp(1.25rem,3.8vh,3.0rem)]"
+                      currentQuestion.question.length > 200 ? "text-sm" : currentQuestion.question.length > 120 ? "text-base" : "text-[clamp(0.9rem,2.7vh,2.15rem)]"
                     ),
                     children: currentQuestion.question
                   }
                 ) }) }),
-                config?.lifelineConfig.enabled && currentState === "QUESTION" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center -mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                config?.lifelineConfig.enabled && ["QUESTION", "ANSWER_REVEAL"].includes(currentState) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center my-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TvButton,
                   {
                     variant: "secondary",
                     size: "sm",
                     className: cn$1(
-                      "border-tv-accent/20 px-6 py-2 bg-tv-accentSoft text-tv-accent font-bold tracking-widest",
+                      "border-tv-accent/20 px-4 py-1 h-7 bg-tv-accentSoft text-tv-accent font-bold tracking-widest text-[9px]",
                       (eliminatedOptions.length > 0 || (activeTeam?.lifelineRemaining || 0) <= 0 || isLocked) && "opacity-40 grayscale pointer-events-none"
                     ),
                     glow: eliminatedOptions.length === 0 && (activeTeam?.lifelineRemaining || 0) > 0 && !isLocked,
-                    iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 16 }),
+                    iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 12 }),
                     onClick: () => simulationEngine.activate5050(),
                     children: eliminatedOptions.length > 0 ? "50/50 ACTIVE" : (activeTeam?.lifelineRemaining || 0) > 0 ? `ACTIVATE 50/50 (${activeTeam?.lifelineRemaining} LEFT)` : "NO LIFELINE REMAINING"
                   }
                 ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-[2vh] w-full", children: ["A", "B", "C", "D"].map((key) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-[1.4vh] w-full", children: ["A", "B", "C", "D"].map((key) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                   OptionControl,
                   {
                     label: key,
@@ -39526,13 +39630,13 @@ function AdminConsoleScreen() {
               initial: { opacity: 0, scale: 0.9 },
               animate: { opacity: 1, scale: 1 },
               exit: { opacity: 0 },
-              className: "flex flex-col items-center justify-center h-full gap-8",
+              className: "flex flex-col items-center justify-center h-full gap-5",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-warning text-xl tracking-[1em] uppercase animate-pulse", children: "STALEMATE DETECTED" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-6xl font-black italic text-white uppercase tracking-tighter drop-shadow-glow", children: "TIE BREAKER" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-6 mt-4", children: teams.filter((t2) => tieBreakerTeams.includes(t2.id)).map((team) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-6 py-3 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", style: { color: team.color }, children: team.name }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] uppercase tracking-widest mt-1", children: "LOCKED IN COMBAT" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-warning text-sm tracking-[1em] uppercase animate-pulse", children: "STALEMATE DETECTED" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-4xl font-black italic text-white uppercase tracking-tighter drop-shadow-glow", children: "TIE BREAKER" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4 mt-3", children: teams.filter((t2) => tieBreakerTeams.includes(t2.id)).map((team) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-4 py-2 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: "text-sm", style: { color: team.color }, children: team.name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[7px] uppercase tracking-widest mt-0.5", children: "LOCKED IN COMBAT" })
                 ] }, team.id)) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TvButton,
@@ -39540,13 +39644,13 @@ function AdminConsoleScreen() {
                     variant: "primary",
                     size: "lg",
                     glow: true,
-                    className: "mt-8 px-12 py-6 text-xl",
-                    iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 24 }),
+                    className: "mt-6 px-8 py-4 text-base",
+                    iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 16 }),
                     onClick: () => simulationEngine.proceedFromIntro(),
                     children: "PROCEED TO QUESTION"
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "max-w-md text-center text-xs opacity-40 mt-6 italic", children: "The system has initiated an automated Tie-Breaker protocol. Each team will receive one take per loop until a definitive winner or elimination candidate is identified." })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "max-w-xs text-center text-[10px] opacity-40 mt-6 italic", children: "The system has initiated an automated Tie-Breaker protocol. Each team will receive one take per loop until a definitive winner or elimination candidate is identified." })
               ]
             },
             "tie-breaker"
@@ -39557,32 +39661,32 @@ function AdminConsoleScreen() {
               initial: { opacity: 0, scale: 0.9 },
               animate: { opacity: 1, scale: 1 },
               exit: { opacity: 0 },
-              className: "flex flex-col items-center justify-center h-full gap-8",
+              className: "flex flex-col items-center justify-center h-full gap-5",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-6 rounded-full bg-[#BF00FF]/10 border border-[#BF00FF]/30 animate-pulse", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 48, className: "text-[#BF00FF]" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-6xl font-black italic text-white uppercase tracking-tighter drop-shadow-[0_0_50px_#BF00FF]", children: "FAILSAFE UNIVERSE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 rounded-full bg-[#BF00FF]/10 border border-[#BF00FF]/30 animate-pulse", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 32, className: "text-[#BF00FF]" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[2.8rem] font-black italic text-white uppercase tracking-tighter drop-shadow-[0_0_50px_#BF00FF]", children: "FAILSAFE UNIVERSE" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TvButton,
                   {
                     variant: "primary",
                     size: "lg",
                     glow: true,
-                    className: "mt-8 px-12 py-6 text-xl bg-[#BF00FF] border-[#BF00FF] hover:bg-[#D000FF]",
-                    iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 24 }),
+                    className: "mt-6 px-8 py-4 text-base bg-[#BF00FF] border-[#BF00FF] hover:bg-[#D000FF]",
+                    iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 16 }),
                     onClick: () => simulationEngine.proceedFromIntro(),
                     children: "ENGAGE DRIVECORE 02"
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "max-w-md text-center text-xs opacity-40 mt-6 italic", children: "Primary question core exhausted. Entering emergency failsafe universe. Brace for high-velocity data transition." })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "max-w-xs text-center text-[9px] opacity-40 mt-4 italic", children: "Primary question core exhausted. Entering emergency failsafe universe. Brace for high-velocity data transition." })
               ]
             },
             "failsafe-intro"
           ),
-          currentState === "LEADERBOARD" && /* @__PURE__ */ jsxRuntimeExports.jsxs(motion.div, { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 }, className: "flex flex-col items-center gap-[4vh]", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { size: 80, className: "text-tv-accent drop-shadow-glow animate-pulse" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center space-y-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-5xl font-black italic", children: "ROUND COMPLETE" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "uppercase tracking-[0.4em] opacity-40 text-xs text-center block", children: "Standings Synchronized with Projector" })
+          currentState === "LEADERBOARD" && /* @__PURE__ */ jsxRuntimeExports.jsxs(motion.div, { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 }, className: "flex flex-col items-center gap-[2.8vh]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { size: 56, className: "text-tv-accent drop-shadow-glow animate-pulse" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center space-y-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-4xl font-black italic", children: "ROUND COMPLETE" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "uppercase tracking-[0.4em] opacity-40 text-[8px] text-center block", children: "Standings Synchronized with Projector" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               TvButton,
@@ -39590,7 +39694,8 @@ function AdminConsoleScreen() {
                 variant: "primary",
                 size: "lg",
                 glow: true,
-                iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 20 }),
+                className: "h-9 px-6 text-sm",
+                iconRight: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 14 }),
                 onClick: () => simulationEngine.startNextRound(),
                 children: "START NEXT ROUND"
               }
@@ -39639,61 +39744,71 @@ function AdminConsoleScreen() {
             initial: { opacity: 0 },
             animate: { opacity: 1 },
             exit: { opacity: 0 },
-            className: "fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvPanel, { className: "max-w-md w-full p-8 border-tv-accent/30 shadow-[0_0_50px_rgba(0,229,255,0.2)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-6 text-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 rounded-full bg-tv-accentSoft flex items-center justify-center border border-tv-accent/50 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-tv-accent", children: selectedOption }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-2xl font-bold uppercase tracking-tight mb-2", children: "Confirm Answer?" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "opacity-60 text-sm", children: "Are you sure this is the team's final answer? This action cannot be undone." })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full gap-3 mt-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  TvButton,
-                  {
-                    variant: "primary",
-                    size: "lg",
-                    glow: true,
-                    className: "w-full py-4 text-lg",
-                    disabled: isLocked,
-                    onClick: () => simulationEngine.confirmAnswer(),
-                    children: isLocked ? "LOCKING..." : "YES – LOCK ANSWER"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  TvButton,
-                  {
-                    variant: "ghost",
-                    className: "w-full text-white/40 hover:text-white",
-                    disabled: isLocked,
-                    onClick: () => simulationEngine.cancelSelection(),
-                    children: "CANCEL"
-                  }
-                )
-              ] })
-            ] }) })
+            className: "fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-8",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              motion.div,
+              {
+                initial: { scale: 0.9, opacity: 0, y: 20 },
+                animate: { scale: 1, opacity: 1, y: 0 },
+                className: "max-w-md w-full bg-tv-panel border border-tv-accent/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-6 mb-8 text-center", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-6xl font-black text-tv-accent leading-none", children: selectedOption }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent tracking-[0.3em] uppercase block", children: isLocked ? "FINAL ANSWER LOCKED" : "CONFIRM ANSWER" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-2xl font-bold text-white uppercase", children: activeTeam?.name })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      TvButton,
+                      {
+                        variant: "primary",
+                        size: "lg",
+                        glow: true,
+                        className: "w-full py-4 text-lg",
+                        disabled: isLocked,
+                        onClick: () => simulationEngine.confirmAnswer(),
+                        children: isLocked ? "LOCKING..." : "YES – LOCK ANSWER"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      TvButton,
+                      {
+                        variant: "ghost",
+                        className: "w-full text-white/40 hover:text-white",
+                        disabled: isLocked,
+                        onClick: () => simulationEngine.cancelSelection(),
+                        children: "CANCEL"
+                      }
+                    )
+                  ] })
+                ]
+              }
+            )
           }
         ) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "flex flex-col items-center gap-[3vh] h-full border-l border-white/5 pl-[2vw]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs uppercase tracking-[0.2em] opacity-60", children: "System Clock" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative group mt-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "flex flex-col items-center gap-[2.1vh] h-full border-l border-white/5 pl-[1.4vw]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[7px] uppercase tracking-[0.2em] opacity-60 text-center", children: "System Clock" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative group mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           TvProgressRing,
           {
             duration: config?.timerSeconds || 30,
             remaining: timerRemaining,
-            size: 150,
-            strokeWidth: 8,
+            size: 105,
+            strokeWidth: 6,
             colorOverride: timerRemaining < 5 ? "#FF3D00" : void 0
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-auto w-full space-y-4 pb-8", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-white/5 rounded border border-white/10", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] opacity-40 mb-2", children: "PICKER FOCUS" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: "text-sm", children: currentState === "PICKER_PHASE" ? activeTeam?.name : "IDLE" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-auto w-full space-y-3 pb-6", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 bg-white/5 rounded border border-white/10 flex flex-col items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[7px] opacity-40 mb-1.5 text-center", children: "PICKER FOCUS" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", align: "center", className: "text-[10px] text-center", children: currentState === "PICKER_PHASE" ? activeTeam?.name : "IDLE" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-[1vw] bg-black/40 border border-tv-accent/20 rounded shadow-glow-soft", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[8px] text-tv-accent tracking-[0.2em] mb-3 block", children: "DISPLAY DIAGNOSTICS" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-[0.7vw] bg-black/40 border border-tv-accent/20 rounded shadow-glow-soft flex flex-col items-center w-full", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[7px] text-tv-accent tracking-[0.2em] mb-2 block text-center", children: "DISPLAY DIAGNOSTICS" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5 w-full", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(DebugInfo, { label: "Displays", value: displayInfo.count }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DebugInfo, { label: "Primary", value: displayInfo.primaryRes }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DebugInfo, { label: "External", value: displayInfo.secondaryRes, color: displayInfo.count > 1 ? "text-tv-success" : "text-tv-danger" }),
@@ -39703,72 +39818,56 @@ function AdminConsoleScreen() {
           ] })
         ] })
       ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("footer", { className: "h-20 border-t border-white/10 bg-black/60 backdrop-blur-xl flex items-center justify-between px-12 z-50", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4 items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent tracking-[0.2em] opacity-80 uppercase", children: currentState === "QUESTION" ? "AWAITING TEAM INPUT..." : "AUTO-SCORING ENGINE ACTIVE" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "ghost", size: "sm", iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { size: 16 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TvButton, { variant: "ghost", size: "sm", iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(Music, { size: 16 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          TvButton,
-          {
-            variant: "ghost",
-            size: "sm",
-            className: "text-tv-danger hover:bg-tv-danger/10",
-            iconLeft: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 16 }),
-            onClick: () => {
-              if (activeTeam && confirm(`ELIMINATE ${activeTeam.name}?`)) {
-                useQuizStore.getState().eliminateTeam(activeTeam.id);
-                simulationEngine.transitionTo("ELIMINATION");
-              }
-            }
-          }
-        )
-      ] }) })
     ] })
   ] });
 }
 function DebugInfo({ label, value, color: color2 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center text-[9px] tracking-tight", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center text-[7px] tracking-tight", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "opacity-40 uppercase", children: label }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: cn$1("font-bold uppercase", color2 || "text-white"), children: value })
   ] });
 }
 function OptionControl({ label, text: text2, isCorrect, isRevealed, onClick, isSelected, disabled }) {
+  const responsiveFontSize = text2.length > 100 ? "text-[16px]" : text2.length > 60 ? "text-[18px]" : "text-[clamp(1.2rem,2.8vh,1.8rem)]";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
     {
       onClick,
       disabled: disabled || isRevealed,
       className: cn$1(
-        "p-[1vw] rounded border-l-4 text-left flex items-start gap-[1vw] transition-all relative overflow-hidden group",
-        !isRevealed ? "bg-tv-panel hover:bg-white/10 border-white/10" : "",
+        "p-[0.7vw] rounded border flex flex-row items-baseline justify-start gap-[0.5vw] transition-all relative overflow-hidden group min-h-[4vh] h-auto pb-2 px-3",
+        !isRevealed ? "bg-tv-panel hover:bg-white/10 border-white/20 hover:border-tv-accent/60 hover:shadow-glow hover:shadow-tv-accent/20" : "",
         isRevealed && isCorrect ? "bg-tv-success/20 border-tv-success shadow-glow scale-[1.02] z-10" : "",
         isRevealed && isSelected && !isCorrect ? "bg-tv-danger/20 border-tv-danger animate-[shake_0.5s_ease-in-out]" : "",
         isRevealed && !isCorrect && !isSelected ? "opacity-40 grayscale-[0.5]" : "",
         disabled && "opacity-50 cursor-not-allowed"
       ),
-      style: { borderLeftColor: isRevealed && isCorrect ? "#00E676" : isRevealed && isSelected && !isCorrect ? "#FF3D00" : isSelected && !isRevealed ? "#00E5FF" : "rgba(255,255,255,0.1)" },
+      style: { borderBottomColor: isRevealed && isCorrect ? "#00E676" : isRevealed && isSelected && !isCorrect ? "#FF3D00" : isSelected && !isRevealed ? "#00E5FF" : "rgba(255,255,255,0.1)" },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: cn$1(
-          "font-black opacity-30 group-hover:opacity-100 transition-opacity text-lg",
-          isRevealed && isCorrect ? "text-tv-success opacity-100" : isRevealed && isSelected && !isCorrect ? "text-tv-danger opacity-100" : isSelected && !isRevealed ? "text-tv-accent opacity-100" : "text-white"
-        ), children: label }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-hidden", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "body", className: cn$1(
+          "font-black shrink-0 transition-opacity uppercase",
+          responsiveFontSize,
+          isRevealed && isCorrect ? "text-tv-success opacity-100" : isRevealed && isSelected && !isCorrect ? "text-tv-danger opacity-100" : isSelected && !isRevealed ? "text-tv-accent opacity-100" : "opacity-30 group-hover:opacity-100 text-white"
+        ), children: [
+          label,
+          ":"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 text-left", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TvText,
             {
               variant: "body",
+              align: "left",
               className: cn$1(
                 "font-bold uppercase tracking-tight transition-all duration-300",
-                text2.length > 100 ? "text-[9px]" : text2.length > 60 ? "text-[10px]" : "text-[clamp(0.8rem,1.85vh,1.35rem)]"
+                responsiveFontSize
               ),
               children: text2
             }
           ),
-          isRevealed && isCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] text-tv-success tracking-widest mt-1 block", children: "SYSTEM VERIFIED" }),
-          isRevealed && isSelected && !isCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] text-tv-danger tracking-widest mt-1 block", children: "INCORRECT" }),
-          !isRevealed && isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] text-tv-accent tracking-widest mt-1 block", children: "AWAITING LOCK" })
+          isRevealed && isCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[7px] text-tv-success tracking-widest mt-0.5 block", children: "SYSTEM VERIFIED" }),
+          isRevealed && isSelected && !isCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[7px] text-tv-danger tracking-widest mt-0.5 block", children: "INCORRECT" }),
+          !isRevealed && isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1.5 h-1.5 rounded-full bg-tv-accent animate-pulse shadow-[0_0_8px_#00E5FF]" }) })
         ] })
       ]
     }
@@ -39777,22 +39876,21 @@ function OptionControl({ label, text: text2, isCorrect, isRevealed, onClick, isS
 const TeamDisplay = ({ team, isLeft }) => {
   const hasTeamPrefix = team.name.toUpperCase().startsWith("TEAM ");
   const displayName = hasTeamPrefix ? team.name.substring(5).trim() : team.name;
-  const align = isLeft ? "right" : "left";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     motion.div,
     {
-      initial: { x: isLeft ? -100 : 100, opacity: 0, skewX: isLeft ? -10 : 10 },
-      animate: { x: 0, opacity: 1, skewX: 0 },
+      initial: { y: 50, opacity: 0 },
+      animate: { y: 0, opacity: 1 },
       transition: { duration: 0.8, ease: "easeOut" },
-      className: `flex-1 flex flex-col ${isLeft ? "items-end pr-8 border-r-4" : "items-start pl-8 border-l-4"} min-w-0`,
+      className: "flex-1 flex flex-col items-center px-8 border-b-4 pb-4 min-w-0",
       style: { borderColor: team.color },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           TvText,
           {
             variant: "label",
-            align,
-            className: "text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60",
+            align: "center",
+            className: "text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60 text-center",
             style: { color: team.color },
             children: "TEAM"
           }
@@ -39801,8 +39899,8 @@ const TeamDisplay = ({ team, isLeft }) => {
           TvText,
           {
             variant: "h1",
-            align,
-            className: "text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full",
+            align: "center",
+            className: "text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full text-center",
             children: displayName
           }
         )
@@ -39811,7 +39909,7 @@ const TeamDisplay = ({ team, isLeft }) => {
   );
 };
 function ProjectionStandbyScreen() {
-  const { teams, config, setupDraft, currentState } = useQuizStore();
+  const { teams, config, setupDraft, currentState, systemSettings } = useQuizStore();
   const activeConfig = config || setupDraft.config;
   const activeTeams = teams?.length > 0 ? teams : setupDraft.teams;
   const [pairIndex, setPairIndex] = React$2.useState(0);
@@ -39826,8 +39924,8 @@ function ProjectionStandbyScreen() {
     return result;
   }, [activeTeams.map((t2) => t2?.id).join(",")]);
   reactExports.useEffect(() => {
-    const { systemSettings } = useQuizStore.getState();
-    if (systemSettings.bgmEnabled) {
+    const { systemSettings: systemSettings2 } = useQuizStore.getState();
+    if (systemSettings2.bgmEnabled) {
       audioEngine.switchBgm("theWait", true);
     }
     let timer;
@@ -39868,8 +39966,11 @@ function ProjectionStandbyScreen() {
             animate: { opacity: 1, y: 0 },
             transition: { duration: 1.5, ease: "easeOut" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[clamp(1rem,1.5vw,2rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70", children: "TECHVERSE QUIZ ARENA PRESENTS..." }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[clamp(3.5rem,8vw,10rem)] font-black uppercase text-white drop-shadow-glow leading-none mb-[2vh]", children: activeConfig?.eventName || "TECHVERSE BATTLE" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-[clamp(0.8rem,1.2vw,1.6rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70", children: [
+                systemSettings?.organizationName?.toUpperCase() || "COORDI.TECH",
+                " QUIZ ARENA PRESENTS..."
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[clamp(3.5rem,8vw,10rem)] font-black uppercase text-white drop-shadow-glow leading-none mb-[2vh]", children: activeConfig?.eventName || "COORDI.TECH BATTLE" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[2px] bg-tv-accent/50 w-[30vw] mb-[3vh] shadow-glow" }),
               activeConfig?.eventTheme && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-[clamp(1.5rem,3vw,4rem)] text-tv-accent font-black italic tracking-tighter uppercase px-8 py-2 border-x-2 border-tv-accent/20 bg-tv-accent/5", children: activeConfig.eventTheme })
             ]
@@ -39938,7 +40039,7 @@ const STATUS_MESSAGES = [
   "Load Quiz Setup To Begin..."
 ];
 function ProjectionHoldingScreen() {
-  const { config, teams, questions } = useQuizStore();
+  const { config, teams, questions, systemSettings } = useQuizStore();
   const [msgIndex, setMsgIndex] = reactExports.useState(0);
   reactExports.useEffect(() => {
     const interval = setInterval(() => {
@@ -39981,25 +40082,28 @@ function ProjectionHoldingScreen() {
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "z-10 flex flex-col items-center justify-center w-full max-w-5xl text-center space-y-16", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
         motion.div,
         {
           initial: { opacity: 0, scale: 0.95 },
           animate: { opacity: 1, scale: 1 },
           transition: { duration: 1.5, ease: "easeOut" },
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            motion.div,
-            {
-              animate: { textShadow: ["0px 0px 4px rgba(0,229,255,0)", "0px 0px 16px rgba(0,229,255,0.4)", "0px 0px 4px rgba(0,229,255,0)"] },
-              transition: { duration: 4, repeat: Infinity },
-              className: "font-display font-black tracking-[0.4em] text-[clamp(2.5rem,6vw,5.5rem)] text-white/90 uppercase",
-              children: [
-                "TECHVERSE",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-                "QUIZ ARENA"
-              ]
-            }
-          )
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              motion.div,
+              {
+                animate: { textShadow: ["0px 0px 4px rgba(0,229,255,0)", "0px 0px 16px rgba(0,229,255,0.4)", "0px 0px 4px rgba(0,229,255,0)"] },
+                transition: { duration: 4, repeat: Infinity },
+                className: "font-display font-black tracking-[0.4em] pl-[0.4em] text-[clamp(2rem,4.8vw,4.4rem)] text-white/90 uppercase",
+                children: [
+                  systemSettings?.organizationName?.toUpperCase() || "COORDI.TECH",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                  "QUIZ ARENA"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[clamp(0.6rem,1vw,0.8rem)] mt-2 tracking-widest uppercase opacity-80 block text-tv-accent text-center w-full", children: "Powered by Coordi.Tech" })
+          ]
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-8 relative w-full flex flex-col items-center", children: [
@@ -40010,7 +40114,7 @@ function ProjectionHoldingScreen() {
             animate: { opacity: 1, y: 0 },
             exit: { opacity: 0, y: -5 },
             transition: { duration: 0.5 },
-            className: "absolute text-tv-accent/60 tracking-[0.2em] font-medium uppercase text-[clamp(0.8rem,1.5vw,1.2rem)]",
+            className: "absolute text-tv-accent/60 tracking-[0.2em] pl-[0.2em] font-medium uppercase text-[clamp(0.8rem,1.5vw,1.2rem)]",
             children: STATUS_MESSAGES[msgIndex]
           },
           msgIndex
@@ -40061,16 +40165,8 @@ function ProjectionArmingScreen() {
     }
     setPrevReadyCount(readyCount);
   }, [modules, prevReadyCount]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 bg-[#02040a] flex items-center justify-between p-[8vw] overflow-hidden", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 bg-[#02040a] flex flex-col items-center justify-center p-[4vw] overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 pointer-events-none z-0", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        motion.div,
-        {
-          animate: { y: ["-10vh", "110vh"] },
-          transition: { duration: 6, ease: "linear", repeat: Infinity },
-          className: "absolute inset-x-0 h-4 bg-tv-accent/10 blur-sm"
-        }
-      ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         motion.div,
         {
@@ -40087,122 +40183,138 @@ function ProjectionArmingScreen() {
           transition: { duration: 2 },
           className: "absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.08)_0%,transparent_70%)]"
         }
-      ),
-      [...Array(20)].map((_, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        motion.div,
-        {
-          initial: {
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            opacity: 0
-          },
-          animate: {
-            y: [`${Math.random() * 100}%`, `${Math.random() * 100}%`],
-            opacity: [0, 0.2, 0]
-          },
-          transition: {
-            duration: 10 + Math.random() * 10,
-            repeat: Infinity,
-            ease: "linear"
-          },
-          className: "absolute w-1 h-1 bg-tv-accent rounded-full blur-[1px]"
-        },
-        i2
-      ))
+      )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-[42%] h-full flex flex-col justify-center z-10", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-[6vh]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-[90vw] grid grid-cols-12 gap-[5vw] items-start z-10", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-6 space-y-[6vh]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-[2vh]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            motion.div,
+            {
+              initial: { opacity: 0, x: -50 },
+              animate: { opacity: 1, x: 0 },
+              transition: { duration: 1, ease: "easeOut" },
+              className: "flex items-center gap-4 text-tv-accent mb-4",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 32, className: "opacity-40" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xl tracking-[0.5em] uppercase opacity-40", children: "System Report #01" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            motion.div,
+            {
+              initial: { opacity: 0, x: -50 },
+              animate: { opacity: 1, x: 0 },
+              transition: { duration: 1, delay: 0.2 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-[clamp(3rem,6vw,8rem)] font-black uppercase tracking-widest text-white leading-none", children: [
+                "SYSTEM ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-tv-accent", children: "ARMING" })
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            motion.div,
+            {
+              initial: { opacity: 0 },
+              animate: { opacity: 1 },
+              transition: { delay: 0.5, duration: 1 },
+              className: "space-y-[2vh]",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[clamp(0.9rem,1.2vw,1.5rem)] tracking-[0.4em] opacity-60 uppercase", children: "Preparing Quiz Environment" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[2px] w-full bg-tv-border relative overflow-hidden mt-[2vh]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  motion.div,
+                  {
+                    animate: { x: ["-100%", "200%"] },
+                    transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                    className: "absolute top-0 bottom-0 w-1/3 bg-tv-accent shadow-[0_0_10px_#00E5FF]"
+                  }
+                ) })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-[2vh]", children: modules.map((mod, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           motion.div,
           {
-            initial: { opacity: 0, y: 30 },
-            animate: { opacity: 1, y: 0 },
-            transition: { duration: 1, ease: "easeOut" },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-[clamp(3rem,5vw,6rem)] font-black uppercase tracking-widest text-white leading-none", children: [
-              "SYSTEM",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-tv-accent", children: "ARMING" })
-            ] })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          motion.div,
-          {
-            initial: { opacity: 0 },
-            animate: { opacity: 1 },
-            transition: { delay: 0.5, duration: 1 },
-            className: "mt-[3vh] space-y-[2vh]",
+            initial: { opacity: 0, x: -30 },
+            animate: { opacity: 1, x: 0 },
+            transition: { delay: 0.8 + index * 0.1 },
+            className: `flex items-center gap-[2vw] p-[1.5vw] rounded-lg border-l-4 bg-black/40 backdrop-blur-sm transition-colors duration-500 ${mod.ready ? "border-tv-accent" : "border-white/5"}`,
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[clamp(0.9rem,1.2vw,1.5rem)] tracking-[0.4em] opacity-60 uppercase", children: "Preparing Quiz Environment" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[2px] w-full bg-tv-border relative overflow-hidden max-w-lg mt-[2vh]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                motion.div,
-                {
-                  animate: { x: ["-100%", "200%"] },
-                  transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                  className: "absolute top-0 bottom-0 w-1/3 bg-tv-accent shadow-[0_0_10px_#00E5FF]"
-                }
-              ) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `shrink-0 transition-colors duration-500 ${mod.ready ? "text-tv-accent" : "text-tv-textMuted"}`, children: mod.ready ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-[1.5vw] h-[1.5vw]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(motion.div, { animate: { rotate: 360 }, transition: { duration: 4, repeat: Infinity, ease: "linear" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleDashed, { className: "w-[1.5vw] h-[1.5vw]" }) }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: `tracking-widest uppercase transition-colors duration-500 text-[clamp(0.7rem,1vw,1.2rem)] ${mod.ready ? "text-white" : "text-tv-textMuted"}`, children: mod.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-[0.2vw] mt-[1vh] w-full", children: [...Array(15)].map((_, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `h-[0.3vh] flex-1 rounded-sm ${mod.ready ? "bg-tv-accent/40" : "bg-white/10"}` }, i2)) })
+              ] })
             ]
-          }
-        )
+          },
+          mod.id
+        )) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-[3vh]", children: modules.map((mod, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        motion.div,
-        {
-          initial: { opacity: 0, x: -50 },
-          animate: { opacity: 1, x: 0 },
-          transition: { delay: 0.2 * index + 0.5 },
-          className: `flex items-center gap-[1.5vw] p-[1.2vw] rounded-lg border-l-4 bg-black/40 backdrop-blur-sm transition-colors duration-500 ${mod.ready ? "border-tv-accent shadow-[inset_4px_0_0_#00E5FF,0_0_20px_rgba(0,229,255,0.1)]" : "border-tv-border"}`,
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `shrink-0 transition-colors duration-500 ${mod.ready ? "text-tv-accent" : "text-tv-textMuted"}`, children: mod.ready ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-[2vw] h-[2vw]" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(motion.div, { animate: { rotate: 360 }, transition: { duration: 4, repeat: Infinity, ease: "linear" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleDashed, { className: "w-[2vw] h-[2vw]" }) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: `tracking-widest uppercase transition-colors duration-500 text-[clamp(0.7rem,1vw,1.2rem)] ${mod.ready ? "text-white" : "text-tv-textMuted"}`, children: mod.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-[0.2vw] mt-[1vh]", children: [...Array(20)].map((_, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                motion.div,
-                {
-                  animate: !mod.ready ? { backgroundColor: ["rgba(255,255,255,0.1)", "rgba(0,229,255,0.5)", "rgba(255,255,255,0.1)"] } : {},
-                  transition: !mod.ready ? { duration: 1, repeat: Infinity, delay: i2 * 0.05 } : {},
-                  className: `h-[0.4vh] flex-1 rounded-sm ${mod.ready ? "bg-tv-accent/40" : "bg-white/10"}`
-                },
-                i2
-              )) })
-            ] })
-          ]
-        },
-        mod.id
-      )) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-[44%] h-full flex flex-col justify-center z-10 pl-[4vw] border-l border-tv-border/30 relative", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-1/2 -left-[1px] w-[2px] h-[20vh] bg-tv-accent -translate-y-1/2 shadow-glow" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[clamp(0.7rem,1vw,1.2rem)] tracking-[0.5em] text-tv-accent mb-[4vh] block", children: "OPERATIVE REGISTRATION" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-[1.5vw]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { children: teams?.map((team, idx) => team?.id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        motion.div,
-        {
-          initial: { opacity: 0, scale: 0.9, y: 20 },
-          animate: { opacity: 1, scale: 1, y: 0 },
-          exit: { opacity: 0, scale: 0.9, filter: "blur(10px)" },
-          transition: { duration: 0.4 },
-          className: "p-[1.5vw] rounded-xl border-2 bg-black/60 backdrop-blur-md relative overflow-hidden group",
-          style: { borderColor: team.color || "#333" },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              motion.div,
-              {
-                animate: { opacity: [0.05, 0.15, 0.05] },
-                transition: { duration: 3, repeat: Infinity, delay: idx * 0.2 },
-                className: "absolute inset-0 pointer-events-none",
-                style: { backgroundColor: team.color || "#333" }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-[clamp(0.6rem,0.7vw,0.8rem)] opacity-60 mb-[1vh] font-bold tracking-[0.3em] block", style: { color: team.color }, children: [
-              "UNIT 0",
-              idx + 1
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: "font-bold tracking-widest text-white uppercase text-[clamp(1rem,1.5vw,2rem)] truncate leading-tight", children: team.name || "PENDING..." })
-          ]
-        },
-        team.id
-      )) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-6 space-y-[6vh] border-l border-tv-border/20 pl-[5vw]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-[4vh]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            motion.div,
+            {
+              initial: { opacity: 0, x: 50 },
+              animate: { opacity: 1, x: 0 },
+              transition: { duration: 1, ease: "easeOut" },
+              className: "flex items-center gap-4 text-tv-accent mb-4",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 32, className: "opacity-40" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xl tracking-[0.5em] uppercase opacity-40", children: "Enrollment Report #02" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            motion.div,
+            {
+              initial: { opacity: 0, x: 50 },
+              animate: { opacity: 1, x: 0 },
+              transition: { duration: 1, delay: 0.2 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-[clamp(3rem,6vw,8rem)] font-black uppercase tracking-widest text-white leading-none", children: [
+                "OPERATIVE ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-tv-accent", children: "REGISTRATION" })
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-[1.5vh]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { children: teams?.map((team, idx) => team?.id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            motion.div,
+            {
+              initial: { opacity: 0, scale: 0.9, x: 30 },
+              animate: { opacity: 1, scale: 1, x: 0 },
+              transition: { duration: 0.4, delay: idx * 0.1 },
+              className: "p-[1.5vw] rounded-lg border-l-2 bg-white/5 backdrop-blur-sm relative overflow-hidden group",
+              style: { borderLeftColor: team.color || "#333" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-[clamp(0.6rem,0.7vw,0.8rem)] opacity-60 mb-[0.5vh] font-bold tracking-[0.3em] uppercase", style: { color: team.color }, children: [
+                    "UNIT 0",
+                    idx + 1
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", className: "font-bold tracking-widest text-white uppercase text-[clamp(0.8rem,1.2vw,1.4rem)] truncate leading-tight", children: team.name || "PENDING..." })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-2 right-2 opacity-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 24, style: { color: team.color } }) })
+              ]
+            },
+            team.id
+          )) }),
+          [...Array(Math.max(0, 4 - teams.length))].map((_, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-[1.5vw] rounded-lg border border-dashed border-white/5 opacity-20 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[0.6rem] tracking-widest", children: "AWAITING UNIT..." }) }, `empty-${i2}`))
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-6 border-t border-white/5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-3 h-3 rounded-full animate-pulse ${teams.length >= 2 ? "bg-tv-success" : "bg-tv-warning"}` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "muted", className: "text-xs uppercase tracking-widest", children: [
+            teams.length,
+            " Operatives Embedded – ",
+            teams.length >= 2 ? "READY FOR DEPLOYMENT" : "MINIMUM QUOTA NOT MET"
+          ] })
+        ] }) })
+      ] })
     ] })
   ] });
 }
@@ -40218,7 +40330,7 @@ function LeaderboardOverlay() {
       initial: { opacity: 0 },
       animate: { opacity: 1 },
       exit: { opacity: 0 },
-      className: "fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-[5vw] overflow-hidden",
+      className: "fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center py-[5vh] px-[5vw] overflow-hidden",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 pointer-events-none", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40238,10 +40350,10 @@ function LeaderboardOverlay() {
             initial: { y: -50, opacity: 0 },
             animate: { y: 0, opacity: 1 },
             transition: { delay: 0.3, duration: 0.8, type: "spring" },
-            className: "text-center mb-[6vh] relative",
+            className: "text-center mb-[3vh] relative",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent tracking-[1.2em] uppercase mb-4 opacity-60", children: "NEURAL LINK STATUS" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[clamp(3rem,8vw,6rem)] font-black italic uppercase tracking-tighter text-white drop-shadow-glow", children: "CURRENT STANDINGS" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent tracking-[1.2em] pl-[1.2em] uppercase mb-4 opacity-60", children: "NEURAL LINK STATUS" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-[clamp(2.4rem,6.4vw,4.8rem)] font-black italic uppercase tracking-tighter text-white drop-shadow-glow", children: "CURRENT STANDINGS" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 motion.div,
                 {
@@ -40254,7 +40366,7 @@ function LeaderboardOverlay() {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full max-w-5xl space-y-4", children: sortedTeams.map((team, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full max-w-5xl flex flex-col gap-[0.8vh] items-center justify-center flex-1 min-h-0", children: sortedTeams.map((team, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           LeaderboardCard,
           {
             team,
@@ -40269,7 +40381,7 @@ function LeaderboardOverlay() {
             initial: { opacity: 0 },
             animate: { opacity: 0.4 },
             transition: { delay: 2 },
-            className: "mt-[6vh]",
+            className: "mt-[3vh]",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[10px] tracking-[0.5em] uppercase", children: "MONITORING LIVE SCORE ARCHITECTURE" })
           }
         )
@@ -40307,64 +40419,77 @@ function LeaderboardCard({ team, rank, delay: delay2 }) {
       animate: { x: 0, opacity: 1, skewX: 0 },
       transition: { delay: delay2, duration: 0.6, type: "spring", damping: 15 },
       className: cn$1(
-        "group relative p-6 border-l-8 bg-white/5 backdrop-blur-md flex items-center justify-between transition-all duration-500",
-        isFirst ? "bg-tv-accentSoft border-tv-accent shadow-[0_0_40px_-10px_rgba(0,229,255,0.3)] scale-[1.05] z-10" : "border-white/10 hover:bg-white/10",
+        "group relative w-full p-[1.4vh] px-[2vw] border-l-[0.5vh] bg-white/5 backdrop-blur-md flex items-center justify-between transition-all duration-500",
+        isFirst ? "bg-tv-accentSoft border-tv-accent shadow-[0_0_40px_-10px_rgba(0,229,255,0.3)] scale-[1.03] z-10" : "border-white/10 hover:bg-white/10",
         team.isEliminated && "grayscale opacity-30"
       ),
       style: { borderLeftColor: isFirst ? "#00E5FF" : team.color },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-8", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex items-center justify-center w-12 h-12", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: cn$1(
-              "font-black italic text-4xl leading-none",
-              isFirst ? "text-tv-accent" : "text-white/40"
-            ), children: rank }),
-            isFirst && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              motion.div,
-              {
-                animate: { rotate: 360 },
-                transition: { duration: 10, repeat: Infinity, ease: "linear" },
-                className: "absolute inset-0 border border-tv-accent/30 rounded-full border-dashed"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(RankIcon, {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                TvText,
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between w-full transition-all duration-500 flex-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-8", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn$1("relative flex items-center justify-center w-[2.8vw] h-[2.8vw]", team.isEliminated && "grayscale opacity-30"), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: cn$1(
+                "font-black italic text-[clamp(1.2rem,2.8vh,2.2rem)] leading-none",
+                isFirst ? "text-tv-accent" : "text-white/40"
+              ), children: rank }),
+              isFirst && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                motion.div,
                 {
-                  variant: "h2",
-                  className: cn$1(
-                    "font-black uppercase tracking-widest leading-none",
-                    team.name.length > 20 ? "text-xl" : team.name.length > 15 ? "text-2xl" : "text-3xl",
-                    isFirst ? "text-white drop-shadow-glow" : "text-white/90"
-                  ),
-                  children: team.name
+                  animate: { rotate: 360 },
+                  transition: { duration: 10, repeat: Infinity, ease: "linear" },
+                  className: "absolute inset-0 border-[0.1vh] border-tv-accent/30 rounded-full border-dashed"
                 }
               )
             ] }),
-            isFirst && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-[10px] tracking-[0.4em] uppercase mt-1", children: "Current Dominant Operative" })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(motion.div, { className: "flex items-baseline gap-2 justify-end", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: cn$1(
-              "text-5xl font-black italic",
-              isFirst ? "text-tv-accent" : "text-white"
-            ), children: displayScore }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs opacity-40", children: "PTS" })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn$1("flex items-center gap-3", team.isEliminated && "grayscale opacity-30"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RankIcon, {}),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    TvText,
+                    {
+                      variant: "h2",
+                      className: cn$1(
+                        "font-black uppercase tracking-widest leading-none",
+                        team.name.length > 20 ? "text-[clamp(1rem,2vh,1.5rem)]" : team.name.length > 15 ? "text-[clamp(1.1rem,2.4vh,1.8rem)]" : "text-[clamp(1.2rem,2.8vh,2rem)]",
+                        isFirst ? "text-white drop-shadow-glow" : "text-white/90"
+                      ),
+                      children: team.name
+                    }
+                  )
+                ] }),
+                team.isEliminated && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  motion.div,
+                  {
+                    initial: { opacity: 0, scale: 0.8 },
+                    animate: { opacity: 1, scale: 1 },
+                    className: "px-3 py-1 rounded-sm border border-tv-danger bg-tv-danger/10 text-tv-danger text-[10px] font-black tracking-[0.2em] uppercase leading-none shadow-[0_0_15px_rgba(239,68,68,0.4)] whitespace-nowrap",
+                    children: "Eliminated"
+                  }
+                )
+              ] }),
+              isFirst && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: cn$1("text-tv-accent text-[0.8vh] tracking-[0.4em] uppercase mt-0.5", team.isEliminated && "grayscale opacity-30"), children: "Current Dominant Operative" })
+            ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-48 h-1 bg-white/5 mt-2 overflow-hidden rounded-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            motion.div,
-            {
-              initial: { width: 0 },
-              animate: { width: `${Math.min(100, team.score / 100 * 100)}%` },
-              transition: { delay: delay2 + 0.5, duration: 1.5, ease: "easeOut" },
-              className: "h-full",
-              style: { backgroundColor: isFirst ? "#00E5FF" : team.color }
-            }
-          ) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: cn$1("text-right", team.isEliminated && "grayscale opacity-30"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(motion.div, { className: "flex items-baseline gap-2 justify-end", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: cn$1(
+                "text-[clamp(2.4rem,4.8vh,4.2rem)] font-black italic",
+                isFirst ? "text-tv-accent" : "text-white"
+              ), children: displayScore }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-xs opacity-40", children: "PTS" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-[10vw] h-[0.3vh] bg-white/5 mt-1 overflow-hidden rounded-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              motion.div,
+              {
+                initial: { width: 0 },
+                animate: { width: `${Math.min(100, team.score / 100 * 100)}%` },
+                transition: { delay: delay2 + 0.5, duration: 1.5, ease: "easeOut" },
+                className: "h-full",
+                style: { backgroundColor: isFirst ? "#00E5FF" : team.color }
+              }
+            ) })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           motion.div,
@@ -94887,8 +95012,8 @@ function GroundCrack({ timelineRef }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("mesh", { ref: crackRef, geometry: crackGeo, scale: 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       "meshStandardMaterial",
       {
-        color: "#1a0a00",
-        emissive: "#FF6600",
+        color: "#b7b1aeff",
+        emissive: "#956f55ff",
         emissiveIntensity: 0,
         side: DoubleSide
       }
@@ -95894,32 +96019,6 @@ function ScoreReader({ to, color: color2 }) {
   }, [to]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "font-bold text-[clamp(2rem,6vh,4rem)]", style: { color: color2 }, children: count });
 }
-function DOMExplosion({ color: color2 }) {
-  const particles = Array.from({ length: 60 });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible", children: particles.map((_, i2) => {
-    const angle = Math.PI * 2 * i2 / particles.length;
-    const radius = 600 + Math.random() * 800;
-    const x2 = Math.cos(angle) * radius;
-    const y2 = Math.sin(angle) * radius;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      motion.div,
-      {
-        initial: { x: 0, y: 0, scale: 0, opacity: 1, rotate: 0 },
-        animate: {
-          x: x2,
-          y: y2,
-          scale: Math.random() * 3 + 1,
-          opacity: 0,
-          rotate: (Math.random() - 0.5) * 1080
-        },
-        transition: { duration: 1.5, ease: "easeOut" },
-        className: "absolute w-8 h-8 shadow-[0_0_30px_rgba(255,0,0,0.8)]",
-        style: { backgroundColor: color2, clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }
-      },
-      i2
-    );
-  }) });
-}
 function CinematicWinnerScreen({ winner }) {
   const { teams, cinematicStage, setCinematicStage } = useQuizStore();
   const [localStage, setLocalStage] = reactExports.useState(cinematicStage > 0 ? cinematicStage : 1);
@@ -95947,16 +96046,7 @@ function CinematicWinnerScreen({ winner }) {
       if (!isMounted) return;
       setLocalStage(3);
       setCinematicStage(3);
-      if (eliminatedTeams.length > 0) {
-        const spotlightTime = 1e4 / eliminatedTeams.length;
-        for (let i2 = 0; i2 < eliminatedTeams.length; i2++) {
-          if (!isMounted) return;
-          setEliminatedSpotlight(eliminatedTeams[i2]);
-          await new Promise((r2) => setTimeout(r2, spotlightTime));
-        }
-      } else {
-        await new Promise((r2) => setTimeout(r2, 1e4));
-      }
+      await new Promise((r2) => setTimeout(r2, 1e4));
       if (!isMounted) return;
       if (teams.length >= 3 && top3.length >= 3) {
         setLocalStage(3.5);
@@ -96052,16 +96142,23 @@ function CinematicWinnerScreen({ winner }) {
                   initial: { height: "5%" },
                   animate: { height: `${heightPercent}%` },
                   transition: { duration: 30, ease: [0.25, 1, 0.5, 1] },
-                  className: "w-full relative bg-white/10 rounded-t-lg",
+                  className: cn$1(
+                    "w-full relative bg-white/10 rounded-t-lg",
+                    t2.isEliminated && "grayscale opacity-30"
+                  ),
                   style: {
-                    backgroundColor: `${t2.color}33`,
-                    borderTop: `6px solid ${t2.color}`,
-                    boxShadow: `0 -10px 40px -10px ${t2.color}`
+                    backgroundColor: t2.isEliminated ? "rgba(239, 68, 68, 0.15)" : `${t2.color}33`,
+                    borderTop: t2.isEliminated ? "5px solid rgba(239, 68, 68, 0.7)" : `6px solid ${t2.color}`,
+                    boxShadow: t2.isEliminated ? "0 -5px 30px -5px rgba(239, 68, 68, 0.4)" : `0 -10px 40px -10px ${t2.color}`
                   },
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute -top-16 left-0 w-full text-center drop-shadow-glow", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ScoreReader, { to: finalScore, color: t2.color }) })
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "mt-4 text-sm uppercase opacity-60 tracking-wider truncate w-full text-center text-white", children: t2.name })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: cn$1(
+                "mt-4 text-sm uppercase opacity-60 tracking-wider truncate w-full text-center text-white",
+                t2.isEliminated && "grayscale opacity-30"
+              ), children: t2.name }),
+              t2.isEliminated && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-danger text-[9px] font-black tracking-widest uppercase mt-1 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]", children: "ELIMINATED" })
             ] }, t2.id);
           }) })
         ]
@@ -96076,27 +96173,39 @@ function CinematicWinnerScreen({ winner }) {
         exit: { opacity: 0, filter: "blur(20px)" },
         transition: { duration: 1 },
         className: "absolute inset-0 flex flex-col items-center justify-center bg-black overflow-hidden",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "popLayout", children: eliminatedSpotlight && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          motion.div,
-          {
-            initial: { scale: 0.5, rotateX: 60, opacity: 0, filter: "blur(20px)" },
-            animate: { scale: 1, rotateX: 0, opacity: 1, filter: "blur(0px)" },
-            exit: { scale: 2.5, opacity: 0, rotateZ: 45, filter: "blur(20px)", transition: { duration: 1 } },
-            transition: { type: "spring", damping: 15, stiffness: 100 },
-            className: "relative flex flex-col items-center z-10 bg-black/60 p-20 rounded-[3rem] border-2 border-tv-danger backdrop-blur-3xl shadow-[0_0_150px_rgba(255,0,0,0.3)]",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DOMExplosion, { color: eliminatedSpotlight.color }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1 h-48 bg-gradient-to-t from-tv-danger to-transparent mb-8 absolute -top-48 shadow-[0_0_20px_#ff0000]" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[3rem] text-tv-danger tracking-[0.4em] font-light italic mb-8 uppercase text-center animate-pulse", children: "HONORABLE DISCHARGE" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-[8rem] font-black text-white drop-shadow-[0_0_80px_#ff0000] leading-none mb-6", children: eliminatedSpotlight.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-tv-danger font-mono text-3xl tracking-[0.5em] font-bold", children: [
-                "FINAL INTEL: ",
-                eliminatedSpotlight.score
-              ] })
-            ]
-          },
-          eliminatedSpotlight.id
-        ) })
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex flex-col items-center z-10 bg-black/60 p-16 rounded-[3rem] border-2 border-tv-danger backdrop-blur-3xl shadow-[0_0_150px_rgba(255,0,0,0.3)] max-w-7xl w-full mx-10", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[3rem] text-tv-danger tracking-[0.4em] font-light italic mb-12 uppercase text-center animate-pulse", children: "HONORABLE DISCHARGE" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn$1(
+            "grid gap-8 w-full px-10",
+            eliminatedTeams.length > 2 ? "grid-cols-3" : eliminatedTeams.length === 2 ? "grid-cols-2" : "grid-cols-1"
+          ), children: eliminatedTeams.map((team) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            motion.div,
+            {
+              initial: { scale: 0.8, opacity: 0 },
+              animate: { scale: 1, opacity: 1 },
+              className: "flex flex-col items-center p-8 border border-tv-danger/20 bg-white/5 rounded-[2rem] shadow-glow-soft relative overflow-hidden",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-tv-danger/5 opacity-50" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  TvText,
+                  {
+                    variant: "h2",
+                    className: cn$1(
+                      "font-black text-white drop-shadow-[0_0_30px_#ff0000] leading-tight mb-4 text-center uppercase",
+                      team.name.length > 15 ? "text-[2.5rem]" : "text-[3.5rem]"
+                    ),
+                    children: team.name
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "label", className: "text-tv-danger font-mono text-2xl tracking-[0.3em] font-bold", children: [
+                  "FINAL INTEL: ",
+                  team.score
+                ] })
+              ]
+            },
+            team.id
+          )) })
+        ] })
       },
       "stage3"
     ),
@@ -96206,30 +96315,30 @@ function CinematicWinnerScreen({ winner }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 z-0 bg-black" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrophyStage3D, {}) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative z-20 flex flex-col pointer-events-none h-full", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end p-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center p-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               motion.div,
               {
-                initial: { x: 80, opacity: 0 },
-                animate: { x: 0, opacity: 1 },
+                initial: { y: 50, opacity: 0 },
+                animate: { y: 0, opacity: 1 },
                 transition: { delay: 1, duration: 1.5, ease: "easeOut" },
-                className: "text-right",
+                className: "text-center",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[#FFD700] tracking-[0.5em] text-sm font-black uppercase drop-shadow-[0_0_12px_#ccaa00] block mb-1", children: "SUPREME CHAMPION" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[clamp(2rem,5vw,4.5rem)] font-black italic drop-shadow-[0_0_40px_rgba(255,215,0,0.8)] leading-none text-white", children: winner.name })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[#FFD700] tracking-[0.5em] text-sm font-black uppercase drop-shadow-[0_0_12px_#ccaa00] block mb-1 text-center", children: "SUPREME CHAMPION" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-[clamp(2rem,5vw,4.5rem)] font-black italic drop-shadow-[0_0_40px_rgba(255,215,0,0.8)] leading-none text-white text-center", children: winner.name })
                 ]
               }
             ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex items-end justify-between px-10 pb-10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 relative pb-10 px-10", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 motion.div,
                 {
-                  initial: { x: -100, opacity: 0 },
+                  initial: { x: 100, opacity: 0 },
                   animate: { x: 0, opacity: 1 },
                   transition: { delay: 2, duration: 1.5 },
-                  className: "bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(255,215,0,0.1)]",
+                  className: "absolute right-10 bottom-10 bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(255,215,0,0.1)] flex flex-col items-center min-w-[280px]",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[#FFD700] uppercase tracking-widest text-sm mb-2 block", children: "Accumulated Intel" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-6xl font-bold text-white", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[#FFD700] uppercase tracking-widest text-sm mb-2 block text-center", children: "Accumulated Intel" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", align: "center", className: "text-6xl font-bold text-white text-center", children: [
                       winner.score,
                       " ",
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-2xl text-tv-accent", children: "PTS" })
@@ -96240,13 +96349,13 @@ function CinematicWinnerScreen({ winner }) {
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 motion.div,
                 {
-                  initial: { x: 100, opacity: 0 },
+                  initial: { x: -100, opacity: 0 },
                   animate: { x: 0, opacity: 1 },
-                  transition: { delay: 2, duration: 1.5 },
-                  className: "bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 text-right shadow-[0_0_40px_rgba(255,215,0,0.1)]",
+                  transition: { delay: 2.2, duration: 1.5 },
+                  className: "absolute left-10 bottom-10 bg-black/60 backdrop-blur-xl border border-[#FFD700]/30 rounded-[2rem] p-8 shadow-[0_0_40px_rgba(255,215,0,0.1)] flex flex-col items-center min-w-[280px]",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-[#FFD700] uppercase tracking-widest text-sm mb-2 block", children: "Global Ranking" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-7xl font-black text-[#FFD700] drop-shadow-[0_0_30px_#FFD700]", children: "#1" })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-[#FFD700] uppercase tracking-widest text-sm mb-2 block text-center", children: "Global Ranking" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-7xl font-black text-[#FFD700] drop-shadow-[0_0_30px_#FFD700] text-center", children: "#1" })
                   ]
                 }
               )
@@ -96307,6 +96416,9 @@ function ProjectionScreen() {
     audioEngine.sfxEnabled = systemSettings.sfxEnabled;
   }, [systemSettings.sfxEnabled]);
   React$2.useEffect(() => {
+    audioEngine.setSfxVolume(systemSettings.sfxVolume);
+  }, [systemSettings.sfxVolume]);
+  React$2.useEffect(() => {
     const liveQuizStates = ["ARMING", "QUESTION", "ANSWER_REVEAL", "LEADERBOARD", "ELIMINATION", "ROUND_INTRO", "TURN_INTRO", "PICKER_PHASE", "TIE_BREAKER", "FAILSAFE_INTRO", "WINNER", "SESSION_END"];
     const isInSimulation = uiScreen === "SIMULATION_CONSOLE";
     const isWaitStage = isInSimulation && currentState === "STANDBY";
@@ -96335,8 +96447,8 @@ function ProjectionScreen() {
     }
   }, [currentState, currentQuestion?.id]);
   React$2.useEffect(() => {
-    if (currentState === "QUESTION" && timerRemaining > 0 && timerRemaining <= 16) {
-      audioEngine.playCountdown16s(timerRemaining);
+    if (currentState === "QUESTION" && timerRemaining > 0) {
+      audioEngine.playTimerLoop();
     } else if (timerRemaining === 0 || currentState !== "QUESTION") {
       audioEngine.stopSfx("countdown16s");
     }
@@ -96390,13 +96502,7 @@ function ProjectionScreen() {
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-warning text-2xl tracking-[2em] uppercase mb-12 block", children: "STALEMATE DETECTED" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-[10vw] font-black italic uppercase leading-none text-white drop-shadow-[0_0_50px_rgba(255,61,0,0.5)] mb-8", children: "TIE BREAKER" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-12", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-4xl text-tv-warning/70 uppercase tracking-[1em] mb-2", children: "SUDDEN DEATH" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", align: "center", className: "text-6xl font-black text-white", children: [
-                      "ROUND ",
-                      tieBreakerRound
-                    ] })
-                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-12", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-6xl font-black text-white", children: "ROUND" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-16 justify-center items-center", children: tiedTeamsData.map((team, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       motion.div,
@@ -96406,7 +96512,7 @@ function ProjectionScreen() {
                         transition: { delay: 0.5 + idx * 0.2 },
                         className: "flex flex-col items-center",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-5xl font-black uppercase", style: { color: team.color }, children: team.name }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-5xl font-black uppercase text-center", style: { color: team.color }, children: team.name }),
                           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 h-1 w-32 rounded-full", style: { backgroundColor: team.color } })
                         ]
                       }
@@ -96415,8 +96521,7 @@ function ProjectionScreen() {
                   ] }, team.id)) })
                 ]
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 border-[20px] border-tv-warning/5 animate-pulse" })
+            )
           ]
         },
         "tie-breaker-intro"
@@ -96504,7 +96609,7 @@ function ProjectionScreen() {
                 transition: { duration: 1.2, delay: 0.5 },
                 className: "text-center relative z-20",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-2xl tracking-[2em] uppercase mb-12 block animate-pulse", children: "PREPARING NEXT TAKE" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent text-2xl tracking-[2em] pl-[2em] uppercase mb-12 block animate-pulse text-center", children: "PREPARING NEXT TAKE" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       motion.div,
@@ -96515,7 +96620,7 @@ function ProjectionScreen() {
                         className: "h-[1px] bg-gradient-to-r from-transparent via-tv-accent to-transparent mb-10"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-3xl tracking-[1.5em] uppercase text-white/30 mb-6 font-light", children: "ACTIVE OPERATIVE" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-3xl tracking-[1.5em] pl-[1.5em] uppercase text-white/30 mb-6 font-light text-center", children: "ACTIVE OPERATIVE" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       motion.div,
                       {
@@ -96537,7 +96642,8 @@ function ProjectionScreen() {
                             TvText,
                             {
                               variant: "h1",
-                              className: "text-[10vw] font-black italic uppercase leading-none drop-shadow-glow relative z-10",
+                              align: "center",
+                              className: "text-[10vw] font-black italic uppercase leading-none drop-shadow-glow relative z-10 text-center",
                               style: { color: activeTeam.color },
                               children: activeTeam.name
                             }
@@ -96587,11 +96693,11 @@ function ProjectionScreen() {
                 initial: { scale: 0.4, opacity: 0, filter: "blur(40px)" },
                 animate: { scale: 1, opacity: 1, filter: "blur(0px)" },
                 transition: { duration: 1.5, ease: "easeOut" },
-                className: "text-center relative z-20",
+                className: "text-center relative z-20 flex flex-col items-center",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-xl tracking-[1.5em] uppercase mb-6 block opacity-40", children: "STAGE PROGRESSION" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", className: "text-[clamp(5rem,15vw,10rem)] italic font-black uppercase tracking-[0.2em] text-white", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent text-xl tracking-[1.5em] pl-[1.5em] uppercase mb-6 block opacity-40 text-center", children: "STAGE PROGRESSION" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "h1", align: "center", className: "text-[clamp(5rem,15vw,10rem)] italic font-black uppercase tracking-[0.2em] pl-[0.2em] text-white text-center", children: [
                       "ROUND ",
                       currentRound
                     ] }),
@@ -96616,14 +96722,13 @@ function ProjectionScreen() {
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     motion.div,
                     {
-                      initial: { x: "-100vw", opacity: 0 },
-                      animate: { x: 0, opacity: 1 },
+                      initial: { y: 20, opacity: 0 },
+                      animate: { y: 0, opacity: 1 },
                       transition: { delay: 2, type: "spring", damping: 15 },
-                      className: "mt-[10vh] px-20 py-6 border-l-8 bg-white/5 backdrop-blur-xl flex items-center gap-10",
-                      style: { borderColor: activeTeam?.color || "#00E5FF" },
+                      className: "mt-[10vh] px-24 py-8 border-y-2 border-tv-accent/30 bg-white/5 backdrop-blur-xl flex flex-col items-center gap-4",
                       children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-4xl uppercase tracking-[0.5em] opacity-40", children: "ACTIVE OPERATIVE" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-7xl font-black uppercase text-white tracking-widest", style: { color: activeTeam?.color }, children: activeTeam?.name })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-4xl uppercase tracking-[0.5em] pl-[0.5em] opacity-40 text-center", children: "ACTIVE OPERATIVE" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-8xl font-black uppercase text-white tracking-widest pl-[0.1em] text-center", style: { color: activeTeam?.color }, children: activeTeam?.name })
                       ]
                     }
                   )
@@ -96682,8 +96787,8 @@ function ProjectionScreen() {
                         className: "h-[1px] bg-gradient-to-r from-transparent via-tv-accent to-transparent mb-6"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-2xl tracking-[1.5em] uppercase mb-4 opacity-60", children: "SYSTEM INITIALIZATION" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-6xl tracking-[0.4em] uppercase font-black italic text-white shadow-glow", children: "NEURAL LINK ESTABLISHED" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent text-xl tracking-[1.5em] pl-[1.5em] uppercase mb-4 opacity-60", children: "SYSTEM INITIALIZATION" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-5xl tracking-[0.4em] pl-[0.4em] uppercase font-black italic text-white shadow-glow", children: "ESTABLISHING NEURAL LINK" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       motion.div,
                       {
@@ -96702,7 +96807,7 @@ function ProjectionScreen() {
                       transition: { delay: 1, duration: 1.5, type: "spring" },
                       className: "relative",
                       children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-tv-accent/50 text-xl tracking-[0.8em] mb-4 block animate-pulse", children: "SYNCHRONIZING SYSTEM VECTORS" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-tv-accent/50 text-lg tracking-[0.8em] pl-[0.8em] mb-4 block animate-pulse", children: "SYNCHRONIZING SYSTEM VECTORS" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4 justify-center mt-8", children: [...Array(4)].map((_, i2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                           motion.div,
                           {
@@ -96922,20 +97027,21 @@ function ProjectionScreen() {
                         initial: { scale: 0.8, opacity: 0 },
                         animate: { scale: 1, opacity: 1 },
                         exit: { scale: 1.2, opacity: 0 },
-                        className: "text-center relative",
+                        className: "text-center relative flex flex-col items-center justify-center h-full w-full",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-3xl tracking-[1.5em] uppercase mb-12 block animate-pulse", children: isLocked ? "FINAL ANSWER LOCKED" : "CONFIRM SELECTION?" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center justify-center", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent text-[2.5vw] tracking-[1.5em] uppercase mb-16 block animate-pulse text-center w-full", children: isLocked ? "FINAL ANSWER LOCKED" : "CONFIRM ANSWER" }),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               motion.div,
                               {
-                                animate: isLocked ? { scale: [1, 1.1, 1], filter: ["brightness(1)", "brightness(2)", "brightness(1)"] } : {},
+                                animate: isLocked ? { scale: [1, 1.05, 1] } : {},
                                 transition: { duration: 0.6, repeat: Infinity },
-                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[14vw] font-black italic text-white leading-none mb-8 drop-shadow-glow", children: selectedOption })
+                                className: "mb-12",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-[20vw] font-black text-white leading-none text-center drop-shadow-glow", children: selectedOption })
                               }
                             ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[2px] w-64 bg-tv-accent/30 mx-auto" }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-5xl text-white/50 uppercase tracking-[0.8em] mt-6", children: activeTeam?.name })
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[2px] w-80 bg-tv-accent/30 mx-auto" }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-5xl text-white/50 uppercase tracking-[0.8em] mt-8 text-center", children: activeTeam?.name })
                           ] }),
                           isLocked && /* @__PURE__ */ jsxRuntimeExports.jsx(
                             motion.div,
@@ -97060,6 +97166,7 @@ function SessionRestorationOverlay() {
 function ProjectionOption({ label, text: text2, isCorrect, isRevealed, index, teamColor, isSelected, revealStatus, isEliminated }) {
   const isThisCorrect = isRevealed && isCorrect;
   const isThisWrong = isRevealed && isSelected && !isCorrect;
+  const responsiveFontSize = text2.length > 100 ? "text-[clamp(1.8rem,4.2vh,3rem)]" : text2.length > 60 ? "text-[clamp(2.5rem,5.5vh,4rem)]" : "text-[clamp(3.5rem,8vh,7rem)]";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     motion.div,
     {
@@ -97085,7 +97192,7 @@ function ProjectionOption({ label, text: text2, isCorrect, isRevealed, index, te
         default: { delay: isRevealed ? 0 : 0.4 + index * 0.1, duration: 0.5 }
       },
       className: cn$1(
-        "p-[1.8vw] rounded-3xl border-4 text-left flex items-center gap-[1.5vw] backdrop-blur-md relative overflow-hidden group",
+        "p-[1.8vw] rounded-3xl border-4 flex flex-row items-center justify-start gap-[1.5vw] backdrop-blur-md relative overflow-hidden group h-auto pb-6",
         isRevealed && !isCorrect && !isSelected ? "grayscale brightness-50" : ""
       ),
       children: [
@@ -97099,21 +97206,35 @@ function ProjectionOption({ label, text: text2, isCorrect, isRevealed, index, te
             style: { left: "50%", top: "50%" }
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: cn$1(
-          "w-16 h-16 rounded-2xl border-2 flex items-center justify-center shrink-0 transition-all duration-500 z-10 font-black text-2xl",
-          isThisCorrect ? "bg-tv-success border-tv-success text-black shadow-[0_0_30px_rgba(0,230,118,0.5)]" : isThisWrong ? "bg-tv-danger border-tv-danger text-white shadow-[0_0_30px_rgba(255,61,0,0.5)]" : isSelected ? "bg-tv-accent border-tv-accent text-black" : "bg-white/5 border-white/10 text-white/40"
-        ), children: label }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          TvText,
-          {
-            variant: "h2",
-            className: cn$1(
-              "font-bold text-white/90 uppercase tracking-tight flex-1 z-10 group-hover:text-white transition-all duration-300",
-              text2.length > 100 ? "text-[clamp(0.85rem,2.1vh,1.3rem)]" : text2.length > 60 ? "text-[clamp(1.0rem,2.5vh,1.7rem)]" : "text-[clamp(1.0rem,3.2vh,2.4rem)]"
-            ),
-            children: text2
-          }
-        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row items-baseline gap-[1vw] z-10 w-full", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            TvText,
+            {
+              variant: "h2",
+              className: cn$1(
+                "font-black shrink-0 transition-all duration-500",
+                responsiveFontSize,
+                isThisCorrect ? "text-tv-success" : isThisWrong ? "text-tv-danger" : isSelected ? "text-tv-accent" : "text-white/40"
+              ),
+              children: [
+                label,
+                ":"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TvText,
+            {
+              variant: "h2",
+              align: "left",
+              className: cn$1(
+                "font-bold text-white/90 uppercase tracking-tight flex-1 group-hover:text-white transition-all duration-300",
+                responsiveFontSize
+              ),
+              children: text2
+            }
+          )
+        ] }),
         isThisCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx(
           motion.div,
           {
@@ -97127,7 +97248,7 @@ function ProjectionOption({ label, text: text2, isCorrect, isRevealed, index, te
   );
 }
 function HelpAboutScreen() {
-  const { setUiScreen } = useQuizStore();
+  const { setUiScreen, systemSettings } = useQuizStore();
   const [version2, setVersion] = reactExports.useState("v1.0.0");
   reactExports.useEffect(() => {
     window.api.getVersion().then((v5) => setVersion(`v${v5}`));
@@ -97170,7 +97291,6 @@ function HelpAboutScreen() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "Space", action: "Pause/Resume Simulation" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "Escape", action: "Emergency Reset Sequence" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "Tab", action: "Cycle Active Team (Manual Override)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "M", action: "Toggle Audio Engine" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "F11", action: "Toggle Fullscreen Immersive Mode" })
@@ -97181,7 +97301,10 @@ function HelpAboutScreen() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 20 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "System Integrity" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "leading-relaxed", children: "TechVerse Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors. The system uses a 3-layer architecture for 100% logic separation between Host and Participants. Ensure the Projector window is launched second for optimal HDMI synchronization." })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "muted", className: "leading-relaxed", children: [
+            systemSettings?.organizationName || "Coordi.Tech",
+            " Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors. The system uses a 3-layer architecture for 100% logic separation between Host and Participants. Ensure the Projector window is launched second for optimal HDMI synchronization."
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-4 space-y-8 overflow-y-auto custom-scrollbar pb-24 pr-2", children: [
@@ -97208,7 +97331,8 @@ function HelpAboutScreen() {
               DevItem,
               {
                 name: "Olatunbosun Samuel Busayo",
-                role: "Fullstack Web Developer & Software Engineer",
+                role: "CTO @ Coordi.Tech",
+                title: "Fullstack Web Developer & Software Engineer",
                 link: "https://www.linkedin.com/in/samuel-busayo-1b5b68237/"
               }
             ),
@@ -97216,12 +97340,19 @@ function HelpAboutScreen() {
               DevItem,
               {
                 name: "Biose Peter John",
-                role: "Fullstack Web-Developer & Software Engineer",
+                role: "CTO @ BioLab",
+                title: "Fullstack Web-Developer & Software Engineer",
                 link: "#"
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-4 border-t border-tv-border/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] opacity-60 text-center block", children: "TechVerse Quiz Arena // Futuristic Quiz App" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-4 border-t border-tv-border/20", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "muted", className: "text-[10px] opacity-60 text-center block", children: [
+              systemSettings?.organizationName || "Coordi.Tech",
+              " Quiz Arena // Futuristic Quiz App"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] opacity-80 text-center block mt-1 uppercase text-tv-accent", children: "Powered by Coordi.Tech" })
+          ] })
         ] })
       ] })
     ] })
@@ -97251,10 +97382,11 @@ function TechItem({ label, val }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-xs font-mono", children: val })
   ] });
 }
-function DevItem({ name, role, link }) {
+function DevItem({ name, role, title, link }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "font-bold text-sm text-tv-textPrimary", children: name }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] block opacity-70 leading-tight", children: role }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[12px] block text-tv-accent leading-tight", children: role }),
+    title && /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-[10px] block opacity-70 leading-tight mb-1", children: title }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "a",
       {
@@ -97297,13 +97429,36 @@ function SettingsScreen() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto pr-4 custom-scrollbar pb-24 space-y-8", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 text-tv-accent", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Briefcase, { size: 20 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Organization & Branding" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TvCard, { className: "p-6 space-y-6 bg-tv-panel/30", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "font-bold", children: "Organization Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-xs", children: "Customize the primary application title" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              maxLength: 30,
+              value: systemSettings?.organizationName || "",
+              onChange: (e) => updateSystemSettings({ organizationName: e.target.value }),
+              className: "w-64 bg-tv-bg border border-tv-border text-tv-textPrimary text-sm rounded p-2 focus:border-tv-accent focus:outline-none",
+              placeholder: "Enter organization name"
+            }
+          )
+        ] }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 text-tv-accent", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { size: 20 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Audio Engine" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TvCard, { className: "p-6 space-y-6 bg-tv-panel/30", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "font-bold", children: "Master Volume" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "font-bold", children: "Master (BGM) Volume" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-xs", children: "Adjust the overall sound intensity" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
@@ -97319,6 +97474,29 @@ function SettingsScreen() {
                   max: "100",
                   value: systemSettings.volume,
                   onChange: (e) => updateSystemSettings({ volume: parseInt(e.target.value) }),
+                  className: "w-48 accent-tv-accent cursor-pointer"
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "body", className: "font-bold", children: "SFX Volume" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "muted", className: "text-xs", children: "Adjust the intensity of sound effects" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-mono text-tv-accent w-8 text-right", children: [
+                systemSettings.sfxVolume,
+                "%"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "range",
+                  min: "0",
+                  max: "100",
+                  value: systemSettings.sfxVolume,
+                  onChange: (e) => updateSystemSettings({ sfxVolume: parseInt(e.target.value) }),
                   className: "w-48 accent-tv-accent cursor-pointer"
                 }
               )
@@ -97661,21 +97839,10 @@ function ProjectionSplash() {
             transition: { duration: 0.8, ease: "circOut" },
             className: "relative z-10 flex flex-col items-center",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                motion.img,
-                {
-                  src: logo,
-                  alt: "TV Logo",
-                  className: "w-32 h-32 mb-8 object-contain drop-shadow-[0_0_20px_rgba(0,229,255,0.4)]",
-                  initial: { y: 20, opacity: 0 },
-                  animate: { y: 0, opacity: 1 },
-                  transition: { delay: 0.3, duration: 0.8 }
-                }
-              ),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-tv-accent blur-[100px] opacity-10 animate-pulse" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", className: "text-tv-accent text-2xl tracking-[1.5em] uppercase mb-8 opacity-40", children: "MISSION CRITICAL SYSTEM" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", className: "text-[10vw] font-black italic tracking-tighter text-white drop-shadow-glow leading-none", children: "FUTURISTIC" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", className: "text-[6vw] font-black italic tracking-[0.4em] text-tv-accent mt-[-2vw] uppercase opacity-90", children: "QUIZ ARENA" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "label", align: "center", className: "text-tv-accent text-2xl tracking-[1.5em] mr-[-1.5em] uppercase mb-8 opacity-40", children: "MISSION CRITICAL SYSTEM" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h1", align: "center", className: "text-[10vw] font-black italic tracking-tighter text-white drop-shadow-glow leading-none", children: "FUTURISTIC" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h2", align: "center", className: "text-[6vw] font-black italic tracking-[0.4em] mr-[-0.4em] text-tv-accent mt-[-2vw] uppercase opacity-90", children: "QUIZ ARENA" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-12 h-1 w-64 bg-tv-accent/30 relative overflow-hidden rounded-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 motion.div,
                 {
