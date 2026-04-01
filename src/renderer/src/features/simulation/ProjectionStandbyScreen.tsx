@@ -13,16 +13,16 @@ const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
 
     return (
         <motion.div
-            initial={{ x: isLeft ? -100 : 100, opacity: 0, skewX: isLeft ? -10 : 10 }}
-            animate={{ x: 0, opacity: 1, skewX: 0 }}
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className={`flex-1 flex flex-col ${isLeft ? 'items-end pr-8 border-r-4' : 'items-start pl-8 border-l-4'} min-w-0`}
+            className="flex-1 flex flex-col items-center px-8 border-b-4 pb-4 min-w-0"
             style={{ borderColor: team.color }}
         >
             <TvText
                 variant="label"
-                align={align}
-                className="text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60"
+                align="center"
+                className="text-[clamp(1.2rem,1.8vw,2.5rem)] font-bold italic tracking-[0.4em] mb-1 opacity-60 text-center"
                 style={{ color: team.color }}
             >
                 TEAM
@@ -30,8 +30,8 @@ const TeamDisplay = ({ team, isLeft }: { team: any, isLeft: boolean }) => {
 
             <TvText
                 variant="h1"
-                align={align}
-                className="text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full"
+                align="center"
+                className="text-[clamp(2.5rem,5.5vw,9rem)] font-black italic leading-[0.9] text-white uppercase break-words w-full text-center"
             >
                 {displayName}
             </TvText>
@@ -109,7 +109,7 @@ export function ProjectionStandbyScreen() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
             >
-                <TvText variant="label" className="text-[clamp(1rem,1.5vw,2rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70">
+                <TvText variant="label" className="text-[clamp(0.8rem,1.2vw,1.6rem)] tracking-[0.8em] text-tv-accent mb-[2vh] uppercase opacity-70">
                     {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'} QUIZ ARENA PRESENTS...
                 </TvText>
 

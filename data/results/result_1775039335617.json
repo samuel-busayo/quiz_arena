@@ -1,0 +1,70 @@
+{
+  "id": "1775039335617",
+  "date": "2026-04-01T10:28:55.617Z",
+  "setupSnapshot": {
+    "rounds": 3,
+    "takesPerRound": 2,
+    "timerSeconds": 20,
+    "extraTimerSeconds": 15,
+    "scorePerCorrect": 100,
+    "deductionPerWrong": 0,
+    "showLeaderboardAfterRound": true,
+    "eventName": "HONEYLAND COLLEGE",
+    "eventTheme": "BATTLEGROUND",
+    "mode": "RANDOM",
+    "lifelineConfig": {
+      "enabled": true,
+      "usesPerTeam": 2
+    },
+    "collectionName": "Physics"
+  },
+  "teams": [
+    {
+      "id": "1",
+      "name": "TEAM ALPHA",
+      "color": "#00D1FF",
+      "score": 300,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "2",
+      "name": "TEAM BETA",
+      "color": "#FF3D00",
+      "score": 700,
+      "isEliminated": true,
+      "lifelineRemaining": 1
+    },
+    {
+      "id": "1774982507400",
+      "name": "TEAM 3",
+      "color": "#22C55E",
+      "score": 500,
+      "isEliminated": true,
+      "lifelineRemaining": 2
+    },
+    {
+      "id": "1774982508822",
+      "name": "TEAM 4",
+      "color": "#EAB308",
+      "score": 900,
+      "isEliminated": false,
+      "lifelineRemaining": 1
+    }
+  ],
+  "roundsPlayed": 3,
+  "takesPerRound": 2,
+  "finalScores": {
+    "1": 300,
+    "2": 700,
+    "1774982507400": 500,
+    "1774982508822": 900
+  },
+  "eliminationOrder": [
+    "1",
+    "2",
+    "1774982507400"
+  ],
+  "winner": "1774982508822",
+  "questionStats": []
+}

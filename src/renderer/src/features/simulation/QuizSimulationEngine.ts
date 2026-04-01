@@ -141,7 +141,7 @@ class QuizSimulationEngine {
                 break
             case 'TURN_INTRO':
                 useQuizStore.getState().setUiOverlay(null)
-                audioEngine.playSfx('bassHit')
+                try { audioEngine.playSfx('bassHit') } catch (e) { console.error('Audio Error:', e) }
                 // 1. CLEAR ARTIFACTS IMMEDIATELY
                 useQuizStore.setState({
                     eliminatedOptions: [],
@@ -423,7 +423,26 @@ class QuizSimulationEngine {
         this.advanceSimulation()
     }
 
-    // Manual progression from Intro states (Tie Breaker / Failsafe)
+    // Manual proceed from Intro states (Tie Breaker / Failsafe / Transition Screens)
+    proceedFromTransition() {
+        const { currentState, config } = useQuizStore.getState()
+        if (currentState === 'TURN_INTRO' || currentState === 'ROUND_INTRO') {
+            if (config?.mode === 'PICK_NUMBER') {
+                this.transitionTo('PICKER_PHASE')
+            } else {
+                const nextQ = this.pickNextRandomQuestion()
+                if (nextQ) {
+                    useQuizStore.setState({ currentQuestion: nextQ })
+                    this.transitionTo('QUESTION')
+                } else {
+                    this.transitionTo('WINNER')
+                }
+            }
+        } else if (currentState === 'TIE_BREAKER' || currentState === 'FAILSAFE_INTRO') {
+            this.proceedFromIntro()
+        }
+    }
+
     proceedFromIntro() {
         const { currentState } = useQuizStore.getState()
         if (currentState !== 'TIE_BREAKER' && currentState !== 'FAILSAFE_INTRO') return
@@ -563,7 +582,11 @@ class QuizSimulationEngine {
             // TIE FOR ELIMINATION
             useQuizStore.getState().setTieBreakerTeams(candidates.map(c => c.id))
             useQuizStore.getState().setTieBreakerPurpose('elimination')
-            useQuizStore.setState({ currentTeamId: candidates[0].id, tieBreakerRound: 1 })
+            useQuizStore.setState({
+                currentTeamId: candidates[0].id,
+                tieBreakerRound: 1,
+                currentTake: 1
+            })
             this.transitionTo('TIE_BREAKER')
             return
         }
@@ -603,7 +626,11 @@ class QuizSimulationEngine {
             if (winners.length > 1) {
                 useQuizStore.getState().setTieBreakerTeams(winners.map(w => w.id))
                 useQuizStore.getState().setTieBreakerPurpose('winner')
-                useQuizStore.setState({ currentTeamId: winners[0].id, tieBreakerRound: 1 })
+                useQuizStore.setState({
+                    currentTeamId: winners[0].id,
+                    tieBreakerRound: 1,
+                    currentTake: 1
+                })
                 this.transitionTo('TIE_BREAKER')
             } else {
                 this.transitionTo('WINNER')

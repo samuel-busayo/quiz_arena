@@ -72,7 +72,7 @@ export function ProjectionHoldingScreen() {
                     <motion.div
                         animate={{ textShadow: ["0px 0px 4px rgba(0,229,255,0)", "0px 0px 16px rgba(0,229,255,0.4)", "0px 0px 4px rgba(0,229,255,0)"] }}
                         transition={{ duration: 4, repeat: Infinity }}
-                        className="font-display font-black tracking-[0.4em] text-[clamp(2.5rem,6vw,5.5rem)] text-white/90 uppercase"
+                        className="font-display font-black tracking-[0.4em] pl-[0.4em] text-[clamp(2rem,4.8vw,4.4rem)] text-white/90 uppercase"
                     >
                         {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'}<br />QUIZ ARENA
                     </motion.div>
@@ -90,7 +90,7 @@ export function ProjectionHoldingScreen() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -5 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute text-tv-accent/60 tracking-[0.2em] font-medium uppercase text-[clamp(0.8rem,1.5vw,1.2rem)]"
+                            className="absolute text-tv-accent/60 tracking-[0.2em] pl-[0.2em] font-medium uppercase text-[clamp(0.8rem,1.5vw,1.2rem)]"
                         >
                             {STATUS_MESSAGES[msgIndex]}
                         </motion.div>

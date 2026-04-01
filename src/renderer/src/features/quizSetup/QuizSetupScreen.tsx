@@ -14,7 +14,7 @@ const TEAM_COLORS = [
 ]
 
 export function QuizSetupScreen() {
-    const { setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore()
+    const { systemSettings, setUiScreen, setConfig, setTeams, setQuestions, setCurrentState, setupDraft, updateSetupDraft } = useQuizStore()
     const { step, teams: setupTeams, collectionName: selectedCollection, config: setupConfig } = setupDraft
     const [collections, setCollections] = useState<string[]>([])
     const [collectionCounts, setCollectionCounts] = useState<Record<string, number>>({})
@@ -22,6 +22,18 @@ export function QuizSetupScreen() {
     useEffect(() => {
         loadCollections()
     }, [])
+
+    // Auto-fill event name from organization if not set
+    useEffect(() => {
+        if (!setupConfig.eventName && systemSettings.organizationName) {
+            updateSetupDraft({
+                config: {
+                    ...setupConfig,
+                    eventName: systemSettings.organizationName.toUpperCase()
+                }
+            })
+        }
+    }, [systemSettings.organizationName, setupConfig.eventName])
 
     const loadCollections = async () => {
         const list = await window.api.getCollections()
@@ -186,14 +198,22 @@ export function QuizSetupScreen() {
                                 </TvCard>
                             ))}
                             <TvCard
-                                hoverable
-                                className="p-6 border-dashed flex flex-col items-center justify-center gap-4 text-tv-textMuted group hover:text-tv-accent"
-                                onClick={() => updateSetupDraft({ teams: [...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: '#FFFFFF', score: 0, isEliminated: false }] })}
+                                hoverable={setupTeams.length < 4}
+                                className={cn(
+                                    "p-6 border-dashed flex flex-col items-center justify-center gap-4 text-tv-textMuted group",
+                                    setupTeams.length < 4 ? "hover:text-tv-accent cursor-pointer" : "opacity-20 cursor-not-allowed"
+                                )}
+                                onClick={() => {
+                                    if (setupTeams.length < 4) {
+                                        const nextColor = TEAM_COLORS.find(c => !setupTeams.some(t => t.color === c)) || '#FFFFFF'
+                                        updateSetupDraft({ teams: [...setupTeams, { id: Date.now().toString(), name: `TEAM ${setupTeams.length + 1}`, color: nextColor, score: 0, isEliminated: false }] })
+                                    }
+                                }}
                             >
-                                <div className="p-4 rounded-full bg-tv-panel border border-tv-border group-hover:border-tv-accent transition-colors">
+                                <div className={cn("p-4 rounded-full bg-tv-panel border border-tv-border transition-colors", setupTeams.length < 4 && "group-hover:border-tv-accent")}>
                                     <Plus size={32} />
                                 </div>
-                                <TvText variant="h3">ADD TEAM</TvText>
+                                <TvText variant="h3">{setupTeams.length < 4 ? 'ADD TEAM' : 'QUOTA REACHED'}</TvText>
                             </TvCard>
                         </div>
                     )}

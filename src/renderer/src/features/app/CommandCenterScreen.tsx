@@ -6,7 +6,6 @@ import { TvPanel } from '../../components/ui/TvPanel'
 import { SoundSettingsModal } from '../../components/ui/SoundSettingsModal'
 import { Database, Play, Settings, History, HelpCircle, Volume2 } from 'lucide-react'
 import { useQuizStore } from '../../store/useQuizStore'
-import logo from '../../assets/ct_logo.png'
 
 export function CommandCenterScreen() {
     const { setUiScreen, loadSession, hasSavedSession, systemSettings } = useQuizStore()
@@ -16,12 +15,8 @@ export function CommandCenterScreen() {
         <div className="h-full w-full flex flex-col items-center justify-between py-12 px-8">
             {/* Header */}
             <div className="w-full relative flex items-center justify-center max-w-6xl">
-                <div className="absolute left-0">
-                    <img src={logo} alt="TV Logo" className="w-12 h-12 object-contain" />
-                </div>
-
                 <div className="text-center">
-                    <TvText variant="h1" className="text-3xl lg:text-4xl tracking-[0.2em] uppercase font-black italic">
+                    <TvText variant="h1" className="text-2xl lg:text-3xl tracking-[0.2em] uppercase font-black italic">
                         {systemSettings?.organizationName || 'Coordi.Tech'} Quiz Arena
                     </TvText>
                     <TvText variant="muted" className="text-[10px] mt-2 tracking-widest uppercase opacity-80 block text-tv-accent text-center w-full">

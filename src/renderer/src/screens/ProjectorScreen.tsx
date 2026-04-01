@@ -36,7 +36,7 @@ export function ProjectorScreen() {
                         className="text-center z-10"
                         key="idle"
                     >
-                        <h1 className="text-[12rem] font-orbitron text-[#00E5FF] mb-4 tracking-[0.3em] font-black drop-shadow-[0_0_50px_rgba(0,229,255,0.8)]">
+                        <h1 className="text-[9.5rem] font-orbitron text-[#00E5FF] mb-4 tracking-[0.3em] font-black drop-shadow-[0_0_50px_rgba(0,229,255,0.8)]">
                             {systemSettings?.organizationName?.toUpperCase() || 'COORDI.TECH'}
                         </h1>
                         <p className="text-4xl font-rajdhani text-white/40 tracking-[1.5em] uppercase font-bold">
@@ -194,7 +194,7 @@ export function ProjectorScreen() {
                                 >
                                     <TechCard className="p-24 border-8 bg-white/5 backdrop-blur-3xl" style={{ borderColor: winner.color }} glow>
                                         <h3 className="text-9xl font-orbitron mb-8 font-black tracking-widest" style={{ color: winner.color, textShadow: `0 0 50px ${winner.color}88` }}>{winner.name}</h3>
-                                        <p className="text-5xl font-rajdhani text-white/50 tracking-[1.5em] uppercase font-bold">Champion of {systemSettings?.organizationName || 'Coordi.Tech'}</p>
+                                        <p className="text-4xl font-rajdhani text-white/50 tracking-[1.5em] uppercase font-bold">Champion of {systemSettings?.organizationName || 'Coordi.Tech'}</p>
                                     </TechCard>
                                 </motion.div>
                             )

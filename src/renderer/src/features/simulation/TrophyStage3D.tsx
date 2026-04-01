@@ -101,8 +101,8 @@ function GroundCrack({ timelineRef }: { timelineRef: React.MutableRefObject<Reve
             {/* Crack ring */}
             <mesh ref={crackRef} geometry={crackGeo} scale={0}>
                 <meshStandardMaterial
-                    color="#1a0a00"
-                    emissive="#FF6600"
+                    color="#b7b1aeff"
+                    emissive="#956f55ff"
                     emissiveIntensity={0}
                     side={THREE.DoubleSide}
                 />
