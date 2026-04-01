@@ -37,13 +37,27 @@ export function HelpAboutScreen() {
                     <section className="space-y-4">
                         <div className="flex items-center gap-3 text-tv-accent">
                             <Book size={20} />
-                            <TvText variant="h3">Host Procedures</TvText>
+                            <TvText variant="h3">Mission Operations (Host Guide)</TvText>
                         </div>
-                        <TvCard className="p-6 space-y-4 bg-tv-panel/30">
-                            <ManualStep num={1} title="Initial Arming" text="Navigate to 'Start Quiz Simulation' and configure your teams, question source, and competition rules." />
-                            <ManualStep num={2} title="Stage Engagement" text="In the Live Console, use 'Initiate Next Stage' to randomly pull a question from your selected vector." />
-                            <ManualStep num={3} title="Result Verification" text="After the team provides an answer, click 'Correct' or 'Wrong' to update the neural standings automatically." />
-                            <ManualStep num={4} title="Sequence Advancement" text="The system automatically cycles through rounds and takes until the termination sequence is reached." />
+                        <TvCard className="p-6 space-y-6 bg-tv-panel/30 border-tv-accent/10">
+                            <ManualStep num={1} title="Initial Arming" text="Navigate to 'Start Quiz Simulation'. Select your mission vector (JSON file), configure the strike team (up to 4 teams), and establish engagement rules (Timer/Lifelines)." />
+                            <ManualStep num={2} title="Sync Projector" text="Ensure the Projection screen is active on a secondary display. Use 'View Standings' to verify synchronization before initiating contact." />
+                            <ManualStep num={3} title="Stage Engagement" text="During the 'Picker Phase', the active team selects a data node (number). Once the question is decrypted, the system initiates the countdown." />
+                            <ManualStep num={4} title="Result Verification" text="After the team locks in their response, the Host verifies it against the central core. Use 'Correct' or 'Wrong' to finalize the take." />
+                            <ManualStep num={5} title="Termination Sequence" text="At the end of all rounds, the system automatically triggers the Cinematic Winner Sequence to crown the champion." />
+                        </TvCard>
+                    </section>
+
+                    <section className="space-y-4">
+                        <div className="flex items-center gap-3 text-tv-warning">
+                            <Zap size={20} />
+                            <TvText variant="h3">Operative Handbook (Player Guide)</TvText>
+                        </div>
+                        <TvCard className="p-6 space-y-6 bg-tv-panel/30 border-tv-warning/10">
+                            <ManualStep num={1} title="Neural Selection" text="When it is your turn, choose a node from the grid. This node contains the data packet (question) you must decrypt." />
+                            <ManualStep num={2} title="Rapid Response" text="You have a limited time window to respond. Consult with your team and provide the definitive answer to the Host." />
+                            <ManualStep num={3} title="Lifeline Deployment" text="If configured, your team can deploy a '50/50' lifeline to eliminate two incorrect data nodes, increasing your chance of success." />
+                            <ManualStep num={4} title="Stalemate Protocol" text="In the event of a tie, the system initiates a high-stakes Tie-Breaker. Each team gets one take until the deadlock is broken." />
                         </TvCard>
                     </section>
 
@@ -53,23 +67,13 @@ export function HelpAboutScreen() {
                             <TvText variant="h3">Neural Overrides (Shortcuts)</TvText>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
+                            <KeyShortcut k="A / B / C / D" action="Select Answer Option (Host)" />
                             <KeyShortcut k="Space" action="Pause/Resume Simulation" />
                             <KeyShortcut k="Tab" action="Cycle Active Team (Manual Override)" />
                             <KeyShortcut k="M" action="Toggle Audio Engine" />
+                            <KeyShortcut k="L" action="Force Activate 50/50 Lifeline" />
                             <KeyShortcut k="F11" action="Toggle Fullscreen Immersive Mode" />
                         </div>
-                    </section>
-
-                    <section className="space-y-4">
-                        <div className="flex items-center gap-3 text-tv-accent">
-                            <ShieldCheck size={20} />
-                            <TvText variant="h3">System Integrity</TvText>
-                        </div>
-                        <TvText variant="muted" className="leading-relaxed">
-                            {systemSettings?.organizationName || 'Coordi.Tech'} Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors.
-                            The system uses a 3-layer architecture for 100% logic separation between Host and Participants.
-                            Ensure the Projector window is launched second for optimal HDMI synchronization.
-                        </TvText>
                     </section>
                 </div>
 

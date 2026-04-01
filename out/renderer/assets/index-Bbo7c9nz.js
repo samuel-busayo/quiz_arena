@@ -97275,13 +97275,26 @@ function HelpAboutScreen() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 text-tv-accent", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Book, { size: 20 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Host Procedures" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Mission Operations (Host Guide)" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvCard, { className: "p-6 space-y-4 bg-tv-panel/30", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 1, title: "Initial Arming", text: "Navigate to 'Start Quiz Simulation' and configure your teams, question source, and competition rules." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 2, title: "Stage Engagement", text: "In the Live Console, use 'Initiate Next Stage' to randomly pull a question from your selected vector." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 3, title: "Result Verification", text: "After the team provides an answer, click 'Correct' or 'Wrong' to update the neural standings automatically." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 4, title: "Sequence Advancement", text: "The system automatically cycles through rounds and takes until the termination sequence is reached." })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvCard, { className: "p-6 space-y-6 bg-tv-panel/30 border-tv-accent/10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 1, title: "Initial Arming", text: "Navigate to 'Start Quiz Simulation'. Select your mission vector (JSON file), configure the strike team (up to 4 teams), and establish engagement rules (Timer/Lifelines)." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 2, title: "Sync Projector", text: "Ensure the Projection screen is active on a secondary display. Use 'View Standings' to verify synchronization before initiating contact." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 3, title: "Stage Engagement", text: "During the 'Picker Phase', the active team selects a data node (number). Once the question is decrypted, the system initiates the countdown." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 4, title: "Result Verification", text: "After the team locks in their response, the Host verifies it against the central core. Use 'Correct' or 'Wrong' to finalize the take." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 5, title: "Termination Sequence", text: "At the end of all rounds, the system automatically triggers the Cinematic Winner Sequence to crown the champion." })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 text-tv-warning", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 20 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Operative Handbook (Player Guide)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvCard, { className: "p-6 space-y-6 bg-tv-panel/30 border-tv-warning/10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 1, title: "Neural Selection", text: "When it is your turn, choose a node from the grid. This node contains the data packet (question) you must decrypt." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 2, title: "Rapid Response", text: "You have a limited time window to respond. Consult with your team and provide the definitive answer to the Host." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 3, title: "Lifeline Deployment", text: "If configured, your team can deploy a '50/50' lifeline to eliminate two incorrect data nodes, increasing your chance of success." }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ManualStep, { num: 4, title: "Stalemate Protocol", text: "In the event of a tie, the system initiates a high-stakes Tie-Breaker. Each team gets one take until the deadlock is broken." })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
@@ -97290,20 +97303,12 @@ function HelpAboutScreen() {
             /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "Neural Overrides (Shortcuts)" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "A / B / C / D", action: "Select Answer Option (Host)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "Space", action: "Pause/Resume Simulation" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "Tab", action: "Cycle Active Team (Manual Override)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "M", action: "Toggle Audio Engine" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "L", action: "Force Activate 50/50 Lifeline" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(KeyShortcut, { k: "F11", action: "Toggle Fullscreen Immersive Mode" })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 text-tv-accent", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 20 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(TvText, { variant: "h3", children: "System Integrity" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(TvText, { variant: "muted", className: "leading-relaxed", children: [
-            systemSettings?.organizationName || "Coordi.Tech",
-            " Quiz Arena is a fully offline-first environment. All data resides within local JSON vectors. The system uses a 3-layer architecture for 100% logic separation between Host and Participants. Ensure the Projector window is launched second for optimal HDMI synchronization."
           ] })
         ] })
       ] }),
